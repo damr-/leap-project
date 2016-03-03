@@ -9,21 +9,11 @@ public static class Tags {
 	}
 
 	public static string getTagString(TagType tagType) {
-		return tags.Where(t => t.type == tagType).FirstOrDefault().name;
+		return tags.Where(t => t.Key == tagType).FirstOrDefault().Value;
 	}
 
-	private static List<Tag> tags = new List<Tag>() {
-		new Tag (TagType.CUBE, "Cube")
+	private static Dictionary<TagType, string> tags = new Dictionary<TagType, string>() {
+		{ TagType.CUBE, "Cube" }
 	};
 
-}
-
-public struct Tag {
-	public Tags.TagType type;
-	public string name;
-
-	public Tag(Tags.TagType type, string name) {
-		this.type = type;
-		this.name = name;
-	}
 }

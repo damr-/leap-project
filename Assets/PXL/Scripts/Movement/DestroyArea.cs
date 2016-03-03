@@ -6,6 +6,6 @@ public class DestroyArea : TargetArea {
 	* This area destroys the other object if it is a cube
 	*/
 	protected override void HandleValidOther(Collider other) {
-		other.TryGetComponent<CubeBehaviour>().DestroyCube();
+		other.TryGetComponent<ObjectBehaviour>().DestroyObject();
 	}
 }

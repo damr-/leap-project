@@ -1,20 +1,19 @@
 ﻿using UnityEngine;
 using UniRx;
 
-public class CubeBehaviour : MonoBehaviour {
-	
+public class ObjectBehaviour : MonoBehaviour {
 	/**
-	* At what distance from the origin the cube despawns
+	* At what distance from the origin the object despawns
 	*/
 	public float despawnDistance = 1f;
 
 	/**
-	* The GameObject to spawn when the cube is destroyed
+	* The GameObject to spawn when the object is destroyed
 	*/
 	public GameObject destroyEffectObject;
-	
-	private ISubject<CubeBehaviour> destroySubject = new Subject<CubeBehaviour>();
-	public IObservable<CubeBehaviour> CubeDestroyed {
+
+	private ISubject<ObjectBehaviour> destroySubject = new Subject<ObjectBehaviour>();
+	public IObservable<ObjectBehaviour> ObjectDestroyed {
 		get {
 			return destroySubject;
 		}
@@ -25,18 +24,18 @@ public class CubeBehaviour : MonoBehaviour {
 	*/
 	private void Update() {
 		if (Vector3.Distance(Vector3.zero, transform.position) > despawnDistance) {
-			DestroyCube();
+			DestroyObject();
 		}
 	}
 
 	/**
 	* Updates the Subject, spawns the death effect GameObject and despawns itself
 	*/
-	public void DestroyCube() {
+	public void DestroyObject() {
 		destroySubject.OnNext(this);
 		GameObject particleSystemObject = SimplePool.Spawn(destroyEffectObject, transform.position, Quaternion.identity);
 		ParticleSystem particleSystem = particleSystemObject.GetComponent<ParticleSystem>();
-        particleSystem.Play();
+		particleSystem.Play();
 		SimplePool.Despawn(gameObject);
 	}
 }
