@@ -1,16 +1,24 @@
 ﻿using UnityEngine;
 
 public abstract class TargetArea : MonoBehaviour {
-
+	/**
+	* Only GameObjects with this tag will be destroyed
+	*/
 	public Tags.TagType targetTagType;
 
-	private string targetTag;
+	/**
+	* The actual tag as string
+	*/
+	protected string targetTag;
 
-	private void Awake() {
+	/**
+	* Retreive the tag as string from the enum
+	*/
+	protected virtual void Awake() {
 		targetTag = Tags.getTagString(targetTagType);
     }
-	
-	private void OnTriggerEnter(Collider other) {
+
+	protected virtual void OnTriggerEnter(Collider other) {
 		HandleTriggerEntered(other);
 	}
 
@@ -20,5 +28,8 @@ public abstract class TargetArea : MonoBehaviour {
 		}
 	}
 
+	/**
+	* Abstract method so that different areas handle successful overlaps differently
+	*/
 	protected abstract void HandleValidOther(Collider other);
 }

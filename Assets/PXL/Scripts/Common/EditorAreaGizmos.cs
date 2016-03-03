@@ -1,8 +1,6 @@
 ﻿using UnityEngine;
-using System.Collections;
 
 [ExecuteInEditMode()]
-
 public class EditorAreaGizmos : MonoBehaviour {
 	public Color color = Color.green;
 
