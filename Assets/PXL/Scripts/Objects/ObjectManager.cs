@@ -76,7 +76,7 @@ public class ObjectManager : MonoBehaviour {
 		SetObjectScale(defaultScale.Remap(minScale, maxScale, 0, 1));
 		currentObjectPrefab = defaultObjectPrefab;
 
-		for(int i = 0; i < startAmount; i++)
+		for (int i = 0; i < startAmount; i++)
 			SpawnObject();
 	}
 
@@ -84,10 +84,12 @@ public class ObjectManager : MonoBehaviour {
 	* Checks for keyboard input and executes a delayed spawn if necessary
 	*/
 	void Update() {
-		if (Input.GetKeyDown(spawnKey))
-			SpawnObject();
-		if (Input.GetKeyDown(removeAllKey))
-			RemoveAllObjects();
+		if (AdminUIBase.IsAdmin) {
+			if (Input.GetKeyDown(spawnKey))
+				SpawnObject();
+			if (Input.GetKeyDown(removeAllKey))
+				RemoveAllObjects();
+		}
 
 		if (delayedSpawn && Time.time - delayStartTime > spawnDelay && spawnedObjects.Count <= 0) {
 			delayedSpawn = false;
@@ -124,7 +126,7 @@ public class ObjectManager : MonoBehaviour {
 	public void SpawnObject() {
 		spawnInitiatedSubject.OnNext(Unit.Default);
 
-        objectFactory.prefab = currentObjectPrefab;
+		objectFactory.prefab = currentObjectPrefab;
 
 		GameObject newObject = objectFactory.Spawn();
 

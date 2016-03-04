@@ -24,7 +24,7 @@ public class ObjectShapeChanger : AdminDropdownUI {
 	* All selectable objects
 	*/
 	public ObjectShape[] availableObjects;
-	
+
 	protected override void Start() {
 		base.Start();
 
@@ -34,6 +34,12 @@ public class ObjectShapeChanger : AdminDropdownUI {
 	}
 
 	protected virtual void Update() {
+		if (!AdminUIBase.IsAdmin)
+			return;
+		CheckInput();
+	}
+
+	private void CheckInput() {
 		if (Input.GetKeyDown(KeyCode.Alpha1))
 			dropdown.value = 0;
 		if (Input.GetKeyDown(KeyCode.Alpha2))
@@ -52,12 +58,12 @@ public class ObjectShapeChanger : AdminDropdownUI {
 	* Sets a new object in the ObjectManager
 	*/
 	public void SelectionChanged(int menuIndex) {
-        GameObject newPrefab = availableObjects.ElementAt(menuIndex).obj;
+		GameObject newPrefab = availableObjects.ElementAt(menuIndex).obj;
 		objectManager.SetObjectPrefab(newPrefab);
 
 		chooseRandomObject = (menuIndex == 0) ? true : false;
 	}
-	
+
 	/**
 	* Returns a random object
 	*/

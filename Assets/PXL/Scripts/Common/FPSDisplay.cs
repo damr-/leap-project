@@ -2,6 +2,12 @@
 using UnityEngine.UI;
 
 public class FPSDisplay : MonoBehaviour {
+
+	/**
+	* The key to toggle the FPS display
+	*/
+	public KeyCode toggleKey = KeyCode.V;
+
 	/**
 	* How long to wait between updates
 	*/
@@ -32,7 +38,7 @@ public class FPSDisplay : MonoBehaviour {
 	}
 
 	private void Update() {
-		if (Input.GetKeyDown(KeyCode.F)) {
+		if (Input.GetKeyDown(toggleKey)) {
 			text.enabled = !text.enabled;
 			image.enabled = !image.enabled;
 		}

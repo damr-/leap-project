@@ -17,8 +17,10 @@ public class ModeButton : MonoBehaviour {
 	}
 
 	protected virtual void Update() {
-		if (Input.GetKeyDown(switchModeKey))
+		if (Input.GetKeyDown(switchModeKey)) {
 			button.onClick.Invoke();
+			AdminUIBase.ToggleMode();
+		}
 	}
 
 }

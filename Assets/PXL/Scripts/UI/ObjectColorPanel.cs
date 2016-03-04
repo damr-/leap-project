@@ -54,23 +54,29 @@ public class ObjectColorPanel : AdminDropdownUI {
 	}
 
 	protected virtual void Update() {
-		if (Input.GetKeyDown(KeyCode.Q))
+		if (!AdminUIBase.IsAdmin)
+			return;
+		CheckInput();
+	}
+
+	private void CheckInput() {
+		if (Input.GetKeyDown(KeyCode.A))
 			dropdown.value = 0;
-		if (Input.GetKeyDown(KeyCode.W))
+		if (Input.GetKeyDown(KeyCode.S))
 			dropdown.value = 1;
-		if (Input.GetKeyDown(KeyCode.E))
+		if (Input.GetKeyDown(KeyCode.D))
 			dropdown.value = 2;
-		if (Input.GetKeyDown(KeyCode.R))
+		if (Input.GetKeyDown(KeyCode.F))
 			dropdown.value = 3;
-		if (Input.GetKeyDown(KeyCode.T))
+		if (Input.GetKeyDown(KeyCode.G))
 			dropdown.value = 4;
-		if (Input.GetKeyDown(KeyCode.Z))
+		if (Input.GetKeyDown(KeyCode.H))
 			dropdown.value = 5;
-		if (Input.GetKeyDown(KeyCode.U))
+		if (Input.GetKeyDown(KeyCode.J))
 			dropdown.value = 6;
-		if (Input.GetKeyDown(KeyCode.I))
+		if (Input.GetKeyDown(KeyCode.K))
 			dropdown.value = 7;
-		if (Input.GetKeyDown(KeyCode.O))
+		if (Input.GetKeyDown(KeyCode.L))
 			dropdown.value = 8;
 	}
 
