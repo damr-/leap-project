@@ -24,6 +24,6 @@ public class ObjectScaleScrollbar : AdminUIBase {
 	}
 
 	protected virtual void MoveSlider(float amount) {
-		objectManager.SetObjectScale(scrollbar.value - changeAmount);
+		//
 	}
 }

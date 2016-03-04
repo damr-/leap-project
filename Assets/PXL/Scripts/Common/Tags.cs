@@ -4,8 +4,8 @@ using System.Collections.Generic;
 public static class Tags {
 
 	public enum TagType {
-		Default = 0,
-		CUBE = 1,
+		DEFAULT = 0,
+		OBJECT = 1,
 	}
 
 	public static string getTagString(TagType tagType) {
@@ -13,7 +13,8 @@ public static class Tags {
 	}
 
 	private static Dictionary<TagType, string> tags = new Dictionary<TagType, string>() {
-		{ TagType.CUBE, "Cube" }
+		{ TagType.DEFAULT, "Default" },
+        { TagType.OBJECT, "Object" }
 	};
 
 }
