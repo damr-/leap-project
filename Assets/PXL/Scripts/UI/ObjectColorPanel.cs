@@ -4,127 +4,144 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 using System.Linq;
 using System;
+using PXL.Utility;
+using PXL.Objects;
 
-public class ObjectColorPanel : AdminDropdownUI {
+namespace PXL.UI {
 
-	[Serializable]
-	public struct ObjectColor {
-		public Color color;
-		public string name;
+	public class ObjectColorPanel : AdminDropdownUI {
 
-		public ObjectColor(Color c, string n) {
-			color = c;
-			name = n;
+		[Serializable]
+		public struct ObjectColor {
+			public Color color;
+			public string name;
+
+			public ObjectColor(Color c, string n) {
+				color = c;
+				name = n;
+			}
+		}
+
+		/// <summary>
+		/// All the available colors
+		/// </summary>
+		public ObjectColor[] availableColors = {
+			new ObjectColor(Color.white, "Random"),
+			new ObjectColor(Color.red, "Red"),
+			new ObjectColor(Color.green, "Green"),
+			new ObjectColor(Color.blue, "Blue"),
+			new ObjectColor(Color.yellow, "Yellow"),
+			new ObjectColor(Color.cyan, "Cyan"),
+			new ObjectColor(Color.magenta , "Magenta")
+		};
+
+		
+		/// <summary>
+		/// Sprite for the preview image if 'Random' is selected
+		/// </summary>
+		public Sprite randomColorSprite;
+
+		/// <summary>
+		/// 
+		/// Reference to the color preview image
+		/// </summary>
+		public Image image;
+
+		/// <summary>
+		/// Current color used to tint objects
+		/// </summary>
+		public Color currentColor { get; set; }
+		
+		/// <summary>
+		/// All the keys used for switching between colors
+		/// </summary>
+		protected List<KeyCode> changeColorKeys = new List<KeyCode> {
+			KeyCode.A, KeyCode.S, KeyCode.D, KeyCode.F, KeyCode.G, KeyCode.H, KeyCode.J, KeyCode.K, KeyCode.L
+		};
+
+		protected override void Start() {
+			base.Start();
+
+			if (image == null) {
+				Debug.LogError("Target preview image is missing!");
+				return;
+			}
+
+			objectManager.ObjectSpawned.Subscribe(SetObjectColor);
+		}
+		
+		/// <summary>
+		/// Checks whether the admin mode is active and whether a key is pressed
+		/// </summary>
+		protected virtual void Update() {
+			if (!AdminUIBase.IsAdmin)
+				return;
+			foreach (var item in changeColorKeys.Select((value, index) => new { index, value })) {
+				CheckKey(item.value, item.index);
+			}
+        }
+		
+		/// <summary>
+		/// Checks whether the given key is pressed. If yes, sets the value of the dropdown menu
+		/// </summary>
+		/// <param name="key">The KeyCode to check</param>
+		/// <param name="index">The index of the key in the list</param>
+		private void CheckKey(KeyCode key, int index) {
+			if (Input.GetKeyDown(key))
+				dropdown.value = index;
+		}
+		
+		/// <summary>
+		/// Sets the color of the preview image to the current one or to the random color sprite
+		/// </summary>
+		/// <param name="newColor">The new color for the preview image</param>
+		protected virtual void UpdatePreviewColor(Color newColor) {
+			image.color = newColor;
+			if (newColor == Color.white) {
+				image.sprite = randomColorSprite;
+			}
+			else {
+				image.sprite = null;
+			}
+		}
+		
+		/// <summary>
+		/// Sets a new color in the ObjectManager
+		/// </summary>
+		/// <param name="menuIndex">The new index of the dropdown menu</param>
+		public void SelectionChanged(int menuIndex) {
+			Color newColor = availableColors.ElementAt(menuIndex).color;
+
+			currentColor = newColor;
+			UpdatePreviewColor(newColor);
+		}
+		
+		/// <summary>
+		/// Applies the current color to the given ObjectBehaviour
+		/// </summary>
+		/// <param name="objectBehaviour">The target object which will get the current color assigned</param>
+		protected virtual void SetObjectColor(ObjectBehaviour objectBehaviour) {
+			Color objectColor = (currentColor == Color.white) ? GetRandomColor() : currentColor;
+			objectBehaviour.GetComponent<Renderer>().material.color = objectColor;
+		}
+
+		/// <summary>
+		/// Returns a random available color, without the first entry (white/random)
+		/// </summary>
+		public Color GetRandomColor() {
+			return availableColors.GetRandomElement(1).color;
+		}
+		
+		/// <summary>
+		/// Adds all color entries to the dropdown menu
+		/// </summary>
+		protected override void AddDropdownEntries() {
+			List<Dropdown.OptionData> optionsList = new List<Dropdown.OptionData>();
+			foreach (ObjectColor entry in availableColors) {
+				optionsList.Add(new Dropdown.OptionData(entry.name));
+			}
+			dropdown.AddOptions(optionsList);
 		}
 	}
 
-	public ObjectColor[] availableColors = {
-		new ObjectColor(Color.white, "Random"),
-		new ObjectColor(Color.red, "Red"),
-		new ObjectColor(Color.green, "Green"),
-		new ObjectColor(Color.blue, "Blue"),
-		new ObjectColor(Color.yellow, "Yellow"),
-		new ObjectColor(Color.cyan, "Cyan"),
-		new ObjectColor(Color.magenta , "Magenta")
-	};
-
-	/**
-	* Sprite for when Random is selected
-	*/
-	public Sprite randomColorSprite;
-
-	/**
-	* Reference to the color preview image
-	*/
-	public Image image;
-
-	public Color currentColor { get; set; }
-
-	protected override void Start() {
-		base.Start();
-
-		if (image == null) {
-			Debug.LogError("Target preview image is missing!");
-			return;
-		}
-
-		objectManager.ObjectSpawned.Subscribe(SetObjectColor);
-
-		dropdown.value = 1;
-	}
-
-	protected virtual void Update() {
-		if (!AdminUIBase.IsAdmin)
-			return;
-		CheckInput();
-	}
-
-	private void CheckInput() {
-		if (Input.GetKeyDown(KeyCode.A))
-			dropdown.value = 0;
-		if (Input.GetKeyDown(KeyCode.S))
-			dropdown.value = 1;
-		if (Input.GetKeyDown(KeyCode.D))
-			dropdown.value = 2;
-		if (Input.GetKeyDown(KeyCode.F))
-			dropdown.value = 3;
-		if (Input.GetKeyDown(KeyCode.G))
-			dropdown.value = 4;
-		if (Input.GetKeyDown(KeyCode.H))
-			dropdown.value = 5;
-		if (Input.GetKeyDown(KeyCode.J))
-			dropdown.value = 6;
-		if (Input.GetKeyDown(KeyCode.K))
-			dropdown.value = 7;
-		if (Input.GetKeyDown(KeyCode.L))
-			dropdown.value = 8;
-	}
-
-	protected virtual void UpdatePreviewColor(Color newColor) {
-		image.color = newColor;
-		if (newColor == Color.white) {
-			image.sprite = randomColorSprite;
-		}
-		else {
-			image.sprite = null;
-		}
-	}
-
-	/**
-	* Sets a new color in the ObjectManager
-	*/
-	public void SelectionChanged(int menuIndex) {
-		Color newColor = availableColors.ElementAt(menuIndex).color;
-
-		currentColor = newColor;
-		UpdatePreviewColor(newColor);
-	}
-
-	/**
-	* Returns a random available color, without the first entry (random)
-	*/
-	public Color GetRandomColor() {
-		return GetRandomEntry(availableColors).color;
-	}
-
-	/**
-	* Applies the current color to the given ObjectBehaviour
-	*/
-	protected virtual void SetObjectColor(ObjectBehaviour objectBehaviour) {
-		Color objectColor = currentColor;
-		if (currentColor == Color.white)
-			objectColor = GetRandomColor();
-		objectBehaviour.GetComponent<Renderer>().material.color = objectColor;
-	}
-
-	/**
-	* Adds all color entries
-	*/
-	protected override void AddDropdownEntries() {
-		List<Dropdown.OptionData> optionsList = new List<Dropdown.OptionData>();
-		foreach (ObjectColor entry in availableColors) {
-			optionsList.Add(new Dropdown.OptionData(entry.name));
-		}
-		dropdown.AddOptions(optionsList);
-	}
 }

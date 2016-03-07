@@ -1,26 +1,33 @@
-﻿using UnityEngine;
+﻿using PXL.Utility;
+using UnityEngine;
 using UnityEngine.UI;
-using System.Collections;
 
-[RequireComponent(typeof(Button))]
-public class ModeButton : MonoBehaviour {
+namespace PXL.UI {
 
-	/**
-	* The button which is used for switching mode
-	*/
-	public KeyCode switchModeKey = KeyCode.Y;
+	[RequireComponent(typeof(Button))]
+	public class ModeButton : MonoBehaviour {
+	
+		/// <summary>
+		/// The button which is used for switching mode
+		/// </summary>
+		public KeyCode switchModeKey = KeyCode.Y;
 
-	private Button button;
+		/// <summary>
+		/// The button component of this GameObject
+		/// </summary>
+		private Button button;
 
-	protected virtual void Start() {
-		button = this.TryGetComponent<Button>();
-	}
-
-	protected virtual void Update() {
-		if (Input.GetKeyDown(switchModeKey)) {
-			button.onClick.Invoke();
-			AdminUIBase.ToggleMode();
+		protected virtual void Start() {
+			button = this.TryGetComponent<Button>();
 		}
+
+		protected virtual void Update() {
+			if (Input.GetKeyDown(switchModeKey)) {
+				button.onClick.Invoke();
+				AdminUIBase.ToggleMode();
+			}
+		}
+
 	}
 
 }

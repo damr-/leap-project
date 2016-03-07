@@ -1,30 +1,26 @@
-﻿using UnityEngine;
-using System.Linq;
-using UnityEngine.UI;
+﻿using UnityEngine.UI;
 
-public abstract class AdminDropdownUI : AdminUIBase {
+namespace PXL.UI {
 
-	/**
-	* The dropdown component of the child UI element
-	*/
-	protected Dropdown dropdown;
+	public abstract class AdminDropdownUI : AdminUIBase {
 	
-	protected override void Start() {
-		base.Start();
+		/// <summary>
+		/// The Dropdown Component of the child UI element
+		/// </summary>
+		protected Dropdown dropdown;
 
-		dropdown = GetComponentInChildren<Dropdown>();
-		dropdown.ClearOptions();
+		protected override void Start() {
+			base.Start();
 
-		AddDropdownEntries();
+			dropdown = GetComponentInChildren<Dropdown>();
+			dropdown.ClearOptions();
+
+			AddDropdownEntries();
+
+			dropdown.value = 1;
+		}
+
+		protected abstract void AddDropdownEntries();
 	}
 
-	protected abstract void AddDropdownEntries();
-
-	/**
-	* Returns a random entry of the dropdown list
-	*/
-	protected virtual T GetRandomEntry<T>(T[] entries) where T : struct{
-		int index = Random.Range(1, entries.Length);
-		return entries.ElementAt(index);
-	}
 }
