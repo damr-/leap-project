@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using UnityEngine;
 
@@ -30,7 +31,7 @@ namespace PXL.Utility {
 
 			return tryComponent;
 		}
-		
+
 		/// <summary>
 		/// Returns a random item from the given array with optional minimum index.
 		/// Maximum index is always the last element in the array.
@@ -40,6 +41,25 @@ namespace PXL.Utility {
 		public static T GetRandomElement<T>(this T[] items, int minIndex = 0) where T : struct {
 			int index = Random.Range(minIndex, items.Length);
 			return items.ElementAt(index);
+		}
+
+		/// <summary>
+		/// Tries to retrieve the value for the given key (a Component) from the given dictionary.
+		/// If there is no value for the given key, an entry is added.
+		/// </summary>
+		/// <param name="dictionary">The dictionary to look for the component</param>
+		/// <param name="key">The Component as key for the dictionary</param>
+		/// <returns>The Component </returns>
+		public static V GetOrAdd<K, V>(this IDictionary<K, V> dictionary, K key) where V : class where K : Component {
+			V value = null;
+			if (!dictionary.TryGetValue(key, out value)) {
+				value = key.GetComponent<V>();
+				if (value == null) 
+					throw new MissingReferenceException("GetOrAdd couldn't get the Component of the object!");
+				dictionary.Add(key, value);
+			}
+
+			return value;
 		}
 	}
 

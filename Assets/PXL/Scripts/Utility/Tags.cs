@@ -16,8 +16,8 @@ namespace PXL.Utility {
 		/// <summary>
 		/// Returns the string for the given <see cref="TagType"/>
 		/// </summary>
-		public static string getTagString(TagType tagType) {
-			return tags.Where(t => t.Key == tagType).FirstOrDefault().Value;
+		public static string GetTagString(TagType tagType) {
+			return tags.Where(t => t.Key == tagType).First().Value;
 		}
 		
 		/// <summary>

@@ -8,7 +8,7 @@ namespace PXL.Objects {
 		/// <summary>
 		/// At what distance from the origin the object despawns
 		/// </summary>
-		public float despawnDistance = 1f;
+		public float despawnDistance = 2f;
 		
 		/// <summary>
 		/// The GameObject to spawn when the object is destroyed

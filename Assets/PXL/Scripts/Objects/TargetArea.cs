@@ -16,7 +16,7 @@ namespace PXL.Objects {
 		protected string targetTag;
 		
 		protected virtual void Awake() {
-			targetTag = Tags.getTagString(targetTagType);
+			targetTag = Tags.GetTagString(targetTagType);
 		}
 
 		protected virtual void OnTriggerEnter(Collider other) {
