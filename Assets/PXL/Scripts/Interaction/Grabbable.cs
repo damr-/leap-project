@@ -80,7 +80,7 @@ namespace PXL.Interaction {
 				}
 				else {
 					TrackTarget();
-					CalculateMotion();
+					//CalculateMotion();
 				}
 			}
 			else {
@@ -148,12 +148,12 @@ namespace PXL.Interaction {
 		/// <summary>
 		/// 
 		/// </summary>
-		private void CalculateMotion() {			
+		//private void CalculateMotion() {			
 			//deltaPositions.Add(transform.position - lastPosition);
 			//if (deltaPositions.Count > keepDeltaPositionsFrames)
 			//	deltaPositions.RemoveAt(0);
 			//lastPosition = transform.position;
-		}
+		//}
 
 		/// <summary>
 		/// Returns the average position of all fingers that touch the object
