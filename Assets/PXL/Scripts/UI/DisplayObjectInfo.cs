@@ -1,13 +1,13 @@
 ﻿using UnityEngine;
 using PXL.Objects;
 using System.Linq;
-using System;
 using UniRx;
 using PXL.Interaction;
 using UnityEngine.UI;
 using PXL.Utility;
 
 namespace PXL.UI {
+
 	[RequireComponent(typeof(Text))]
 	public class DisplayObjectInfo : MonoBehaviour {
 

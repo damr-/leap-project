@@ -20,6 +20,9 @@ namespace PXL.Interaction {
 		/// </summary>
 		public HandModel handModel { get; private set; }
 
+		/// <summary>
+		/// All known Colliders of grabbable Objects and their Grabbable component
+		/// </summary>
 		public static IDictionary<Collider, Grabbable> grabbableObjects = new Dictionary<Collider, Grabbable>();
 
 		private void Awake() {
@@ -29,7 +32,7 @@ namespace PXL.Interaction {
 		private void Start() {
 			handModel = GetComponentInParent<HandModel>();
 		}
-
+		
 		private void OnTriggerEnter(Collider other) {
 			GameObject otherObject = other.gameObject;
 			if (otherObject.CompareTag(targetTag)) {
