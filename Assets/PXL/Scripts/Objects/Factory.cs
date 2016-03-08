@@ -19,9 +19,7 @@ namespace PXL.Objects {
 		/// Spawns an isntance of <see cref="prefab"/> at <see cref="position"/>
 		/// </summary>
 		public virtual GameObject Spawn() {
-			if (prefab == null)
-				throw new MissingReferenceException("No prefab assigned for spawning!");
-
+			prefab.AssertNotNull();
 			return SimplePool.Spawn(prefab, position, Quaternion.identity);
 		}
 	}

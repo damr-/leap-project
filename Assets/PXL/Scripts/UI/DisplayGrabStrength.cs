@@ -1,19 +1,11 @@
-﻿using PXL.Utility;
-using UnityEngine;
-using UnityEngine.UI;
-
-namespace PXL.UI {
+﻿namespace PXL.UI {
 	
-	[RequireComponent(typeof(Text))]
-	public class DisplayGrabStrength : MonoBehaviour {
+	public class DisplayGrabStrength : DisplayBase {
 
+		/// <summary>
+		/// The observed RigidHand
+		/// </summary>
 		public RigidHand hand;
-
-		private Text text;
-
-		private void Start() {
-			text = this.TryGetComponent<Text>();
-        }
 
 		private void Update() {
 			if (hand.GetLeapHand() != null && hand.isActiveAndEnabled)

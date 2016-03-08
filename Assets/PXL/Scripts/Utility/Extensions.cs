@@ -61,6 +61,11 @@ namespace PXL.Utility {
 
 			return value;
 		}
+
+		public static void AssertNotNull(this Object o, string message = "Missing reference, object is null!") {
+			if (o == null)
+				throw new MissingReferenceException(message);
+		}
 	}
 
 }

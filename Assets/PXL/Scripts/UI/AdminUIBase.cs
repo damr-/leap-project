@@ -1,4 +1,5 @@
 ﻿using PXL.Objects;
+using PXL.Utility;
 using UnityEngine;
 
 namespace PXL.UI {
@@ -24,19 +25,17 @@ namespace PXL.UI {
 		public static bool IsAdmin { get { return mode == Mode.ADMIN; } }
 		
 		/// <summary>
-		/// The used ObjectManager
+		/// The referenced ObjectManager
 		/// </summary>
 		public ObjectManager objectManager;
 
 		protected virtual void Start() {
-			if (objectManager == null)
-				throw new MissingReferenceException("No manager set!");
-
+			objectManager.AssertNotNull();
 			mode = Mode.ADMIN;
 		}
 		
 		/// <summary>
-		/// TOggles between admin and rehavilitee mode
+		/// Toggles between admin and rehabilitee mode
 		/// </summary>
 		public static void ToggleMode() {
 			mode = (mode == Mode.ADMIN) ? Mode.REHABILITEE : Mode.ADMIN;

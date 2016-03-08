@@ -8,8 +8,7 @@ using PXL.Utility;
 
 namespace PXL.UI {
 
-	[RequireComponent(typeof(Text))]
-	public class DisplayObjectInfo : MonoBehaviour {
+	public class DisplayObjectInfo : DisplayBase {
 
 		/// <summary>
 		/// The observed ObjectManager
@@ -26,18 +25,15 @@ namespace PXL.UI {
 		/// </summary>
 		public bool trackLeftHand = false;
 
-		/// <summary>
-		/// The Text component of this GameObject
-		/// </summary>
-		private Text text;
+		protected override void Start() {
+			base.Start();
 
-		private void Start() {
-			text = this.TryGetComponent<Text>();
-			objectManager.ObjectSpawned.Subscribe(ObjectSpawned);
+			objectManager.AssertNotNull();
 
-			if (positionText == null)
-				throw new MissingReferenceException("No positionText assigned!");
-		}
+            objectManager.ObjectSpawned.Subscribe(ObjectSpawned);
+
+			positionText.AssertNotNull();
+        }
 
 		private void ObjectSpawned(ObjectBehaviour objectBehaviour) {
 			Grabbable grabbable = objectBehaviour.GetComponent<Grabbable>();

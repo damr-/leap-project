@@ -4,6 +4,7 @@ using System.Linq;
 using UniRx;
 using PXL.Utility;
 using PXL.UI;
+using UnityEngine.Assertions;
 
 namespace PXL.Objects {
 
@@ -97,7 +98,9 @@ namespace PXL.Objects {
 		/// </summary>
 		void Start() {
 			spawnPosition = (spawnPositionObject == null) ? transform.position : spawnPositionObject.transform.position;
-			objectFactory.prefab = defaultObjectPrefab;
+			
+			defaultObjectPrefab.AssertNotNull();
+            objectFactory.prefab = defaultObjectPrefab;
 			objectFactory.position = spawnPosition;
 			SetObjectScale(defaultScale.Remap(minScale, maxScale, 0, 1));
 			currentObjectPrefab = defaultObjectPrefab;

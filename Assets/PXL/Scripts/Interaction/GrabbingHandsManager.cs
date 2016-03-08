@@ -2,7 +2,7 @@
 
 namespace PXL.Interaction {
 
-	public static class GrabManager {
+	public static class GrabbingHandsManager {
 
 		/// <summary>
 		/// All the hands currently grabbing an object

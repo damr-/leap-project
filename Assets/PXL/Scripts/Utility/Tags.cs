@@ -6,7 +6,7 @@ namespace PXL.Utility {
 	public static class Tags {
 
 		/// <summary>
-		/// The type of a tag
+		/// The type of tag
 		/// </summary>
 		public enum TagType {
 			DEFAULT = 0,

@@ -130,7 +130,7 @@ namespace PXL.Interaction {
 		/// </summary>
 		private void Grab() {
 			SetGrabbed(true);
-			GrabManager.AddHand(currentHand);
+			GrabbingHandsManager.AddHand(currentHand);
 			trackedTarget = currentHand.palm;
 		}
 
@@ -140,7 +140,7 @@ namespace PXL.Interaction {
 		private void Drop() {
 			SetGrabbed(false);
 			droppedSubject.OnNext(Unit.Default);
-			GrabManager.RemoveHand(currentHand);
+			GrabbingHandsManager.RemoveHand(currentHand);
 			trackedTarget = null;
 			currentHand = null;
 		}
@@ -212,7 +212,7 @@ namespace PXL.Interaction {
 				handFingers.Add(hand, new HashSet<Fingertip>() { fingertip });
 			}
 
-			if (GrabManager.CanHandGrab(hand)) {
+			if (GrabbingHandsManager.CanHandGrab(hand)) {
 				// set the current hand if
 				// 1. it is the first hand touching the object
 				if (currentHand == null) {

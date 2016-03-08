@@ -42,7 +42,6 @@ namespace PXL.UI {
 		public Sprite randomColorSprite;
 
 		/// <summary>
-		/// 
 		/// Reference to the color preview image
 		/// </summary>
 		public Image image;
@@ -62,17 +61,11 @@ namespace PXL.UI {
 		protected override void Start() {
 			base.Start();
 
-			if (image == null) {
-				Debug.LogError("Target preview image is missing!");
-				return;
-			}
-
+			image.AssertNotNull("The target preview Image component is missing!");
+			
 			objectManager.ObjectSpawned.Subscribe(SetObjectColor);
 		}
 		
-		/// <summary>
-		/// Checks whether the admin mode is active and whether a key is pressed
-		/// </summary>
 		protected virtual void Update() {
 			if (!AdminUIBase.IsAdmin)
 				return;

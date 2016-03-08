@@ -11,7 +11,7 @@ namespace PXL.Utility {
 		public List<GameObject> targets;
 
 		/// <summary>
-		/// ALl the components added to each one of the <see cref="targets"/>
+		/// All the components added to each one of the <see cref="targets"/>
 		/// </summary>
 		public List<string> components;
 

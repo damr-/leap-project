@@ -1,8 +1,11 @@
-﻿using UniRx;
+﻿using PXL.Utility;
+using UniRx;
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace PXL.UI {
 
+	[RequireComponent(typeof(Text))]
 	public class ObjectScaleLabel : AdminUIBase {
 	
 		/// <summary>
@@ -18,7 +21,7 @@ namespace PXL.UI {
 		protected override void Start() {
 			base.Start();
 
-			text = GetComponent<Text>();
+			text = this.TryGetComponent<Text>();
 			objectManager.ObjectScale.Subscribe(SetText);
 		}
 		

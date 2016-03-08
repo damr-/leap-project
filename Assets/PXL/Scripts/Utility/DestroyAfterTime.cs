@@ -9,6 +9,9 @@ namespace PXL.Utility {
 		/// </summary>
 		public float lifeTime = 1f;
 		
+		/// <summary>
+		/// What time the object began to live
+		/// </summary>
 		private float startTime;
 		
 		private void OnEnable() {
