@@ -90,6 +90,16 @@ namespace PXL.Interaction {
 		private float lastChangeTime;
 
 		/// <summary>
+		/// Whether the offset of the object should be kept (The offset it has to the average finger position when being picked up)
+		/// </summary>
+		public static bool keepObjectOffset = false;
+		
+		/// <summary>
+		/// The offset of the object when being picked up
+		/// </summary>
+		private Vector3 offset;
+
+		/// <summary>
 		/// How long to wait after changing hands before being able to change again
 		/// </summary>
 		private float changeHandDelay = 0.25f;
@@ -132,7 +142,9 @@ namespace PXL.Interaction {
 			SetGrabbed(true);
 			GrabbingHandsManager.AddHand(currentHand);
 			trackedTarget = currentHand.palm;
-		}
+			if(keepObjectOffset)
+				offset = transform.position - CalculateAverageFingerPosition();
+        }
 
 		/// <summary>
 		/// Removes the target and hand. Calls <see cref="SetGrabbed(bool)"/> to re-enable physics
@@ -165,7 +177,9 @@ namespace PXL.Interaction {
 			}
 			transform.position = CalculateAverageFingerPosition();
 			transform.rotation = trackedTarget.rotation;
-		}
+			if (keepObjectOffset)
+				transform.position += offset.magnitude * 0.5f * trackedTarget.up * -1;
+        }
 
 		/// <summary>
 		/// Returns the average position of all fingers that touch the object
