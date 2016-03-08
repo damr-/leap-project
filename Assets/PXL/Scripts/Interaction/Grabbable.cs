@@ -90,11 +90,6 @@ namespace PXL.Interaction {
 		private float lastChangeTime;
 
 		/// <summary>
-		/// Whether the offset of the object should be kept (The offset it has to the average finger position when being picked up)
-		/// </summary>
-		public static bool keepObjectOffset = false;
-		
-		/// <summary>
 		/// The offset of the object when being picked up
 		/// </summary>
 		private Vector3 offset;
@@ -103,18 +98,19 @@ namespace PXL.Interaction {
 		/// How long to wait after changing hands before being able to change again
 		/// </summary>
 		private float changeHandDelay = 0.25f;
-		
+
 		private void Update() {
-			if (IsGrabPossible()) {
-				if (!isGrabbed) {
-					Grab();
-				}
-				else {
-					TrackTarget();
-				}
+			if (IsGrabPossible() && !isGrabbed) {
+				Grab();
 			}
 			else if (isGrabbed) {
-				Drop();
+				if (IsHandActive() && currentHand.GetLeapHand().GrabStrength >= minGrabStrength) {
+					TrackTarget();
+					CheckMovement();
+				}
+				else if (!IsHandActive() || currentHand.GetLeapHand().GrabStrength < minGrabStrength) {
+					Drop();
+				}
 			}
 
 			if (!canChangeHands && Time.time - lastChangeTime > changeHandDelay) {
@@ -127,12 +123,19 @@ namespace PXL.Interaction {
 		/// </summary>
 		/// <returns></returns>
 		private bool IsGrabPossible() {
-			return currentHand != null &&
-					currentHand.isActiveAndEnabled &&
+			return IsHandActive() &&
 					handFingers.ContainsKey(currentHand) &&
 					handFingers[currentHand].Count > minFingerCount &&
 					thumbTouches &&
 					currentHand.GetLeapHand().GrabStrength >= minGrabStrength;
+		}
+
+		/// <summary>
+		/// Returns whether the current hand is valid and active
+		/// </summary>
+		/// <returns></returns>
+		private bool IsHandActive() {
+			return currentHand != null && currentHand.isActiveAndEnabled;
 		}
 
 		/// <summary>
@@ -142,15 +145,19 @@ namespace PXL.Interaction {
 			SetGrabbed(true);
 			GrabbingHandsManager.AddHand(currentHand);
 			trackedTarget = currentHand.palm;
-			if(keepObjectOffset)
-				offset = transform.position - CalculateAverageFingerPosition();
-        }
+
+			//Vector3 originalScale = transform.localScale;
+			//transform.parent = currentHand.palm;
+			//transform.localScale = originalScale;
+			offset = transform.position - CalculateAverageFingerPosition();
+		}
 
 		/// <summary>
 		/// Removes the target and hand. Calls <see cref="SetGrabbed(bool)"/> to re-enable physics
 		/// </summary>
 		private void Drop() {
 			SetGrabbed(false);
+			//transform.SetParent(null, false);
 			droppedSubject.OnNext(Unit.Default);
 			GrabbingHandsManager.RemoveHand(currentHand);
 			trackedTarget = null;
@@ -168,18 +175,22 @@ namespace PXL.Interaction {
 		}
 
 		/// <summary>
-		/// Updates the position and rotation of the object
+		/// Checks whether the object has been moved beyond a certain threshold and if yes, emits the subject
 		/// </summary>
-		private void TrackTarget() {
+		private void CheckMovement() {
 			if (Vector3.Distance(transform.position, lastPosition) > moveThresHold) {
 				movedSubject.OnNext(transform.position);
 				lastPosition = transform.position;
 			}
-			transform.position = CalculateAverageFingerPosition();
+		}
+
+		/// <summary>
+		/// Updates the position and rotation of the object
+		/// </summary>
+		private void TrackTarget() {
+			transform.position = CalculateAverageFingerPosition() + offset.magnitude* trackedTarget.up * -1; //* 0.5f;
 			transform.rotation = trackedTarget.rotation;
-			if (keepObjectOffset)
-				transform.position += offset.magnitude * 0.5f * trackedTarget.up * -1;
-        }
+		}
 
 		/// <summary>
 		/// Returns the average position of all fingers that touch the object
@@ -269,6 +280,9 @@ namespace PXL.Interaction {
 		/// </summary>
 		/// <param name="fingertip">Particular fingertip</param>
 		public void FingerLeft(Fingertip fingertip) {
+			if (isGrabbed)
+				return;
+
 			HandModel hand = fingertip.handModel;
 
 			if (handFingers.ContainsKey(hand)) {
