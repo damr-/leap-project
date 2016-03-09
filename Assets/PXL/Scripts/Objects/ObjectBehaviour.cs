@@ -26,6 +26,11 @@ namespace PXL.Objects {
 		public ObjectType ObjectType;
 
 		/// <summary>
+		/// The scale of this object
+		/// </summary>
+		public float Scale { get; set; }
+
+		/// <summary>
 		/// The GameObject to spawn when the object is destroyed
 		/// </summary>
 		public GameObject DestroyEffectObject;

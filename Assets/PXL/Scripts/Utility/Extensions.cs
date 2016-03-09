@@ -62,9 +62,21 @@ namespace PXL.Utility {
 			return value;
 		}
 
+		/// <summary>
+		/// Makes sure the given object is not null. If it is, a MissingReferenceException will be thrown with the given message.
+		/// </summary>
+		/// <param name="o"></param>
+		/// <param name="message"></param>
 		public static void AssertNotNull(this Object o, string message = "Missing reference, object is null!") {
 			if (o == null)
 				throw new MissingReferenceException(message);
+		}
+
+		/// <summary>
+		/// Compares two Vectors for near equality, optionally with the given epsilon.
+		/// </summary>
+		public static bool Equal(this Vector3 a, Vector3 b, float epsilon = 0.0001f) {
+			return Vector3.SqrMagnitude(a - b) < epsilon;
 		}
 	}
 

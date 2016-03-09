@@ -140,7 +140,7 @@ namespace PXL.Interaction {
 		/// Returns whether <see cref="CurrentHand"/> is active and the grab strength is high enough
 		/// </summary>
 		private bool CanHoldObject() {
-			return IsHandActive() && CurrentHand.GetLeapHand().GrabStrength >= MinGrabStrength;
+			return IsHandActive() && CurrentHand.GetLeapHand() != null && CurrentHand.GetLeapHand().GrabStrength >= MinGrabStrength;
 		}
 
 		/// <summary>
@@ -287,7 +287,19 @@ namespace PXL.Interaction {
 		private bool IsCertainFingerTouching(HandModel hand, Leap.Finger.FingerType fingerType) {
 			if (hand == null || !handFingers.ContainsKey(hand))
 				return false;
-			return handFingers[hand].Select(ft => ft.GetComponentInParent<RigidFinger>()).Any(finger => finger && finger.GetLeapFinger().Type == fingerType);
+			foreach (var ft in handFingers[hand]) {
+				var rigidFinger = ft.GetComponentInParent<RigidFinger>();
+
+				if (rigidFinger == null)
+					continue;
+
+				var leapFinger = rigidFinger.GetLeapFinger();
+
+				if(leapFinger != null && leapFinger.Type == fingerType)
+					return true;
+			}
+			return false;
+			//return handFingers[hand].Select(ft => ft.GetComponentInParent<RigidFinger>()).Any(finger => finger && finger.GetLeapFinger().Type == fingerType);
 		}
 
 		/// <summary>

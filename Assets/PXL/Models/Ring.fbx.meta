@@ -14,7 +14,9 @@ ModelImporter:
     400004: //RootNode
     400006: Torus_005
     2300000: Torus_005
+    2300002: //RootNode
     3300000: Torus_005
+    3300002: //RootNode
     4300000: Torus_005
     7400000: Default Take
     9500000: //RootNode
@@ -61,7 +63,7 @@ ModelImporter:
     normalSmoothAngle: 60
     normalImportMode: 0
     tangentImportMode: 3
-  importAnimation: 1
+  importAnimation: 0
   copyAvatar: 0
   humanDescription:
     human: []
@@ -76,7 +78,7 @@ ModelImporter:
     rootMotionBoneName: 
     hasTranslationDoF: 0
   lastHumanDescriptionAvatarSource: {instanceID: 0}
-  animationType: 2
+  animationType: 0
   humanoidOversampling: 1
   additionalBone: 0
   userData: 
