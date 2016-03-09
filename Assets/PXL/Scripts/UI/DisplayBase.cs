@@ -10,10 +10,10 @@ namespace PXL.UI {
 		/// <summary>
 		/// The Text Component of this GameObject
 		/// </summary>
-		protected Text text;
+		protected Text Text;
 
 		protected virtual void Start() {
-			text = this.TryGetComponent<Text>();
+			Text = this.TryGetComponent<Text>();
 		}
 
 	}

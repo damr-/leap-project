@@ -9,23 +9,23 @@ using PXL.Objects;
 
 namespace PXL.UI {
 
-	public class ObjectColorPanel : AdminDropdownUI {
+	public class ObjectColorPanel : AdminDropdownUi {
 
 		[Serializable]
 		public struct ObjectColor {
-			public Color color;
-			public string name;
+			public Color Color;
+			public string Name;
 
 			public ObjectColor(Color c, string n) {
-				color = c;
-				name = n;
+				Color = c;
+				Name = n;
 			}
 		}
 
 		/// <summary>
 		/// All the available colors
 		/// </summary>
-		public ObjectColor[] availableColors = {
+		public ObjectColor[] AvailableColors = {
 			new ObjectColor(Color.white, "Random"),
 			new ObjectColor(Color.red, "Red"),
 			new ObjectColor(Color.green, "Green"),
@@ -39,37 +39,37 @@ namespace PXL.UI {
 		/// <summary>
 		/// Sprite for the preview image if 'Random' is selected
 		/// </summary>
-		public Sprite randomColorSprite;
+		public Sprite RandomColorSprite;
 
 		/// <summary>
 		/// Reference to the color preview image
 		/// </summary>
-		public Image image;
+		public Image ColorPreview;
 
 		/// <summary>
 		/// Current color used to tint objects
 		/// </summary>
-		public Color currentColor { get; set; }
+		public Color CurrentColor { get; set; }
 		
 		/// <summary>
 		/// All the keys used for switching between colors
 		/// </summary>
-		protected List<KeyCode> changeColorKeys = new List<KeyCode> {
+		protected List<KeyCode> ChangeColorKeys = new List<KeyCode> {
 			KeyCode.A, KeyCode.S, KeyCode.D, KeyCode.F, KeyCode.G, KeyCode.H, KeyCode.J, KeyCode.K, KeyCode.L
 		};
 
 		protected override void Start() {
 			base.Start();
 
-			image.AssertNotNull("The target preview Image component is missing!");
+			ColorPreview.AssertNotNull("The target preview Image component is missing!");
 			
-			objectManager.ObjectSpawned.Subscribe(SetObjectColor);
+			ObjectManager.ObjectSpawned.Subscribe(SetObjectColor);
 		}
 		
 		protected virtual void Update() {
-			if (!AdminUIBase.IsAdmin)
+			if (!IsAdmin)
 				return;
-			foreach (var item in changeColorKeys.Select((value, index) => new { index, value })) {
+			foreach (var item in ChangeColorKeys.Select((value, index) => new { index, value })) {
 				CheckKey(item.value, item.index);
 			}
         }
@@ -81,31 +81,27 @@ namespace PXL.UI {
 		/// <param name="index">The index of the key in the list</param>
 		private void CheckKey(KeyCode key, int index) {
 			if (Input.GetKeyDown(key))
-				dropdown.value = index;
+				Dropdown.value = index;
 		}
 		
 		/// <summary>
 		/// Sets the color of the preview image to the current one or to the random color sprite
 		/// </summary>
 		/// <param name="newColor">The new color for the preview image</param>
-		protected virtual void UpdatePreviewColor(Color newColor) {
-			image.color = newColor;
-			if (newColor == Color.white) {
-				image.sprite = randomColorSprite;
-			}
-			else {
-				image.sprite = null;
-			}
+		protected virtual void UpdatePreviewColor(Color newColor)
+		{
+			ColorPreview.color = newColor;
+			ColorPreview.sprite = newColor == Color.white ? RandomColorSprite : null;
 		}
-		
+
 		/// <summary>
 		/// Sets a new color in the ObjectManager
 		/// </summary>
 		/// <param name="menuIndex">The new index of the dropdown menu</param>
 		public void SelectionChanged(int menuIndex) {
-			Color newColor = availableColors.ElementAt(menuIndex).color;
+			var newColor = AvailableColors.ElementAt(menuIndex).Color;
 
-			currentColor = newColor;
+			CurrentColor = newColor;
 			UpdatePreviewColor(newColor);
 		}
 		
@@ -114,7 +110,7 @@ namespace PXL.UI {
 		/// </summary>
 		/// <param name="objectBehaviour">The target object which will get the current color assigned</param>
 		protected virtual void SetObjectColor(ObjectBehaviour objectBehaviour) {
-			Color objectColor = (currentColor == Color.white) ? GetRandomColor() : currentColor;
+			var objectColor = CurrentColor == Color.white ? GetRandomColor() : CurrentColor;
 			objectBehaviour.GetComponent<Renderer>().material.color = objectColor;
 		}
 
@@ -122,18 +118,15 @@ namespace PXL.UI {
 		/// Returns a random available color, without the first entry (white/random)
 		/// </summary>
 		public Color GetRandomColor() {
-			return availableColors.GetRandomElement(1).color;
+			return AvailableColors.GetRandomElement(1).Color;
 		}
 		
 		/// <summary>
 		/// Adds all color entries to the dropdown menu
 		/// </summary>
 		protected override void AddDropdownEntries() {
-			List<Dropdown.OptionData> optionsList = new List<Dropdown.OptionData>();
-			foreach (ObjectColor entry in availableColors) {
-				optionsList.Add(new Dropdown.OptionData(entry.name));
-			}
-			dropdown.AddOptions(optionsList);
+			var optionsList = AvailableColors.Select(entry => new Dropdown.OptionData(entry.Name)).ToList();
+			Dropdown.AddOptions(optionsList);
 		}
 	}
 

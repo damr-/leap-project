@@ -10,8 +10,8 @@ namespace PXL.Objects {
 		/// </summary>
 		/// <param name="other">The Collider of the overlapping object</param>
 		protected override void HandleValidOther(Collider other) {
-			ObjectBehaviour objectBehaviour = other.TryGetComponent<ObjectBehaviour>();
-			objectBehaviour.AssertNotNull("GameObject '" + other.gameObject.name + "' has tag '" + targetTag + "' but no component ObjectBehaviour!");
+			var objectBehaviour = other.TryGetComponent<ObjectBehaviour>();
+			objectBehaviour.AssertNotNull("GameObject '" + other.gameObject.name + "' has tag '" + TargetTag + "' but no component ObjectBehaviour!");
 			objectBehaviour.DestroyObject();
 		}
 	}

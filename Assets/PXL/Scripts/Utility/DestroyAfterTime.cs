@@ -7,7 +7,7 @@ namespace PXL.Utility {
 		/// <summary>
 		/// After how many seconds this object will be despawned
 		/// </summary>
-		public float lifeTime = 1f;
+		public float LifeTime = 1f;
 		
 		/// <summary>
 		/// What time the object began to live
@@ -19,7 +19,7 @@ namespace PXL.Utility {
 		}
 
 		private void Update() {
-			if (Time.time - startTime > lifeTime)
+			if (Time.time - startTime > LifeTime)
 				SimplePool.Despawn(gameObject);
 		}
 

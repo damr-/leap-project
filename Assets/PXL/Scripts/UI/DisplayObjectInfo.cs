@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using PXL.Objects;
-using System.Linq;
 using UniRx;
 using PXL.Interaction;
 using UnityEngine.UI;
@@ -13,30 +12,27 @@ namespace PXL.UI {
 		/// <summary>
 		/// The observed ObjectManager
 		/// </summary>
-		public ObjectManager objectManager;
+		public ObjectManager ObjectManager;
 
 		/// <summary>
 		/// Text component of a different object which displayes the position of the grabbed object
 		/// </summary>
-		public Text positionText;
+		public Text PositionText;
 
 		/// <summary>
 		/// Whether this display is for the left hand
 		/// </summary>
-		public bool trackLeftHand = false;
+		public bool TrackLeftHand = false;
 
 		protected override void Start() {
 			base.Start();
-
-			objectManager.AssertNotNull();
-
-            objectManager.ObjectSpawned.Subscribe(ObjectSpawned);
-
-			positionText.AssertNotNull();
-        }
+			ObjectManager.AssertNotNull();
+			ObjectManager.ObjectSpawned.Subscribe(ObjectSpawned);
+			PositionText.AssertNotNull();
+		}
 
 		private void ObjectSpawned(ObjectBehaviour objectBehaviour) {
-			Grabbable grabbable = objectBehaviour.GetComponent<Grabbable>();
+			var grabbable = objectBehaviour.GetComponent<Grabbable>();
 
 			if (grabbable == null)
 				return;
@@ -51,9 +47,9 @@ namespace PXL.UI {
 		/// </summary>
 		/// <param name="grabbable">The object</param>
 		private void ObjectGrabbed(Grabbable grabbable) {
-			HandModel hand = grabbable.currentHand;
-			if (hand != null && hand.GetLeapHand().IsLeft == trackLeftHand)
-				text.text = grabbable.gameObject.name + " grabbed";
+			var hand = grabbable.CurrentHand;
+			if (hand != null && hand.GetLeapHand().IsLeft == TrackLeftHand)
+				Text.text = grabbable.gameObject.name + " grabbed";
 		}
 
 		/// <summary>
@@ -61,10 +57,10 @@ namespace PXL.UI {
 		/// </summary>
 		/// <param name="grabbable">The object</param>
 		private void ObjectDropped(Grabbable grabbable) {
-			HandModel hand = grabbable.currentHand;
-			if (hand != null && hand.GetLeapHand().IsLeft == trackLeftHand) {
-				text.text = grabbable.gameObject.name + " dropped";
-				positionText.text = "";
+			var hand = grabbable.CurrentHand;
+			if (hand != null && hand.GetLeapHand().IsLeft == TrackLeftHand) {
+				Text.text = grabbable.gameObject.name + " dropped";
+				PositionText.text = "";
             }
 		}
 
@@ -74,9 +70,9 @@ namespace PXL.UI {
 		/// <param name="grabbable">The object</param>
 		/// <param name="newPosition">The new position of the object</param>
 		private void ObjectMoved(Grabbable grabbable, Vector3 newPosition) {
-			HandModel hand = grabbable.currentHand;
-			if (hand != null && hand.GetLeapHand().IsLeft == trackLeftHand) {
-				positionText.text = "x:" + newPosition.x.ToString("0.000") + "\ny: " + newPosition.y.ToString("0.000") + "\nz: " + newPosition.z.ToString("0.000");
+			var hand = grabbable.CurrentHand;
+			if (hand != null && hand.GetLeapHand().IsLeft == TrackLeftHand) {
+				PositionText.text = "x:" + newPosition.x.ToString("0.000") + "\ny: " + newPosition.y.ToString("0.000") + "\nz: " + newPosition.z.ToString("0.000");
 			}
 		}
 	}

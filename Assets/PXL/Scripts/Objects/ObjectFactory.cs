@@ -7,14 +7,14 @@ namespace PXL.Objects {
 		/// <summary>
 		/// Scale of the object
 		/// </summary>		
-		public float scale { get; set; }
+		public float Scale { get; set; }
 
 		/// <summary>
 		/// Spawns the set prefab at position with the defined scale and resets velocity
 		/// </summary>
 		public override GameObject Spawn() {
-			GameObject newObject = base.Spawn();
-			newObject.transform.localScale = new Vector3(scale, scale, scale);
+			var newObject = base.Spawn();
+			newObject.transform.localScale = new Vector3(Scale, Scale, Scale);
 			newObject.GetComponent<Rigidbody>().velocity = Vector3.zero;
 			return newObject;
 		}

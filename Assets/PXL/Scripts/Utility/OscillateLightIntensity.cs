@@ -8,28 +8,28 @@ namespace PXL.Utility {
 		/// <summary>
 		/// The speed of the oscillation
 		/// </summary>
-		public float oscillateSpeed = 1.5f;
+		public float OscillateSpeed = 1.5f;
 
 		/// <summary>
 		/// The minimum intensity when oscillating
 		/// </summary>
-		public float minIntensity = 4f;
+		public float MinIntensity = 4f;
 
 		/// <summary>
 		/// The maximum intensity when oscillating
 		/// </summary>
-		public float maxIntensity = 6f;
+		public float MaxIntensity = 6f;
 
 		/// <summary>
 		/// At what distance from min/max Intensity the direction of the oscillation already turns around.
 		/// Used to prevent comparing two float variables directly
 		/// </summary>
-		public float changeMargin = 0.1f;
+		public float ChangeMargin = 0.1f;
 
 		/// <summary>
 		/// Whether the light is currently oscillating.
 		/// </summary>
-		public bool oscillating;
+		public bool Oscillating;
 
 		/// <summary>
 		/// The current intensity target the light is oscillating towards
@@ -37,41 +37,47 @@ namespace PXL.Utility {
 		private float targetIntensity;
 
 		/// <summary>
+		/// Whether the intensity is currently de- or increasing
+		/// </summary>
+		private bool increasing = true;
+
+		/// <summary>
 		/// The light component of this object
 		/// </summary>
-		new private Light light;
+		private new Light light;
 
 		private void Awake() {
 			light = this.TryGetComponent<Light>();
-			targetIntensity = maxIntensity;
-			light.intensity = minIntensity;
+			targetIntensity = MaxIntensity;
+			light.intensity = MinIntensity;
 		}
 
 		private void Update() {
-			if (oscillating) {
-				light.intensity = Mathf.Lerp(light.intensity, targetIntensity, oscillateSpeed * Time.deltaTime);
+			if (Oscillating) {
+				light.intensity = Mathf.Lerp(light.intensity, targetIntensity, OscillateSpeed * Time.deltaTime);
 				UpdateTargetIntensity();
 			}
 		}
-		
-		void UpdateTargetIntensity() {
-			if (Mathf.Abs(targetIntensity - light.intensity) < changeMargin) {
-				targetIntensity = (targetIntensity == maxIntensity) ? minIntensity : maxIntensity;
+
+		private void UpdateTargetIntensity() {
+			if (Mathf.Abs(targetIntensity - light.intensity) < ChangeMargin) {
+				targetIntensity = increasing ? MinIntensity : MaxIntensity;
+				increasing = !increasing;
 			}
 		}
 		/// <summary>
-		/// Start oscillating towards <see cref="maxIntensity"/>
+		/// Start oscillating towards <see cref="MaxIntensity"/>
 		/// </summary>
 		public void StartOscillating() {
-			oscillating = true;
-			targetIntensity = maxIntensity;
+			Oscillating = true;
+			targetIntensity = MaxIntensity;
 		}
 
 		/// <summary>
 		/// Stop oscillating
 		/// </summary>
 		public void StopOscillating() {
-			oscillating = false;
+			Oscillating = false;
 		}
 	}
 

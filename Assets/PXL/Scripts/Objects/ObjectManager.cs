@@ -1,48 +1,46 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
-using System.Linq;
 using UniRx;
 using PXL.Utility;
 using PXL.UI;
-using UnityEngine.Assertions;
 
 namespace PXL.Objects {
 
 	public class ObjectManager : MonoBehaviour {
 
-		public KeyCode spawnKey = KeyCode.X;
-		public KeyCode removeAllKey = KeyCode.C;
+		public KeyCode SpawnKey = KeyCode.X;
+		public KeyCode RemoveAllKey = KeyCode.C;
 
 		/// <summary>
 		/// The GameObject which will be spawned
 		/// </summary>
-		public GameObject defaultObjectPrefab;
+		public GameObject DefaultObjectPrefab;
 		
 		/// <summary>
 		/// The Transform where the objects will be spawned
 		/// If it's missing, the position of the spaner will be taken
 		/// </summary>
-		public Transform spawnPositionObject;
+		public Transform SpawnPositionObject;
 
 		/// <summary>
 		/// The amount of objects spawned at the start
 		/// </summary>
-		public int startAmount = 2;
+		public int StartAmount = 2;
 		
 		/// <summary>
 		/// Minimum possible scale of the object
 		/// </summary>
-		public float minScale = 0.025f;
+		public float MinScale = 0.025f;
 		
 		/// <summary>
 		/// Maximum possible scale of the object
 		/// </summary>
-		public float maxScale = 0.1f;
+		public float MaxScale = 0.1f;
 		
 		/// <summary>
 		/// The default scale of the object
 		/// </summary>
-		public float defaultScale = 0.05f;
+		public float DefaultScale = 0.075f;
 
 		/// <summary>
 		/// The actual used position to spawn objects
@@ -52,75 +50,75 @@ namespace PXL.Objects {
 		/// <summary>
 		/// All the objects spawned by this ObjectManager
 		/// </summary>
-		private List<ObjectBehaviour> spawnedObjects = new List<ObjectBehaviour>();
+		private readonly List<ObjectBehaviour> spawnedObjects = new List<ObjectBehaviour>();
 
 		/// <summary>
 		/// All subscriptions to every spawned object's Destroy-Observable
 		/// </summary>
-		private CompositeDisposable objectDestroySubscriptions = new CompositeDisposable();
-		
+		private readonly CompositeDisposable objectDestroySubscriptions = new CompositeDisposable();
+
 		/// <summary>
 		/// Whether the spawn delay is currently active
 		/// </summary>
-		private bool delayedSpawn = false;
+		private bool delayedSpawn;
 
 		/// <summary>
 		/// At what time the spawn delay started
 		/// </summary>
 		private float delayStartTime;
-		
+
 		/// <summary>
 		/// The length of the spawn delay when removing all objects
 		/// </summary>
-		private float spawnDelay = 0.5f;
-		
+		private const float SpawnDelay = 0.5f;
+
 		/// <summary>
 		/// The currently active prefab which will be spawned
 		/// </summary>
 		private GameObject currentObjectPrefab;
 
 		public ObservableProperty<float> ObjectScale { get { return objectScale; } }
-		private ObservableProperty<float> objectScale = new ObservableProperty<float>();
+		private readonly ObservableProperty<float> objectScale = new ObservableProperty<float>();
 
 		public IObservable<ObjectBehaviour> ObjectSpawned { get { return objectSpawnedSubject; } }
-		private ISubject<ObjectBehaviour> objectSpawnedSubject = new Subject<ObjectBehaviour>();
+		private readonly ISubject<ObjectBehaviour> objectSpawnedSubject = new Subject<ObjectBehaviour>();
 
 		public IObservable<Unit> SpawnInitiated { get { return spawnInitiatedSubject; } }
-		private ISubject<Unit> spawnInitiatedSubject = new Subject<Unit>();
+		private readonly ISubject<Unit> spawnInitiatedSubject = new Subject<Unit>();
 
 		/// <summary>
 		/// Factory to spawn objects
 		/// </summary>
-		private ObjectFactory objectFactory = new ObjectFactory();
+		private readonly ObjectFactory objectFactory = new ObjectFactory();
 		
 		/// <summary>
 		/// Setup the spawn position and spawn the first object
 		/// </summary>
-		void Start() {
-			spawnPosition = (spawnPositionObject == null) ? transform.position : spawnPositionObject.transform.position;
+		private void Start() {
+			spawnPosition = SpawnPositionObject == null ? transform.position : SpawnPositionObject.transform.position;
 			
-			defaultObjectPrefab.AssertNotNull();
-            objectFactory.prefab = defaultObjectPrefab;
-			objectFactory.position = spawnPosition;
-			SetObjectScale(defaultScale.Remap(minScale, maxScale, 0, 1));
-			currentObjectPrefab = defaultObjectPrefab;
+			DefaultObjectPrefab.AssertNotNull();
+            objectFactory.Prefab = DefaultObjectPrefab;
+			objectFactory.Position = spawnPosition;
+			SetObjectScale(DefaultScale.Remap(MinScale, MaxScale, 0, 1));
+			currentObjectPrefab = DefaultObjectPrefab;
 
-			for (int i = 0; i < startAmount; i++)
+			for (var i = 0; i < StartAmount; i++)
 				SpawnObject();
 		}
 		
 		/// <summary>
 		/// Checks for keyboard input and executes a delayed spawn if necessary
 		/// </summary>
-		void Update() {
-			if (AdminUIBase.IsAdmin) {
-				if (Input.GetKeyDown(spawnKey))
+		private void Update() {
+			if (AdminUiBase.IsAdmin) {
+				if (Input.GetKeyDown(SpawnKey))
 					SpawnObject();
-				if (Input.GetKeyDown(removeAllKey))
+				if (Input.GetKeyDown(RemoveAllKey))
 					RemoveAllObjects();
 			}
-
-			if (delayedSpawn && Time.time - delayStartTime > spawnDelay && spawnedObjects.Count <= 0) {
+			
+			if (delayedSpawn && Time.time - delayStartTime > SpawnDelay && spawnedObjects.Count <= 0) {
 				delayedSpawn = false;
 				SpawnObject();
 			}
@@ -134,7 +132,7 @@ namespace PXL.Objects {
 		private void ObjectDespawned(ObjectBehaviour objectBehaviour) {
 			spawnedObjects.Remove(objectBehaviour);
 
-			if (!delayedSpawn && spawnedObjects.Count() <= 0) {
+			if (!delayedSpawn && spawnedObjects.Count <= 0) {
 				SpawnObject();
 			}
 		}
@@ -156,12 +154,12 @@ namespace PXL.Objects {
 		public void SpawnObject() {
 			spawnInitiatedSubject.OnNext(Unit.Default);
 
-			objectFactory.prefab = currentObjectPrefab;
+			objectFactory.Prefab = currentObjectPrefab;
 
-			GameObject newObject = objectFactory.Spawn();
+			var newObject = objectFactory.Spawn();
 
-			ObjectBehaviour objectBehaviour = newObject.GetComponent<ObjectBehaviour>();
-			objectBehaviour.ObjectDestroyed.Subscribe(o => ObjectDespawned(o)).AddTo(objectDestroySubscriptions);
+			var objectBehaviour = newObject.GetComponent<ObjectBehaviour>();
+			objectBehaviour.ObjectDestroyed.Subscribe(ObjectDespawned).AddTo(objectDestroySubscriptions);
 
 			spawnedObjects.Add(objectBehaviour);
 
@@ -174,9 +172,9 @@ namespace PXL.Objects {
 		/// </summary>
 		/// <param name="sliderValue">New scale for the objects in range [0, 1]. Will be mapped to [minScale, maxScale]</param>
 		public void SetObjectScale(float sliderValue) {
-			float newScale = sliderValue.Remap(0, 1, minScale, maxScale);
+			var newScale = sliderValue.Remap(0, 1, MinScale, MaxScale);
 			ObjectScale.Value = newScale;
-			objectFactory.scale = newScale;
+			objectFactory.Scale = newScale;
 		}
 		
 		/// <summary>

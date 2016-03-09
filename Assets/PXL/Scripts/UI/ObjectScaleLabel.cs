@@ -6,12 +6,12 @@ using UnityEngine.UI;
 namespace PXL.UI {
 
 	[RequireComponent(typeof(Text))]
-	public class ObjectScaleLabel : AdminUIBase {
+	public class ObjectScaleLabel : AdminUiBase {
 	
 		/// <summary>
 		/// How much the number will be scaled for more natural results
 		/// </summary>
-		public float scaleFactor = 100f;
+		public float ScaleFactor = 100f;
 		
 		/// <summary>
 		/// The text component of the UI element
@@ -22,7 +22,7 @@ namespace PXL.UI {
 			base.Start();
 
 			text = this.TryGetComponent<Text>();
-			objectManager.ObjectScale.Subscribe(SetText);
+			ObjectManager.ObjectScale.Subscribe(SetText);
 		}
 		
 		/// <summary>
@@ -30,7 +30,7 @@ namespace PXL.UI {
 		/// </summary>
 		/// <param name="objectScale">The currently selected scale for objects</param>
 		private void SetText(float objectScale) {
-			text.text = (objectScale * scaleFactor).ToString("0.0");
+			text.text = (objectScale * ScaleFactor).ToString("0.0");
 		}
 	}
 

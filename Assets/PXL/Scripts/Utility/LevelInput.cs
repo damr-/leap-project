@@ -8,32 +8,32 @@ namespace PXL.Utility {
 		/// <summary>
 		/// The key used for quitting the application
 		/// </summary>
-		public KeyCode quitKey = KeyCode.Escape;
+		public KeyCode QuitKey = KeyCode.Escape;
 
 		/// <summary>
 		/// The key used for restarting the level
 		/// </summary>
-		public KeyCode restartKey = KeyCode.Space;
+		public KeyCode RestartKey = KeyCode.Space;
 		
 		/// <summary>
 		/// Within how many seconds the second tap has to follow
 		/// </summary>
-		public float maxDoubleTapDelay = 1f;
+		public float MaxDoubleTapDelay = 1f;
 
 		/// <summary>
 		/// Last time the escape key was pressed
 		/// </summary>
 		private float lastTime;
 
-		private bool pressedOnce = false;
+		private bool pressedOnce;
 
 		private void Update() {
-			if (Input.GetKeyDown(restartKey)) {
-				Scene scene = SceneManager.GetActiveScene();
+			if (Input.GetKeyDown(RestartKey)) {
+				var scene = SceneManager.GetActiveScene();
 				SceneManager.LoadScene(scene.name);
 			}
 
-			if (Input.GetKeyDown(quitKey)) {
+			if (Input.GetKeyDown(QuitKey)) {
 				if (!pressedOnce) {
 					lastTime = Time.time;
 					pressedOnce = true;
@@ -43,7 +43,7 @@ namespace PXL.Utility {
 				}
 			}
 
-			if (pressedOnce && Time.time - lastTime > maxDoubleTapDelay)
+			if (pressedOnce && Time.time - lastTime > MaxDoubleTapDelay)
 				pressedOnce = false;
 		}
 	}

@@ -39,7 +39,7 @@ namespace PXL.Utility {
 		/// <param name="items">The array with all items</param>
 		/// <param name="minIndex">The minimum possible index</param>
 		public static T GetRandomElement<T>(this T[] items, int minIndex = 0) where T : struct {
-			int index = Random.Range(minIndex, items.Length);
+			var index = Random.Range(minIndex, items.Length);
 			return items.ElementAt(index);
 		}
 
@@ -50,10 +50,10 @@ namespace PXL.Utility {
 		/// <param name="dictionary">The dictionary to look for the component</param>
 		/// <param name="key">The Component as key for the dictionary</param>
 		/// <returns>The Component </returns>
-		public static V GetOrAdd<K, V>(this IDictionary<K, V> dictionary, K key) where V : class where K : Component {
-			V value = null;
+		public static TV GetOrAdd<TK, TV>(this IDictionary<TK, TV> dictionary, TK key) where TV : class where TK : Component {
+			TV value;
 			if (!dictionary.TryGetValue(key, out value)) {
-				value = key.GetComponent<V>();
+				value = key.GetComponent<TV>();
 				if (value == null) 
 					throw new MissingReferenceException("GetOrAdd couldn't get the Component of the object!");
 				dictionary.Add(key, value);

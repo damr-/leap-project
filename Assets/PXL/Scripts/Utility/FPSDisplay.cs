@@ -3,17 +3,17 @@ using UnityEngine.UI;
 
 namespace PXL.Utility {
 
-	public class FPSDisplay : MonoBehaviour {
+	public class FpsDisplay : MonoBehaviour {
 	
 		/// <summary>
 		/// The key to toggle the FPS display
 		/// </summary>
-		public KeyCode toggleKey = KeyCode.V;
+		public KeyCode ToggleKey = KeyCode.V;
 		
 		/// <summary>
 		/// How long to wait between updates
 		/// </summary>
-		public float updateDelay = 0.5f;
+		public float UpdateDelay = 0.5f;
 		
 		/// <summary>
 		/// The text component of the child
@@ -30,9 +30,9 @@ namespace PXL.Utility {
 		/// </summary>
 		private bool CounterEnabled { get { return image.enabled && text.enabled; } }
 
-		private float framesSum = 0;
-		private int counter = 0;
-		private float lastTime = 0;
+		private float framesSum;
+		private int counter;
+		private float lastTime;
 
 		private void Start() {
 			text = GetComponentInChildren<Text>();
@@ -40,7 +40,7 @@ namespace PXL.Utility {
 		}
 
 		private void Update() {
-			if (Input.GetKeyDown(toggleKey)) {
+			if (Input.GetKeyDown(ToggleKey)) {
 				text.enabled = !text.enabled;
 				image.enabled = !image.enabled;
 			}
@@ -51,7 +51,7 @@ namespace PXL.Utility {
 			framesSum += 1f / Time.deltaTime;
 			counter++;
 
-			if (lastTime + updateDelay < Time.time) {
+			if (lastTime + UpdateDelay < Time.time) {
 				text.text = (int)(framesSum / counter) + " fps";
 				counter = 0;
 				framesSum = 0;

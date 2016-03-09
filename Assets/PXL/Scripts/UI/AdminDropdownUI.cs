@@ -2,22 +2,22 @@
 
 namespace PXL.UI {
 
-	public abstract class AdminDropdownUI : AdminUIBase {
+	public abstract class AdminDropdownUi : AdminUiBase {
 	
 		/// <summary>
 		/// The Dropdown Component of the child UI element
 		/// </summary>
-		protected Dropdown dropdown;
+		protected Dropdown Dropdown;
 
 		protected override void Start() {
 			base.Start();
 
-			dropdown = GetComponentInChildren<Dropdown>();
-			dropdown.ClearOptions();
+			Dropdown = GetComponentInChildren<Dropdown>();
+			Dropdown.ClearOptions();
 
 			AddDropdownEntries();
 
-			dropdown.value = 1;
+			Dropdown.value = 1;
 		}
 
 		protected abstract void AddDropdownEntries();

@@ -8,15 +8,15 @@ namespace PXL.Objects {
 		/// <summary>
 		/// What tag an object has to have to be recognised
 		/// </summary>
-		public Tags.TagType targetTagType;
+		public Tags.TagType TargetTagType;
 		
 		/// <summary>
 		/// The actual tag as string
 		/// </summary>
-		protected string targetTag;
+		protected string TargetTag;
 		
 		protected virtual void Awake() {
-			targetTag = Tags.GetTagString(targetTagType);
+			TargetTag = Tags.GetTagString(TargetTagType);
 		}
 
 		protected virtual void OnTriggerEnter(Collider other) {
@@ -24,7 +24,7 @@ namespace PXL.Objects {
 		}
 
 		protected virtual void HandleTriggerEntered(Collider other) {
-			if (other.gameObject.CompareTag(targetTag)) {
+			if (other.gameObject.CompareTag(TargetTag)) {
 				HandleValidOther(other);
 			}
 		}

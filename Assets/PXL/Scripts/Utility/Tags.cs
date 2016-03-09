@@ -9,23 +9,23 @@ namespace PXL.Utility {
 		/// The type of tag
 		/// </summary>
 		public enum TagType {
-			DEFAULT = 0,
-			OBJECT = 1,
+			Untagged = 0,
+			Object = 1,
 		}
 
 		/// <summary>
 		/// Returns the string for the given <see cref="TagType"/>
 		/// </summary>
 		public static string GetTagString(TagType tagType) {
-			return tags.Where(t => t.Key == tagType).First().Value;
+			return AvailableTags.First(t => t.Key == tagType).Value;
 		}
-		
+
 		/// <summary>
 		/// All existing tags as <see cref="Tags.TagType"/> and their name in Unity as <see cref="string"/>
 		/// </summary>
-		private static Dictionary<TagType, string> tags = new Dictionary<TagType, string>() {
-		{ TagType.DEFAULT, "Default" },
-		{ TagType.OBJECT, "Object" }
+		private static readonly Dictionary<TagType, string> AvailableTags = new Dictionary<TagType, string>() {
+		{ TagType.Untagged, "Untagged" },
+		{ TagType.Object, "Object" }
 	};
 
 	}

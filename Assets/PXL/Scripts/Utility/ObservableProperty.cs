@@ -5,7 +5,7 @@ namespace PXL.Utility {
 
 	public class ObservableProperty<T> : IObservable<T> {
 		private T value;
-		private Subject<T> observable;
+		private readonly Subject<T> observable;
 
 		public T Value {
 			get { return value; }

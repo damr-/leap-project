@@ -8,45 +8,45 @@ using PXL.Utility;
 
 namespace PXL.UI {
 
-	public class ObjectShapeChanger : AdminDropdownUI {
+	public class ObjectShapeChanger : AdminDropdownUi {
 
 		[Serializable]
 		public struct ObjectShape {
-			public GameObject obj;
-			public string name;
+			public GameObject Obj;
+			public string Name;
 
 			public ObjectShape(GameObject o, string n) {
-				obj = o;
-				name = n;
+				Obj = o;
+				Name = n;
 			}
 		}
 
 		/// <summary>
 		/// Whether a random shape has to be chosen every time an object is spawned
 		/// </summary>
-		protected bool chooseRandomShape = false;
+		protected bool ChooseRandomShape;
 		
 		/// <summary>
 		/// All selectable objects
 		/// </summary>
-		public ObjectShape[] availableObjects;
+		public ObjectShape[] AvailableObjects;
 		
 		/// <summary>
 		/// All the keys used for switching between shapes
 		/// </summary>
-		protected List<KeyCode> changeShapeKeys = new List<KeyCode> {
+		protected List<KeyCode> ChangeShapeKeys = new List<KeyCode> {
 			KeyCode.Alpha1, KeyCode.Alpha2, KeyCode.Alpha3, KeyCode.Alpha4, KeyCode.Alpha5, KeyCode.Alpha6
 		};
 
 		protected override void Start() {
 			base.Start();
-			objectManager.SpawnInitiated.Subscribe(_ => RandomiseIfNeeded());
+			ObjectManager.SpawnInitiated.Subscribe(_ => RandomiseIfNeeded());
 		}
 		
 		protected virtual void Update() {
-			if (!AdminUIBase.IsAdmin)
+			if (!IsAdmin)
 				return;
-			foreach (var item in changeShapeKeys.Select((value, index) => new { index, value })) {
+			foreach (var item in ChangeShapeKeys.Select((value, index) => new { index, value })) {
 				CheckKey(item.value, item.index);
 			}
 		}
@@ -56,7 +56,7 @@ namespace PXL.UI {
 		/// </summary>
 		private void CheckKey(KeyCode key, int index) {
 			if (Input.GetKeyDown(key))
-				dropdown.value = index;
+				Dropdown.value = index;
 		}
 		
 		/// <summary>
@@ -64,36 +64,33 @@ namespace PXL.UI {
 		/// </summary>
 		/// <param name="menuIndex">The new index of the menu</param>
 		public void SelectionChanged(int menuIndex) {
-			GameObject newPrefab = availableObjects.ElementAt(menuIndex).obj;
-			objectManager.SetObjectPrefab(newPrefab);
+			var newPrefab = AvailableObjects.ElementAt(menuIndex).Obj;
+			ObjectManager.SetObjectPrefab(newPrefab);
 
-			chooseRandomShape = (menuIndex == 0) ? true : false;
+			ChooseRandomShape = menuIndex == 0;
 		}
 		
 		/// <summary>
 		/// Adds all object entries to the dropdown list
 		/// </summary>
 		protected override void AddDropdownEntries() {
-			List<Dropdown.OptionData> optionsList = new List<Dropdown.OptionData>();
-			foreach (ObjectShape entry in availableObjects) {
-				optionsList.Add(new Dropdown.OptionData(entry.name));
-			}
-			dropdown.AddOptions(optionsList);
+			var optionsList = AvailableObjects.Select(entry => new Dropdown.OptionData(entry.Name)).ToList();
+			Dropdown.AddOptions(optionsList);
 		}
 		
 		/// <summary>
 		/// Change the currently used shape to a random one if necessary
 		/// </summary>
 		protected virtual void RandomiseIfNeeded() {
-			if (chooseRandomShape)
-				objectManager.SetObjectPrefab(GetRandomShape());
+			if (ChooseRandomShape)
+				ObjectManager.SetObjectPrefab(GetRandomShape());
 		}
 		
 		/// <summary>
 		/// Returns a random shape
 		/// </summary>
 		public GameObject GetRandomShape() {		
-			return availableObjects.GetRandomElement(1).obj;
+			return AvailableObjects.GetRandomElement(1).Obj;
 		}
 	}
 

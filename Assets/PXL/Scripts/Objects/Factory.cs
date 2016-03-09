@@ -8,19 +8,19 @@ namespace PXL.Objects {
 		/// <summary>
 		/// The GameObject to spawn
 		/// </summary>
-		public GameObject prefab { get; set; }
+		public GameObject Prefab { get; set; }
 
 		/// <summary>
 		/// The position of the spawned objects
 		/// </summary>
-		public Vector3 position { get; set; }
+		public Vector3 Position { get; set; }
 		
 		/// <summary>
-		/// Spawns an isntance of <see cref="prefab"/> at <see cref="position"/>
+		/// Spawns an isntance of <see cref="Prefab"/> at <see cref="Position"/>
 		/// </summary>
 		public virtual GameObject Spawn() {
-			prefab.AssertNotNull();
-			return SimplePool.Spawn(prefab, position, Quaternion.identity);
+			Prefab.AssertNotNull();
+			return SimplePool.Spawn(Prefab, Position, Quaternion.identity);
 		}
 	}
 

@@ -5,13 +5,13 @@
 		/// <summary>
 		/// The observed RigidHand
 		/// </summary>
-		public RigidHand hand;
+		public RigidHand Hand;
 
 		private void Update() {
-			if (hand.GetLeapHand() != null && hand.isActiveAndEnabled)
-				text.text = hand.GetLeapHand().GrabStrength.ToString("0.0000");
+			if (Hand.GetLeapHand() != null && Hand.isActiveAndEnabled)
+				Text.text = Hand.GetLeapHand().GrabStrength.ToString("0.0000");
 			else
-				text.text = "Inactive";
+				Text.text = "Inactive";
 		}
 
 	}

@@ -4,41 +4,41 @@ using UnityEngine;
 
 namespace PXL.UI {
 
-	public abstract class AdminUIBase : MonoBehaviour {
+	public abstract class AdminUiBase : MonoBehaviour {
 
 		/// <summary>
 		/// All existing modes
 		/// </summary>
-		public enum Mode {
-			ADMIN = 0,
-			REHABILITEE = 1
+		public enum UserMode {
+			Admin = 0,
+			Rehabilitee = 1
 		}
 		
 		/// <summary>
 		/// The currently active mode
 		/// </summary>
-		public static Mode mode { get; set; }
+		public static UserMode Mode { get; set; }
 		
 		/// <summary>
 		/// Returns whether the admin mode is active
 		/// </summary>
-		public static bool IsAdmin { get { return mode == Mode.ADMIN; } }
+		public static bool IsAdmin { get { return Mode == UserMode.Admin; } }
 		
 		/// <summary>
 		/// The referenced ObjectManager
 		/// </summary>
-		public ObjectManager objectManager;
+		public ObjectManager ObjectManager;
 
 		protected virtual void Start() {
-			objectManager.AssertNotNull();
-			mode = Mode.ADMIN;
+			ObjectManager.AssertNotNull();
+			Mode = UserMode.Admin;
 		}
 		
 		/// <summary>
 		/// Toggles between admin and rehabilitee mode
 		/// </summary>
 		public static void ToggleMode() {
-			mode = (mode == Mode.ADMIN) ? Mode.REHABILITEE : Mode.ADMIN;
+			Mode = Mode == UserMode.Admin ? UserMode.Rehabilitee : UserMode.Admin;
 		}
 	}
 

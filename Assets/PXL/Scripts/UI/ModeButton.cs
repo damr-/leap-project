@@ -6,11 +6,11 @@ namespace PXL.UI {
 
 	[RequireComponent(typeof(Button))]
 	public class ModeButton : MonoBehaviour {
-	
+
 		/// <summary>
 		/// The button which is used for switching mode
 		/// </summary>
-		public KeyCode switchModeKey = KeyCode.Y;
+		public KeyCode SwitchModeKey = KeyCode.Y;
 
 		/// <summary>
 		/// The button component of this GameObject
@@ -22,9 +22,9 @@ namespace PXL.UI {
 		}
 
 		protected virtual void Update() {
-			if (Input.GetKeyDown(switchModeKey)) {
+			if (Input.GetKeyDown(SwitchModeKey)) {
 				button.onClick.Invoke();
-				AdminUIBase.ToggleMode();
+				AdminUiBase.ToggleMode();
 			}
 		}
 
