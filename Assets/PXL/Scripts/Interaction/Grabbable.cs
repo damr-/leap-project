@@ -9,6 +9,7 @@ namespace PXL.Interaction {
 	[RequireComponent(typeof(Collider))]
 	[RequireComponent(typeof(Rigidbody))]
 	public class Grabbable : MonoBehaviour {
+
 		/// <summary>
 		/// Whether this object is currently grabbed or not
 		/// </summary>
@@ -93,22 +94,26 @@ namespace PXL.Interaction {
 		/// The offset of the object when being picked up
 		/// </summary>
 		private Vector3 offset;
-
+		
 		/// <summary>
 		/// How long to wait after changing hands before being able to change again
 		/// </summary>
 		private float changeHandDelay = 0.25f;
+
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 		private void Update() {
 			if (IsGrabPossible() && !isGrabbed) {
 				Grab();
 			}
 			else if (isGrabbed) {
-				if (IsHandActive() && currentHand.GetLeapHand().GrabStrength >= minGrabStrength) {
+				if (CanHoldObject()) {
 					TrackTarget();
 					CheckMovement();
 				}
-				else if (!IsHandActive() || currentHand.GetLeapHand().GrabStrength < minGrabStrength) {
+				else{
 					Drop();
 				}
 			}
@@ -119,21 +124,26 @@ namespace PXL.Interaction {
 		}
 
 		/// <summary>
-		/// Returns whether it is possible to grab this object with the <see cref="currentHand"/>
+		/// Returns whether it is possible to grab this object.
+		/// Checks if the hand can hold the object and whether there are enough fingers, and the thumb, touching it.
 		/// </summary>
-		/// <returns></returns>
 		private bool IsGrabPossible() {
-			return IsHandActive() &&
+			return CanHoldObject() &&
 					handFingers.ContainsKey(currentHand) &&
 					handFingers[currentHand].Count > minFingerCount &&
-					thumbTouches &&
-					currentHand.GetLeapHand().GrabStrength >= minGrabStrength;
+					thumbTouches;
+		}
+
+		/// <summary>
+		/// Returns whether <see cref="currentHand"/> is active and the grab strength is high enough
+		/// </summary>
+		private bool CanHoldObject() {
+			return IsHandActive() && currentHand.GetLeapHand().GrabStrength >= minGrabStrength;
 		}
 
 		/// <summary>
 		/// Returns whether the current hand is valid and active
 		/// </summary>
-		/// <returns></returns>
 		private bool IsHandActive() {
 			return currentHand != null && currentHand.isActiveAndEnabled;
 		}
@@ -145,10 +155,6 @@ namespace PXL.Interaction {
 			SetGrabbed(true);
 			GrabbingHandsManager.AddHand(currentHand);
 			trackedTarget = currentHand.palm;
-
-			//Vector3 originalScale = transform.localScale;
-			//transform.parent = currentHand.palm;
-			//transform.localScale = originalScale;
 			offset = transform.position - CalculateAverageFingerPosition();
 		}
 
@@ -157,7 +163,6 @@ namespace PXL.Interaction {
 		/// </summary>
 		private void Drop() {
 			SetGrabbed(false);
-			//transform.SetParent(null, false);
 			droppedSubject.OnNext(Unit.Default);
 			GrabbingHandsManager.RemoveHand(currentHand);
 			trackedTarget = null;
@@ -172,6 +177,10 @@ namespace PXL.Interaction {
 			rigidbody.useGravity = !grabbed;
 			rigidbody.isKinematic = grabbed;
 			isGrabbed.Value = grabbed;
+
+			//make it child of the palm to avoid the need to track it
+			//problem: rescaling
+			//transform.SetParent((grabbed ? currentHand.palm : null), true);
 		}
 
 		/// <summary>
@@ -188,8 +197,16 @@ namespace PXL.Interaction {
 		/// Updates the position and rotation of the object
 		/// </summary>
 		private void TrackTarget() {
-			transform.position = CalculateAverageFingerPosition() + offset.magnitude* trackedTarget.up * -1; //* 0.5f;
+			transform.position = CalculateObjectPosition(0.5f);
 			transform.rotation = trackedTarget.rotation;
+		}
+
+		/// <summary>
+		/// Returns the position of the object whilst being held
+		/// </summary>
+		/// <param name="offsetPercent">How many percent of the original offset should be kept when holding it</param>
+		private Vector3 CalculateObjectPosition(float offsetPercent = 1f) {
+			return CalculateAverageFingerPosition() + offset.magnitude * trackedTarget.up * -1 * offsetPercent;
 		}
 
 		/// <summary>
@@ -208,11 +225,7 @@ namespace PXL.Interaction {
 		/// Checks whether the thumb of the <see cref="currentHand"/> is actively touching the object and sets the corresponding flag
 		/// </summary>
 		private void UpdateThumbTouches() {
-			if (currentHand == null || !handFingers.ContainsKey(currentHand)) {
-				thumbTouches = false;
-				return;
-			}
-			thumbTouches = handFingers[currentHand].Any(ft => ft.GetComponentInParent<RigidFinger>().GetLeapFinger().Type == Leap.Finger.FingerType.TYPE_THUMB);
+			thumbTouches = IsCertainFingerTouching(currentHand, Leap.Finger.FingerType.TYPE_THUMB);
 		}
 
 		/// <summary>
@@ -243,7 +256,7 @@ namespace PXL.Interaction {
 				if (currentHand == null) {
 					currentHand = hand;
 				}
-				// 2. the new hand has everything that is required to take it away from the other (currently holding) hand
+				// 2. the new hand has everything that is required to take the object away from the other (currently holding) hand
 				else if (CanChangeHands(hand)) {
 					Drop();
 					currentHand = hand;
@@ -270,7 +283,7 @@ namespace PXL.Interaction {
 		/// <param name="hand"></param>
 		/// <returns>False if hand is null or the given finger is not touching the object</returns>
 		private bool IsCertainFingerTouching(HandModel hand, Leap.Finger.FingerType fingerType) {
-			if (hand == null)
+			if (hand == null || !handFingers.ContainsKey(hand))
 				return false;
 			return handFingers[hand].Any(ft => ft.GetComponentInParent<RigidFinger>().GetLeapFinger().Type == fingerType);
 		}
