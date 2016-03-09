@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using PXL.Objects;
 using UniRx;
 using PXL.Utility;
 using PXL.UI;

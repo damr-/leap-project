@@ -25,21 +25,43 @@ namespace PXL.UI {
 		/// Whether a random shape has to be chosen every time an object is spawned
 		/// </summary>
 		protected bool ChooseRandomShape;
-		
+
+		/// <summary>
+		/// The text element of the label
+		/// </summary>
+		public Text LabelText;
+
 		/// <summary>
 		/// All selectable objects
 		/// </summary>
 		public ObjectShape[] AvailableObjects;
-		
+
 		/// <summary>
 		/// All the keys used for switching between shapes
 		/// </summary>
-		protected List<KeyCode> ChangeShapeKeys = new List<KeyCode> {
-			KeyCode.Alpha1, KeyCode.Alpha2, KeyCode.Alpha3, KeyCode.Alpha4, KeyCode.Alpha5, KeyCode.Alpha6
+		protected List<KeyCode> ChangeShapeKeys = new List<KeyCode>();
+
+		/// <summary>
+		/// All available keys for changing the shape
+		/// </summary>
+		protected readonly List<KeyCode> AvailableShapeKeys = new List<KeyCode> {
+			KeyCode.Alpha1, KeyCode.Alpha2, KeyCode.Alpha3, KeyCode.Alpha4, KeyCode.Alpha5, KeyCode.Alpha6, KeyCode.Alpha7, KeyCode.Alpha8, KeyCode.Alpha9, KeyCode.Alpha0
 		};
 
 		protected override void Start() {
 			base.Start();
+
+			LabelText.AssertNotNull("Missing the Text component of the shape label");
+
+			if (AvailableObjects.Length > AvailableShapeKeys.Count)
+				throw new IndexOutOfRangeException("There are too many shapes and too few keys specified!");
+
+			for (var i = 0; i < AvailableObjects.Length; i++) {
+				ChangeShapeKeys.Add(AvailableShapeKeys.ElementAt(i));
+			}
+
+			LabelText.text += AvailableObjects.Length%10 + ")";
+
 			ObjectManager.SpawnInitiated.Subscribe(_ => RandomiseIfNeeded());
 		}
 		

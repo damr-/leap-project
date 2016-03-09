@@ -35,6 +35,10 @@ namespace PXL.UI {
 			new ObjectColor(Color.magenta , "Magenta")
 		};
 
+		/// <summary>
+		/// The text component of the color label
+		/// </summary>
+		public Text LabelText;
 		
 		/// <summary>
 		/// Sprite for the preview image if 'Random' is selected
@@ -52,17 +56,32 @@ namespace PXL.UI {
 		public Color CurrentColor { get; set; }
 		
 		/// <summary>
-		/// All the keys used for switching between colors
+		/// All available keys that could be used for switching colors
 		/// </summary>
-		protected List<KeyCode> ChangeColorKeys = new List<KeyCode> {
+		protected List<KeyCode> AvailableColorKeys = new List<KeyCode> {
 			KeyCode.A, KeyCode.S, KeyCode.D, KeyCode.F, KeyCode.G, KeyCode.H, KeyCode.J, KeyCode.K, KeyCode.L
 		};
+
+		/// <summary>
+		/// The keys that can be used to change color
+		/// </summary>
+		protected List<KeyCode> ChangeColorKeys = new List<KeyCode>();
 
 		protected override void Start() {
 			base.Start();
 
 			ColorPreview.AssertNotNull("The target preview Image component is missing!");
-			
+			LabelText.AssertNotNull("The Text component of the color label is missing");
+
+			if (AvailableColors.Length > AvailableColorKeys.Count)
+				throw new IndexOutOfRangeException("There are too many colors and too few keys specified!");
+
+			for (var i = 0; i < AvailableColors.Length; i++) {
+				ChangeColorKeys.Add(AvailableColorKeys.ElementAt(i));
+			}
+
+			LabelText.text += ChangeColorKeys[0] + "-" + ChangeColorKeys.ElementAt(AvailableColors.Length - 1).ToString() + ")";
+
 			ObjectManager.ObjectSpawned.Subscribe(SetObjectColor);
 		}
 		

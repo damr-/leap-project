@@ -4,11 +4,26 @@ using PXL.Utility;
 
 namespace PXL.Objects {
 
+	public enum ObjectType {
+		All = 0,
+		Cube = 1,
+		Sphere = 2,
+		Cylinder = 3,
+		Capsule = 4,
+		Pyramid = 5,
+		Ring = 6,
+	}
+
 	public class ObjectBehaviour : MonoBehaviour {
 		/// <summary>
 		/// At what distance from the origin the object despawns
 		/// </summary>
 		public float DespawnDistance = 2f;
+
+		/// <summary>
+		/// The ObjectType of this object
+		/// </summary>
+		public ObjectType ObjectType;
 
 		/// <summary>
 		/// The GameObject to spawn when the object is destroyed
