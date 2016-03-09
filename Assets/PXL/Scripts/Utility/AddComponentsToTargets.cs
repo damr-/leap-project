@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace PXL.Utility {
@@ -19,6 +20,7 @@ namespace PXL.Utility {
 
 		private void Awake() {
 			assemblyName = Assembly.GetExecutingAssembly().FullName;
+			Targets.ForEach(t => t.AssertNotNull());
 			Targets.ForEach(AddComponents);
 		}
 

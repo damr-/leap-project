@@ -87,9 +87,14 @@ namespace PXL.Interaction {
 		private float lastChangeTime;
 
 		/// <summary>
-		/// The offset of the object when being picked up
+		/// The offset of the object's position when being picked up
 		/// </summary>
-		private Vector3 offset;
+		private Vector3 posOffset;
+
+		/// <summary>
+		/// The offset of the object's rotation when begin picked up
+		/// </summary>
+		private Quaternion rotOffset;
 
 		/// <summary>
 		/// How long to wait after changing hands before being able to change again
@@ -107,6 +112,7 @@ namespace PXL.Interaction {
 			else if (isGrabbed) {
 				if (CanHoldObject()) {
 					TrackTarget();
+
 					CheckMovement();
 				}
 				else {
@@ -151,7 +157,8 @@ namespace PXL.Interaction {
 			SetGrabbed(true);
 			GrabbingHandsManager.AddHand(CurrentHand);
 			trackedTarget = CurrentHand.palm;
-			offset = transform.position - CalculateAverageFingerPosition();
+			posOffset = transform.position - CalculateAverageFingerPosition();
+			rotOffset = Quaternion.Inverse(transform.rotation) * trackedTarget.rotation;
 		}
 
 		/// <summary>
@@ -176,7 +183,7 @@ namespace PXL.Interaction {
 
 			//make it child of the palm to avoid the need to track it
 			//problem: rescaling
-			//transform.SetParent((grabbed ? currentHand.palm : null), true);
+			//transform.SetParent(grabbed ? CurrentHand.palm : null, true);
 		}
 
 		/// <summary>
@@ -194,7 +201,7 @@ namespace PXL.Interaction {
 		/// </summary>
 		private void TrackTarget() {
 			transform.position = CalculateObjectPosition(0.5f);
-			transform.rotation = trackedTarget.rotation;
+			transform.rotation = trackedTarget.rotation * rotOffset;
 		}
 
 		/// <summary>
@@ -202,7 +209,7 @@ namespace PXL.Interaction {
 		/// </summary>
 		/// <param name="offsetPercent">How many percent of the original offset should be kept when holding it</param>
 		private Vector3 CalculateObjectPosition(float offsetPercent = 1f) {
-			return CalculateAverageFingerPosition() + offset.magnitude * trackedTarget.up * -1 * offsetPercent;
+			return CalculateAverageFingerPosition() + posOffset.magnitude * trackedTarget.up * -1 * offsetPercent;
 		}
 
 		/// <summary>
@@ -280,7 +287,7 @@ namespace PXL.Interaction {
 		private bool IsCertainFingerTouching(HandModel hand, Leap.Finger.FingerType fingerType) {
 			if (hand == null || !handFingers.ContainsKey(hand))
 				return false;
-			return handFingers[hand].Any(ft => ft.GetComponentInParent<RigidFinger>().GetLeapFinger().Type == fingerType);
+			return handFingers[hand].Select(ft => ft.GetComponentInParent<RigidFinger>()).Any(finger => finger && finger.GetLeapFinger().Type == fingerType);
 		}
 
 		/// <summary>

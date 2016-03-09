@@ -14,7 +14,8 @@ namespace PXL.Objects {
 		/// </summary>
 		public override GameObject Spawn() {
 			var newObject = base.Spawn();
-			newObject.transform.localScale = new Vector3(Scale, Scale, Scale);
+			Vector3 s = newObject.transform.localScale;
+            newObject.transform.localScale = new Vector3(s.x * Scale, s.y * Scale, s.z * Scale);
 			newObject.GetComponent<Rigidbody>().velocity = Vector3.zero;
 			return newObject;
 		}

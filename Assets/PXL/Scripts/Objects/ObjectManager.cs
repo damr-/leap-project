@@ -8,7 +8,14 @@ namespace PXL.Objects {
 
 	public class ObjectManager : MonoBehaviour {
 
+		/// <summary>
+		/// The key used to spawn an object
+		/// </summary>
 		public KeyCode SpawnKey = KeyCode.X;
+
+		/// <summary>
+		/// The key used to remove all objects
+		/// </summary>
 		public KeyCode RemoveAllKey = KeyCode.C;
 
 		/// <summary>
@@ -30,17 +37,27 @@ namespace PXL.Objects {
 		/// <summary>
 		/// Minimum possible scale of the object
 		/// </summary>
-		public float MinScale = 0.025f;
+		public float MinScaleFactor = 0.2f;
 		
 		/// <summary>
 		/// Maximum possible scale of the object
 		/// </summary>
-		public float MaxScale = 0.1f;
-		
+		public float MaxScaleFactor = 2f;
+
 		/// <summary>
 		/// The default scale of the object
 		/// </summary>
-		public float DefaultScale = 0.075f;
+		public float DefaultScaleFactor = 1f;
+
+		/// <summary>
+		/// How much the scale changes when de-/increasing
+		/// </summary>
+		public float ScaleChangeAmount = 0.1f;
+
+		/// <summary>
+		/// The current set scale for objects
+		/// </summary>
+		private float currentScaleFactor;
 
 		/// <summary>
 		/// The actual used position to spawn objects
@@ -100,8 +117,9 @@ namespace PXL.Objects {
 			DefaultObjectPrefab.AssertNotNull();
             objectFactory.Prefab = DefaultObjectPrefab;
 			objectFactory.Position = spawnPosition;
-			SetObjectScale(DefaultScale.Remap(MinScale, MaxScale, 0, 1));
+
 			currentObjectPrefab = DefaultObjectPrefab;
+			SetObjectScale(DefaultScaleFactor);
 
 			for (var i = 0; i < StartAmount; i++)
 				SpawnObject();
@@ -167,16 +185,37 @@ namespace PXL.Objects {
 		}
 		
 		/// <summary>
-		/// Sets the scale the objects get applied when spawned
-		/// The number is mapped to the range minScale to maxScale
+		/// Increases the object scale of future objects by <see cref="ScaleChangeAmount"/>
 		/// </summary>
-		/// <param name="sliderValue">New scale for the objects in range [0, 1]. Will be mapped to [minScale, maxScale]</param>
-		public void SetObjectScale(float sliderValue) {
-			var newScale = sliderValue.Remap(0, 1, MinScale, MaxScale);
+		public void IncreaseObjectScale() {
+			SetObjectScale(currentScaleFactor + ScaleChangeAmount);
+		}
+
+		/// <summary>
+		/// Decreases the object scale of future objects by <see cref="ScaleChangeAmount"/>
+		/// </summary>
+		public void DecreaseObjectScale() {
+			SetObjectScale(currentScaleFactor - ScaleChangeAmount);
+		}
+
+		/// <summary>
+		/// Resets the scale factor for objects to the default value
+		/// </summary>
+		public void ResetObjectScale() {
+			SetObjectScale(DefaultScaleFactor);
+		}
+
+		/// <summary>
+		/// Changes the object scale depending on the given bool and updates the variables
+		/// </summary>
+		private void SetObjectScale(float newScale) {
+			if (newScale < MinScaleFactor || newScale > MaxScaleFactor)
+				return;
+			currentScaleFactor = newScale;
 			ObjectScale.Value = newScale;
 			objectFactory.Scale = newScale;
 		}
-		
+
 		/// <summary>
 		/// Sets the objectPrefab which will be spawned
 		/// </summary>
