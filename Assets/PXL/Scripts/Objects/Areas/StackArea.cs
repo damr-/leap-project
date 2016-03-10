@@ -25,11 +25,6 @@ namespace PXL.Objects.Areas {
 		public List<ObjectBehaviour> SortedObjects = new List<ObjectBehaviour>();
 
 		/// <summary>
-		/// Minimum allowed velocity for a object to be called stationary
-		/// </summary>
-		public Vector3 MinimumVelocity = new Vector3(0.01f, 0.01f, 0.01f);
-
-		/// <summary>
 		/// The color of the light on success
 		/// </summary>
 		public Color SuccessColor;
@@ -43,7 +38,7 @@ namespace PXL.Objects.Areas {
 		/// The gamemode of this level
 		/// </summary>
 		public GameMode GameMode;
-		
+
 		protected virtual void Start() {
 			if (ObjectManagers.Count == 0) {
 				throw new MissingReferenceException("There are no ObjectManagers assigned!");
@@ -54,14 +49,14 @@ namespace PXL.Objects.Areas {
 		}
 
 		protected virtual void Update() {
-			if (!GameMode.GameWon && SortedObjects.Count == RequiredObjectsAmount) {
-				SortObjectsIfNeeded();
-				if (StackedCorrecly() && AllObjectsDropped()) {
-					GameMode.GameOver(true);
-					SortedObjects.Clear();
-					AreaLight.color = SuccessColor;
-				}
-			}
+			if (GameMode.GameWon || SortedObjects.Count != RequiredObjectsAmount)
+				return;
+
+			SortObjectsIfNeeded();
+			if (!StackedCorrecly() || !AllObjectsDropped())
+				return;
+
+			HandleGameWon();
 		}
 
 		/// <summary>
@@ -83,7 +78,7 @@ namespace PXL.Objects.Areas {
 		/// Sorts the objects inside the area 
 		/// </summary>
 		protected virtual void SortObjectsIfNeeded() {
-			if(IsSortNeeded())
+			if (IsSortNeeded())
 				SortedObjects = SortedObjects.OrderBy(o => o.transform.position.y).ToList();
 		}
 
@@ -104,7 +99,7 @@ namespace PXL.Objects.Areas {
 		/// <returns>True if no objects is still grabbed, false if otherwise</returns>
 		protected virtual bool AllObjectsDropped() {
 			var result = SortedObjects.Select(o => o.GetComponent<Grabbable>()).All(grabbable => !grabbable.IsGrabbed);
-			result &= SortedObjects.Select(o => o.GetComponent<Rigidbody>()).All(r => r.velocity.Equal(MinimumVelocity, 0.01f));
+			result &= SortedObjects.Select(o => o.GetComponent<Rigidbody>()).All(r => r.velocity.Equal(Vector3.zero));
 			return result;
 		}
 
@@ -124,6 +119,15 @@ namespace PXL.Objects.Areas {
 			var objectBehaviour = other.GetComponent<ObjectBehaviour>();
 			if (objectBehaviour != null && SortedObjects.Contains(objectBehaviour))
 				SortedObjects.Remove(objectBehaviour);
+		}
+
+		/// <summary>
+		/// Called when the game is won
+		/// </summary>
+		protected virtual void HandleGameWon() {
+			GameMode.GameOver(true);
+			SortedObjects.Clear();
+			AreaLight.color = SuccessColor;
 		}
 	}
 

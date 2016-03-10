@@ -76,7 +76,7 @@ namespace PXL.Utility {
 		/// Compares two Vectors for near equality, optionally with the given epsilon.
 		/// </summary>
 		public static bool Equal(this Vector3 a, Vector3 b, float epsilon = 0.0001f) {
-			return Vector3.SqrMagnitude(a - b) < epsilon;
+			return Vector3.Magnitude(a - b) < epsilon;
 		}
 
 		/// <summary>

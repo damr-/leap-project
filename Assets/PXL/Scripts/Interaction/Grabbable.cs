@@ -177,7 +177,8 @@ namespace PXL.Interaction {
 		}
 
 		/// <summary>
-		/// Calls <see cref="SetGrabbed(bool)"/> to disable physics and sets the tracked target
+		/// Sets up everything for the object to be grabbed and moved around
+		/// Notifies GrabbingHandsManager that <see cref="CurrentHand"/> is now grabbing an object.
 		/// </summary>
 		private void Grab() {
 			SetGrabbed(true);
@@ -201,7 +202,6 @@ namespace PXL.Interaction {
 		/// <summary>
 		/// Disables Physics and sets the flag
 		/// </summary>
-		/// <param name="grabbed"></param>
 		private void SetGrabbed(bool grabbed) {
 			Rigidbody.useGravity = !grabbed;
 			Rigidbody.isKinematic = grabbed;
