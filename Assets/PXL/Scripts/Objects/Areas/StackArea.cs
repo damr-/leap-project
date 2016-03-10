@@ -126,6 +126,7 @@ namespace PXL.Objects.Areas {
 		/// </summary>
 		protected virtual void HandleGameWon() {
 			GameMode.GameOver(true);
+			SortedObjects.ForEach(o => o.GetComponent<Rigidbody>().isKinematic = true);
 			SortedObjects.Clear();
 			AreaLight.color = SuccessColor;
 		}

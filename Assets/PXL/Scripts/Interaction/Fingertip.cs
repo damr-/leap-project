@@ -37,16 +37,16 @@ namespace PXL.Interaction {
 			var otherObject = other.gameObject;
 			if (!otherObject.CompareTag(targetTag))
 				return;
-			var grabbable = Touchables.GetOrAdd(other);
-			grabbable.AddFinger(this);
+			var touchable = Touchables.GetOrAdd(other);
+			touchable.AddFinger(this);
 		}
 
 		private void OnTriggerExit(Collider other) {
 			var otherObject = other.gameObject;
 			if (!otherObject.CompareTag(targetTag))
 				return;
-			var grabbable = Touchables.GetOrAdd(other);
-			grabbable.RemoveFinger(this);
+			var touchable = Touchables.GetOrAdd(other);
+			touchable.RemoveFinger(this);
 		}
 
 	}
