@@ -30,9 +30,7 @@ namespace PXL.Objects.Areas {
 		}
 
 		protected virtual void OnTriggerExit(Collider other) {
-			if (Objects.Contains(other.gameObject)) {
-				Objects.Remove(other.gameObject);
-			}
+			Objects.Remove(other.gameObject);
 		}
 
 		protected virtual void HandleTriggerEntered(Collider other) {

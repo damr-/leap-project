@@ -4,16 +4,15 @@ using UnityEngine;
 
 namespace PXL.UI {
 
-	public abstract class AdminUiBase : MonoBehaviour {
+	/// <summary>
+	/// All existing modes
+	/// </summary>
+	public enum UserMode {
+		Admin = 0,
+		Rehabilitee = 1
+	}
 
-		/// <summary>
-		/// All existing modes
-		/// </summary>
-		public enum UserMode {
-			Admin = 0,
-			Rehabilitee = 1
-		}
-		
+	public abstract class AdminUiBase : MonoBehaviour {
 		/// <summary>
 		/// The currently active mode
 		/// </summary>

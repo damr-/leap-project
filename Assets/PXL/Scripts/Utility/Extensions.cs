@@ -78,6 +78,13 @@ namespace PXL.Utility {
 		public static bool Equal(this Vector3 a, Vector3 b, float epsilon = 0.0001f) {
 			return Vector3.SqrMagnitude(a - b) < epsilon;
 		}
+
+		/// <summary>
+		/// Returns whether the given hand and it's leap hand are valid and visible
+		/// </summary>
+		public static bool IsHandValid(this HandModel hand) {
+			return (hand != null && hand.isActiveAndEnabled && hand.GetLeapHand() != null);
+		}
 	}
 
 }

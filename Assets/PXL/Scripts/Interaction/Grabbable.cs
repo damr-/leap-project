@@ -6,10 +6,19 @@ using UniRx;
 
 namespace PXL.Interaction {
 
+	public class MovementInfo {
+		public float Delta;
+		public Vector3 NewPosition;
+
+		public MovementInfo(float delta, Vector3 newPosition) {
+			this.Delta = delta;
+			this.NewPosition = newPosition;
+		}
+	}
+
 	[RequireComponent(typeof(Collider))]
 	[RequireComponent(typeof(Rigidbody))]
 	public class Grabbable : MonoBehaviour {
-
 		/// <summary>
 		/// Whether this object is currently grabbed or not
 		/// </summary>
@@ -25,8 +34,14 @@ namespace PXL.Interaction {
 		/// <summary>
 		/// Observable for when the object is moved while grabbed
 		/// </summary>
-		public IObservable<Vector3> Moved { get { return movedSubject; } }
-		private readonly ISubject<Vector3> movedSubject = new Subject<Vector3>();
+		public IObservable<MovementInfo> MovedWhileGrabbed { get { return movedWhileGrabbedSubject; } }
+		private readonly ISubject<MovementInfo> movedWhileGrabbedSubject = new Subject<MovementInfo>();
+
+		/// <summary>
+		/// Observable for when the object is moved
+		/// </summary>
+		public IObservable<MovementInfo> Moved { get { return movedSubject; } }
+		private readonly ISubject<MovementInfo> movedSubject = new Subject<MovementInfo>();
 
 		/// <summary>
 		/// The minimum grab strength necessary to pick up an object
@@ -72,7 +87,7 @@ namespace PXL.Interaction {
 		private Vector3 lastPosition;
 
 		/// <summary>
-		/// How far an object has to move to throw the <see cref="movedSubject"/>
+		/// How far an object has to move to throw the <see cref="movedWhileGrabbedSubject"/>
 		/// </summary>
 		private const float MoveThresHold = 0.1f;
 
@@ -113,12 +128,14 @@ namespace PXL.Interaction {
 				if (CanHoldObject()) {
 					TrackTarget();
 
-					CheckMovement();
+					CheckMovement(movedWhileGrabbedSubject);
 				}
 				else {
-					Drop();
+					Drop(true);
 				}
 			}
+
+			CheckMovement(movedSubject);
 
 			if (!canChangeHands && Time.time - lastChangeTime > ChangeHandDelay) {
 				canChangeHands = true;
@@ -140,14 +157,7 @@ namespace PXL.Interaction {
 		/// Returns whether <see cref="CurrentHand"/> is active and the grab strength is high enough
 		/// </summary>
 		private bool CanHoldObject() {
-			return IsHandActive() && CurrentHand.GetLeapHand() != null && CurrentHand.GetLeapHand().GrabStrength >= MinGrabStrength;
-		}
-
-		/// <summary>
-		/// Returns whether the current hand is valid and active
-		/// </summary>
-		private bool IsHandActive() {
-			return CurrentHand != null && CurrentHand.isActiveAndEnabled;
+			return CurrentHand.IsHandValid() && CurrentHand.GetLeapHand().GrabStrength >= MinGrabStrength;
 		}
 
 		/// <summary>
@@ -164,9 +174,10 @@ namespace PXL.Interaction {
 		/// <summary>
 		/// Removes the target and hand. Calls <see cref="SetGrabbed(bool)"/> to re-enable physics
 		/// </summary>
-		private void Drop() {
+		private void Drop(bool humanCause) {
 			SetGrabbed(false);
-			droppedSubject.OnNext(Unit.Default);
+			if(humanCause)
+				droppedSubject.OnNext(Unit.Default);
 			GrabbingHandsManager.RemoveHand(CurrentHand);
 			trackedTarget = null;
 			CurrentHand = null;
@@ -180,19 +191,15 @@ namespace PXL.Interaction {
 			Rigidbody.useGravity = !grabbed;
 			Rigidbody.isKinematic = grabbed;
 			isGrabbed.Value = grabbed;
-
-			//make it child of the palm to avoid the need to track it
-			//problem: rescaling
-			//transform.SetParent(grabbed ? CurrentHand.palm : null, true);
 		}
 
 		/// <summary>
 		/// Checks whether the object has been moved beyond a certain threshold and if yes, emits the subject
 		/// </summary>
-		private void CheckMovement() {
+		private void CheckMovement(ISubject<MovementInfo> subject) {
 			if (!(Vector3.Distance(transform.position, lastPosition) > MoveThresHold))
 				return;
-			movedSubject.OnNext(transform.position);
+			subject.OnNext(new MovementInfo(Vector3.Distance(transform.position, lastPosition), transform.position));
 			lastPosition = transform.position;
 		}
 
@@ -234,7 +241,7 @@ namespace PXL.Interaction {
 		/// </summary>
 		private void OnDisable() {
 			if (isGrabbed)
-				Drop();
+				Drop(false);
 		}
 
 		/// <summary>
@@ -259,7 +266,7 @@ namespace PXL.Interaction {
 				}
 				// 2. the new hand has everything that is required to take the object away from the other (currently holding) hand
 				else if (CanChangeHands(hand)) {
-					Drop();
+					Drop(true);
 					CurrentHand = hand;
 					Grab();
 					canChangeHands = false;

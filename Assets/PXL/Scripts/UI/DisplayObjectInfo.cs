@@ -39,7 +39,7 @@ namespace PXL.UI {
 
 			grabbable.IsGrabbed.Where(grabbed => grabbed).Subscribe(_ => ObjectGrabbed(grabbable));
 			grabbable.Dropped.Subscribe(_ => ObjectDropped(grabbable));
-			grabbable.Moved.Subscribe(pos => ObjectMoved(grabbable, pos));
+			grabbable.MovedWhileGrabbed.Subscribe(movementInfo => ObjectMoved(grabbable, movementInfo));
 		}
 
 		/// <summary>
@@ -67,12 +67,10 @@ namespace PXL.UI {
 		/// <summary>
 		/// Called when an object, grabbed by the correct hand, is moved
 		/// </summary>
-		/// <param name="grabbable">The object</param>
-		/// <param name="newPosition">The new position of the object</param>
-		private void ObjectMoved(Grabbable grabbable, Vector3 newPosition) {
+		private void ObjectMoved(Grabbable grabbable, MovementInfo movementInfo) {
 			var hand = grabbable.CurrentHand;
 			if (hand != null && hand.GetLeapHand().IsLeft == TrackLeftHand) {
-				PositionText.text = "x:" + newPosition.x.ToString("0.000") + "\ny: " + newPosition.y.ToString("0.000") + "\nz: " + newPosition.z.ToString("0.000");
+				PositionText.text = "x:" + movementInfo.NewPosition.x.ToString("0.000") + "\ny: " + movementInfo.NewPosition.y.ToString("0.000") + "\nz: " + movementInfo.NewPosition.z.ToString("0.000");
 			}
 		}
 	}

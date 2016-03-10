@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using PXL.Interaction;
 using PXL.Utility;
+using UniRx;
 
 namespace PXL.Objects.Areas {
 
@@ -39,14 +40,10 @@ namespace PXL.Objects.Areas {
 		public Light AreaLight;
 
 		/// <summary>
-		/// How long to wait before destroying the successfully placed objects
+		/// Whether the game is won
 		/// </summary>
-		protected float DestroyDelay = 1f;
-
-		private bool won;
-		private float destroyDelayStartTime;
-
-		private Color defaultLightColor;
+		public ObservableProperty<bool> GameWon { get { return isGameWon; } }
+		private readonly ObservableProperty<bool> isGameWon = new ObservableProperty<bool>();
 		
 		protected virtual void Start() {
 			if (ObjectManagers.Count == 0) {
@@ -54,24 +51,16 @@ namespace PXL.Objects.Areas {
 			}
 
 			AreaLight.AssertNotNull("The area light is missing");
-
-			defaultLightColor = AreaLight.color;
 		}
 
 		protected virtual void Update() {
-			if (!won && SortedObjects.Count == RequiredObjectsAmount) {
-				SortObjects();
+			if (!GameWon && SortedObjects.Count == RequiredObjectsAmount) {
+				SortObjectsIfNeeded();
 				if (StackedCorrecly() && AllObjectsDropped()) {
-					destroyDelayStartTime = Time.time;
-					won = true;
+					GameWon.Value = true;
 					SortedObjects.Clear();
 					AreaLight.color = SuccessColor;
 				}
-			}
-
-			if (won && Time.time - destroyDelayStartTime > DestroyDelay) {
-				won = false;
-				HandleGameOver();
 			}
 		}
 
@@ -93,8 +82,20 @@ namespace PXL.Objects.Areas {
 		/// <summary>
 		/// Sorts the objects inside the area 
 		/// </summary>
-		protected virtual void SortObjects() {
-			SortedObjects = SortedObjects.OrderBy(o => o.transform.position.y).ToList();
+		protected virtual void SortObjectsIfNeeded() {
+			if(IsSortNeeded())
+				SortedObjects = SortedObjects.OrderBy(o => o.transform.position.y).ToList();
+		}
+
+		/// <summary>
+		/// Returns whether sorting the objects is needed
+		/// </summary>
+		protected virtual bool IsSortNeeded() {
+			for (var i = 0; i < SortedObjects.Count - 1; i++) {
+				if (SortedObjects[i].transform.position.y > SortedObjects[i + 1].transform.position.y)
+					return true;
+			}
+			return false;
 		}
 
 		/// <summary>
@@ -103,6 +104,7 @@ namespace PXL.Objects.Areas {
 		/// <returns>True if no objects is still grabbed, false if otherwise</returns>
 		protected virtual bool AllObjectsDropped() {
 			var result = SortedObjects.Select(o => o.GetComponent<Grabbable>()).All(grabbable => !grabbable.IsGrabbed);
+			result &= SortedObjects.Select(o => o.GetComponent<Rigidbody>()).All(r => r.velocity.Equal(MinimumVelocity, 0.01f));
 			return result;
 		}
 
@@ -122,14 +124,6 @@ namespace PXL.Objects.Areas {
 			var objectBehaviour = other.GetComponent<ObjectBehaviour>();
 			if (objectBehaviour != null && SortedObjects.Contains(objectBehaviour))
 				SortedObjects.Remove(objectBehaviour);
-		}
-
-		/// <summary>
-		/// Called when the objects are stacked correctly and the game is over
-		/// </summary>
-		protected virtual void HandleGameOver() {
-			ObjectManagers.ForEach(om => om.RemoveAllObjects());
-			AreaLight.color = defaultLightColor;
 		}
 	}
 
