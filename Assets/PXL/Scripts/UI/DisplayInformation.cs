@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
+using PXL.Gamemodes;
 using PXL.Interaction;
 using PXL.Objects;
-using PXL.Objects.Areas;
 using PXL.Utility;
 using UniRx;
-using UniRx.Triggers;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -41,9 +39,9 @@ namespace PXL.UI {
 		public ObjectManager[] ObjectManagers;
 
 		/// <summary>
-		/// The stack area of this level
+		/// The GameMode of this level
 		/// </summary>
-		public StackArea StackArea;
+		public GameMode GameMode;
 
 		/// <summary>
 		/// The canvas which will display the game over message
@@ -86,12 +84,11 @@ namespace PXL.UI {
 				objectManager.AssertNotNull();
 				objectManager.ObjectSpawned.Subscribe(ObjectSpawned);
 			}
+			GameMode.AssertNotNull("GameMode reference is missing!");
+			GameMode.GameWon.Subscribe(_ => HandleGameWon());
 
-			StackArea.AssertNotNull();
-			StackArea.GameWon.Subscribe(HandleGameWon);
-
-			LevelInput.AssertNotNull();
-			MessageCanvas.AssertNotNull();
+			LevelInput.AssertNotNull("LevelInput reference is missing");
+			MessageCanvas.AssertNotNull("MessageCanvas reference is missing");
         }
 
 		private void Update() {
@@ -119,20 +116,20 @@ namespace PXL.UI {
 			var c = new CompositeDisposable();
 
 			grabbable.IsGrabbed.Where(grabbed => grabbed).Subscribe(_ => {
-				IncrementText(grabbable, PicksTexts);
+				IncrementTextValue(grabbable, PicksTexts);
 				TryStartTimer();
 			}).AddTo(c);
-			grabbable.Dropped.Subscribe(_ => IncrementText(grabbable, DropsTexts)).AddTo(c);
+			grabbable.Dropped.Subscribe(_ => IncrementTextValue(grabbable, DropsTexts)).AddTo(c);
 			grabbable.MovedWhileGrabbed.Subscribe(movementInfo => ObjectMoved(grabbable, movementInfo)).AddTo(c);
 
-			grabbable.GetComponent<ObjectBehaviour>().ObjectDestroyed.Subscribe(_ => {
+			objectSubscriptions.Add(grabbable.gameObject, c);
+
+			objectBehaviour.ObjectDestroyed.Subscribe(_ => {
 				if (grabbable.gameObject == null || !objectSubscriptions.ContainsKey(grabbable.gameObject))
 					return;
 				objectSubscriptions[grabbable.gameObject].Dispose();
 				objectSubscriptions.Remove(grabbable.gameObject);
 			});
-
-			objectSubscriptions.Add(grabbable.gameObject, c);
 		}
 
 		/// <summary>
@@ -167,12 +164,16 @@ namespace PXL.UI {
 		/// <summary>
 		/// Increments the value of the Text component's text by one, if possible
 		/// </summary>
-		private void IncrementText(Grabbable grabbable, IList<Text> possibleTexts) {
+		private void IncrementTextValue(Grabbable grabbable, IList<Text> possibleTexts) {
 			var index = GetHandIndexIfValid(grabbable);
+
 			if (index == -1)
 				return;
+
 			var text = possibleTexts[index];
+
 			var value = GetLabelTextAsNumber(text);
+
 			if (value != -1)
 				text.text = (value + 1).ToString();
 		}
@@ -180,7 +181,7 @@ namespace PXL.UI {
 		/// <summary>
 		/// Called when the stacking game is over
 		/// </summary>
-		private void HandleGameWon(bool won) {
+		private void HandleGameWon() {
 			startTime = -1;
 			
 			MessageCanvas.gameObject.SetActive(true);

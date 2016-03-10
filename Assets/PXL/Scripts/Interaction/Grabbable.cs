@@ -1,7 +1,5 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using PXL.Utility;
-using System.Linq;
 using UniRx;
 
 namespace PXL.Interaction {
@@ -11,14 +9,14 @@ namespace PXL.Interaction {
 		public Vector3 NewPosition;
 
 		public MovementInfo(float delta, Vector3 newPosition) {
-			this.Delta = delta;
-			this.NewPosition = newPosition;
+			Delta = delta;
+			NewPosition = newPosition;
 		}
 	}
 
-	[RequireComponent(typeof(Collider))]
-	[RequireComponent(typeof(Rigidbody))]
+	[RequireComponent(typeof(Touchable))]
 	public class Grabbable : MonoBehaviour {
+
 		/// <summary>
 		/// Whether this object is currently grabbed or not
 		/// </summary>
@@ -38,20 +36,9 @@ namespace PXL.Interaction {
 		private readonly ISubject<MovementInfo> movedWhileGrabbedSubject = new Subject<MovementInfo>();
 
 		/// <summary>
-		/// Observable for when the object is moved
-		/// </summary>
-		public IObservable<MovementInfo> Moved { get { return movedSubject; } }
-		private readonly ISubject<MovementInfo> movedSubject = new Subject<MovementInfo>();
-
-		/// <summary>
 		/// The minimum grab strength necessary to pick up an object
 		/// </summary>
 		private const float MinGrabStrength = 0.25f;
-
-		/// <summary>
-		/// The minimum fingers necessary to pick up an object
-		/// </summary>
-		private const int MinFingerCount = 3;
 
 		/// <summary>
 		/// The HandModel currently grabbing the object, or at least trying to
@@ -59,17 +46,15 @@ namespace PXL.Interaction {
 		public HandModel CurrentHand { get; private set; }
 
 		/// <summary>
-		/// Whether the thumb is actively touching the object
+		/// The Touchable component of this object
 		/// </summary>
-		private bool thumbTouches;
+		private Touchable Touchable {
+			get { return mTouchable ?? (mTouchable = this.TryGetComponent<Touchable>()); }
+		}
+		private Touchable mTouchable;
 
 		/// <summary>
-		/// All the fingers of all hands currently overlapping this object
-		/// </summary>
-		private readonly IDictionary<HandModel, HashSet<Fingertip>> handFingers = new Dictionary<HandModel, HashSet<Fingertip>>();
-
-		/// <summary>
-		/// The rigidbody component of this object
+		/// The Rigidbody component of this object
 		/// </summary>
 		private Rigidbody Rigidbody {
 			get { return mRigidbody ?? (mRigidbody = this.TryGetComponent<Rigidbody>()); }
@@ -87,14 +72,9 @@ namespace PXL.Interaction {
 		private Vector3 lastPosition;
 
 		/// <summary>
-		/// How far an object has to move to throw the <see cref="movedWhileGrabbedSubject"/>
+		/// How far an object has to move to invoke <see cref="movedWhileGrabbedSubject"/>
 		/// </summary>
 		private const float MoveThresHold = 0.1f;
-
-		/// <summary>
-		/// Whether the object can change hands
-		/// </summary>
-		private bool canChangeHands = true;
 
 		/// <summary>
 		/// The last time the object changed hands
@@ -116,26 +96,36 @@ namespace PXL.Interaction {
 		/// </summary>
 		private const float ChangeHandDelay = 0.25f;
 
+		/// <summary>
+		/// Whether the object can change hands at this moment.
+		/// </summary>
+		private bool canChangeHands;
+
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+		private void Start() {
+			Touchable.FingerEntered.Subscribe(HandleFingerEntered);
+			Touchable.FingerLeft.Subscribe(HandleFingerLeft);
+		}
+
 		private void Update() {
-			if (IsGrabPossible() && !isGrabbed) {
+			if (!isGrabbed && CanHoldObject() && Touchable.CanGrabObject(CurrentHand)) {
 				Grab();
 			}
-			else if (isGrabbed) {
+
+			if (isGrabbed) {
 				if (CanHoldObject()) {
-					TrackTarget();
+					transform.position = CalculateObjectPosition(0.5f);
+					transform.rotation = trackedTarget.rotation * rotOffset;
 
 					CheckMovement(movedWhileGrabbedSubject);
 				}
 				else {
-					Drop(true);
+					Drop();
 				}
 			}
-
-			CheckMovement(movedSubject);
 
 			if (!canChangeHands && Time.time - lastChangeTime > ChangeHandDelay) {
 				canChangeHands = true;
@@ -143,14 +133,40 @@ namespace PXL.Interaction {
 		}
 
 		/// <summary>
-		/// Returns whether it is possible to grab this object.
-		/// Checks if the hand can hold the object and whether there are enough fingers, and the thumb, touching it.
+		/// Called when a finger enters the object
 		/// </summary>
-		private bool IsGrabPossible() {
-			return CanHoldObject() &&
-					handFingers.ContainsKey(CurrentHand) &&
-					handFingers[CurrentHand].Count > MinFingerCount &&
-					thumbTouches;
+		private void HandleFingerEntered(FingerInfo fingerInfo) {
+			var hand = fingerInfo.HandModel;
+			if (GrabbingHandsManager.CanHandGrab(hand)) {
+				// set the current hand if
+				// 1. it is the first hand touching the object
+				if (CurrentHand == null) {
+					CurrentHand = hand;
+				}
+				// 2. the new hand has everything that is required to take the object away from the other (currently holding) hand
+				else if (CanChangeHands(hand)) {
+					Drop();
+					CurrentHand = hand;
+					Grab();
+					lastChangeTime = Time.time;
+					canChangeHands = false;
+				}
+			}
+			Touchable.UpdateThumbTouches(CurrentHand);
+		}
+
+		/// <summary>
+		/// Called when a finger leaves the object
+		/// </summary>
+		private void HandleFingerLeft(FingerInfo fingerInfo) {
+			if (isGrabbed)
+				return;
+				
+			Touchable.CleanHandsDictionary(fingerInfo);
+			Touchable.UpdateThumbTouches(CurrentHand);
+
+			if (Touchable.HandFingers.Count == 0)
+				CurrentHand = null;
 		}
 
 		/// <summary>
@@ -167,17 +183,16 @@ namespace PXL.Interaction {
 			SetGrabbed(true);
 			GrabbingHandsManager.AddHand(CurrentHand);
 			trackedTarget = CurrentHand.palm;
-			posOffset = transform.position - CalculateAverageFingerPosition();
+			posOffset = transform.position - Touchable.GetAverageFingerPosition(CurrentHand);
 			rotOffset = Quaternion.Inverse(transform.rotation) * trackedTarget.rotation;
 		}
 
 		/// <summary>
 		/// Removes the target and hand. Calls <see cref="SetGrabbed(bool)"/> to re-enable physics
 		/// </summary>
-		private void Drop(bool humanCause) {
+		private void Drop() {
 			SetGrabbed(false);
-			if(humanCause)
-				droppedSubject.OnNext(Unit.Default);
+			droppedSubject.OnNext(Unit.Default);
 			GrabbingHandsManager.RemoveHand(CurrentHand);
 			trackedTarget = null;
 			CurrentHand = null;
@@ -204,36 +219,11 @@ namespace PXL.Interaction {
 		}
 
 		/// <summary>
-		/// Updates the position and rotation of the object
-		/// </summary>
-		private void TrackTarget() {
-			transform.position = CalculateObjectPosition(0.5f);
-			transform.rotation = trackedTarget.rotation * rotOffset;
-		}
-
-		/// <summary>
 		/// Returns the position of the object whilst being held
 		/// </summary>
 		/// <param name="offsetPercent">How many percent of the original offset should be kept when holding it</param>
 		private Vector3 CalculateObjectPosition(float offsetPercent = 1f) {
-			return CalculateAverageFingerPosition() + posOffset.magnitude * trackedTarget.up * -1 * offsetPercent;
-		}
-
-		/// <summary>
-		/// Returns the average position of all fingers that touch the object
-		/// </summary>
-		private Vector3 CalculateAverageFingerPosition() {
-			var result = Vector3.zero;
-			var fingers = handFingers[CurrentHand];
-			result = fingers.Aggregate(result, (current, tip) => current + tip.transform.position);
-			return result / fingers.Count;
-		}
-
-		/// <summary>
-		/// Checks whether the thumb of the <see cref="CurrentHand"/> is actively touching the object and sets the corresponding flag
-		/// </summary>
-		private void UpdateThumbTouches() {
-			thumbTouches = IsCertainFingerTouching(CurrentHand, Leap.Finger.FingerType.TYPE_THUMB);
+			return Touchable.GetAverageFingerPosition(CurrentHand) + posOffset.magnitude * trackedTarget.up * -1 * offsetPercent;
 		}
 
 		/// <summary>
@@ -241,40 +231,9 @@ namespace PXL.Interaction {
 		/// </summary>
 		private void OnDisable() {
 			if (isGrabbed)
-				Drop(false);
-		}
-
-		/// <summary>
-		/// Called when a fingertip entered the trigger of an object
-		/// </summary>
-		/// <param name="fingertip">Particular fingertip</param>
-		public void FingerEntered(Fingertip fingertip) {
-			var hand = fingertip.HandModel;
-
-			if (handFingers.ContainsKey(hand)) {
-				handFingers[hand].Add(fingertip);
-			}
-			else {
-				handFingers.Add(hand, new HashSet<Fingertip>() { fingertip });
-			}
-
-			if (GrabbingHandsManager.CanHandGrab(hand)) {
-				// set the current hand if
-				// 1. it is the first hand touching the object
-				if (CurrentHand == null) {
-					CurrentHand = hand;
-				}
-				// 2. the new hand has everything that is required to take the object away from the other (currently holding) hand
-				else if (CanChangeHands(hand)) {
-					Drop(true);
-					CurrentHand = hand;
-					Grab();
-					canChangeHands = false;
-					lastChangeTime = Time.time;
-				}
-			}
-
-			UpdateThumbTouches();
+				Drop();
+			trackedTarget = null;
+			CurrentHand = null;
 		}
 
 		/// <summary>
@@ -282,51 +241,10 @@ namespace PXL.Interaction {
 		/// </summary>
 		/// <returns></returns>
 		private bool CanChangeHands(HandModel newHand) {
-			return CurrentHand != newHand && handFingers[newHand].Count > MinFingerCount && IsCertainFingerTouching(newHand, Leap.Finger.FingerType.TYPE_THUMB) && canChangeHands;
-		}
-
-		/// <summary>
-		/// Returns whether a certain fingertype of the given hand touches the object.
-		/// </summary>
-		/// <param name="hand"></param>
-		/// <param name="fingerType">The type of the finger to check for</param>
-		/// <returns>False if hand is null or the given finger is not touching the object</returns>
-		private bool IsCertainFingerTouching(HandModel hand, Leap.Finger.FingerType fingerType) {
-			if (hand == null || !handFingers.ContainsKey(hand))
-				return false;
-			foreach (var ft in handFingers[hand]) {
-				var rigidFinger = ft.GetComponentInParent<RigidFinger>();
-
-				if (rigidFinger == null)
-					continue;
-
-				var leapFinger = rigidFinger.GetLeapFinger();
-
-				if(leapFinger != null && leapFinger.Type == fingerType)
-					return true;
-			}
-			return false;
-			//return handFingers[hand].Select(ft => ft.GetComponentInParent<RigidFinger>()).Any(finger => finger && finger.GetLeapFinger().Type == fingerType);
-		}
-
-		/// <summary>
-		/// Called when a fingertip left the trigger of an object
-		/// </summary>
-		/// <param name="fingertip">Particular fingertip</param>
-		public void FingerLeft(Fingertip fingertip) {
-			if (isGrabbed)
-				return;
-
-			var hand = fingertip.HandModel;
-
-			if (handFingers.ContainsKey(hand)) {
-				handFingers[hand].Remove(fingertip);
-
-				if (handFingers[hand].Count == 0)
-					handFingers.Remove(hand);
-			}
-
-			UpdateThumbTouches();
+			return CurrentHand != newHand &&
+					Touchable.HandFingers[newHand].Count > Touchable.MinFingerCount &&
+					Touchable.IsCertainFingerTouching(newHand, Leap.Finger.FingerType.TYPE_THUMB) &&
+					canChangeHands;
 		}
 	}
 

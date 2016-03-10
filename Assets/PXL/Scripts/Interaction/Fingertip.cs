@@ -23,7 +23,7 @@ namespace PXL.Interaction {
 		/// <summary>
 		/// All known Colliders of grabbable Objects and their Grabbable component
 		/// </summary>
-		public static IDictionary<Collider, Grabbable> GrabbableObjects = new Dictionary<Collider, Grabbable>();
+		public static IDictionary<Collider, Touchable> Touchables = new Dictionary<Collider, Touchable>();
 
 		private void Awake() {
 			targetTag = Tags.GetTagString(TargetTagType);
@@ -37,16 +37,16 @@ namespace PXL.Interaction {
 			var otherObject = other.gameObject;
 			if (!otherObject.CompareTag(targetTag))
 				return;
-			var grabbable = GrabbableObjects.GetOrAdd(other);
-			grabbable.FingerEntered(this);
+			var grabbable = Touchables.GetOrAdd(other);
+			grabbable.AddFinger(this);
 		}
 
 		private void OnTriggerExit(Collider other) {
 			var otherObject = other.gameObject;
 			if (!otherObject.CompareTag(targetTag))
 				return;
-			var grabbable = GrabbableObjects.GetOrAdd(other);
-			grabbable.FingerLeft(this);
+			var grabbable = Touchables.GetOrAdd(other);
+			grabbable.RemoveFinger(this);
 		}
 
 	}

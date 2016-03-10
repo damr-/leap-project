@@ -1,9 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
+using PXL.Gamemodes;
 using PXL.Interaction;
 using PXL.Utility;
-using UniRx;
 
 namespace PXL.Objects.Areas {
 
@@ -40,10 +40,9 @@ namespace PXL.Objects.Areas {
 		public Light AreaLight;
 
 		/// <summary>
-		/// Whether the game is won
+		/// The gamemode of this level
 		/// </summary>
-		public ObservableProperty<bool> GameWon { get { return isGameWon; } }
-		private readonly ObservableProperty<bool> isGameWon = new ObservableProperty<bool>();
+		public GameMode GameMode;
 		
 		protected virtual void Start() {
 			if (ObjectManagers.Count == 0) {
@@ -51,13 +50,14 @@ namespace PXL.Objects.Areas {
 			}
 
 			AreaLight.AssertNotNull("The area light is missing");
+			GameMode.AssertNotNull("GameMode reference is missing!");
 		}
 
 		protected virtual void Update() {
-			if (!GameWon && SortedObjects.Count == RequiredObjectsAmount) {
+			if (!GameMode.GameWon && SortedObjects.Count == RequiredObjectsAmount) {
 				SortObjectsIfNeeded();
 				if (StackedCorrecly() && AllObjectsDropped()) {
-					GameWon.Value = true;
+					GameMode.GameOver(true);
 					SortedObjects.Clear();
 					AreaLight.color = SuccessColor;
 				}
