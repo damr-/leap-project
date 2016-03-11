@@ -34,18 +34,12 @@ namespace PXL.Objects.Areas {
 		/// </summary>
 		public Light AreaLight;
 
-		/// <summary>
-		/// The gamemode of this level
-		/// </summary>
-		public GameMode GameMode;
-
 		protected virtual void Start() {
 			if (ObjectManagers.Count == 0) {
 				throw new MissingReferenceException("There are no ObjectManagers assigned!");
 			}
 
 			AreaLight.AssertNotNull("The area light is missing");
-			GameMode.AssertNotNull("GameMode reference is missing!");
 		}
 
 		protected virtual void Update() {
@@ -125,8 +119,7 @@ namespace PXL.Objects.Areas {
 		/// Called when the game is won
 		/// </summary>
 		protected virtual void HandleGameWon() {
-			GameMode.GameOver(true);
-			SortedObjects.ForEach(o => o.GetComponent<Rigidbody>().isKinematic = true);
+			GameMode.SetGameOver(true);
 			SortedObjects.Clear();
 			AreaLight.color = SuccessColor;
 		}

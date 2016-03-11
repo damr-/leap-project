@@ -35,7 +35,9 @@ namespace PXL.Objects {
 
 			objectBehaviour.Scale = newObject.transform.localScale.x;
 
-			newObject.GetComponent<Rigidbody>().velocity = Vector3.zero;
+			var rigidbody = newObject.GetComponent<Rigidbody>();
+			rigidbody.velocity = Vector3.zero;
+			rigidbody.mass = Scale;
 
 			return newObject;
 		}

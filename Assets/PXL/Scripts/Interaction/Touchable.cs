@@ -47,12 +47,20 @@ namespace PXL.Interaction {
 		private readonly ISubject<FingerInfo> fingerLeftSubject = new Subject<FingerInfo>();
 
 		/// <summary>
+		/// The Rigidbody component of this object
+		/// </summary>
+		public Rigidbody Rigidbody {
+			get { return mRigidbody ?? (mRigidbody = this.TryGetComponent<Rigidbody>()); }
+		}
+		private Rigidbody mRigidbody;
+
+		/// <summary>
 		/// Called when a fingertip entered the trigger of an object
 		/// </summary>
 		/// <param name="fingertip">Particular fingertip</param>
 		public void AddFinger(Fingertip fingertip) {
 			var hand = fingertip.HandModel;
-			
+
 			if (HandFingers.ContainsKey(hand)) {
 				HandFingers[hand].Add(fingertip);
 			}
@@ -76,17 +84,17 @@ namespace PXL.Interaction {
 		/// Removes the fingertip if it's still registered and also removes the hand if all of it's fingers are gone
 		/// </summary>
 		/// <param name="fingerInfo"></param>
-		public void CleanHandsDictionary(FingerInfo fingerInfo) {
+		public void CleanupHands(FingerInfo fingerInfo) {
 			var fingertip = fingerInfo.Fingertip;
 			var hand = fingerInfo.HandModel;
 
-			if (HandFingers.ContainsKey(hand)) {
-				HandFingers[hand].Remove(fingertip);
+			if (!HandFingers.ContainsKey(hand))
+				return;
 
-				if (HandFingers[hand].Count == 0) {
-					HandFingers.Remove(hand);
-				}
-			}
+			HandFingers[hand].Remove(fingertip);
+
+			if (HandFingers[hand].Count == 0)
+				HandFingers.Remove(hand);
 		}
 
 		/// <summary>
@@ -111,9 +119,7 @@ namespace PXL.Interaction {
 				if (rigidFinger == null)
 					continue;
 
-				var leapFinger = rigidFinger.GetLeapFinger();
-
-				if (leapFinger != null && leapFinger.Type == fingerType)
+				if (rigidFinger.GetLeapFinger() != null && rigidFinger.GetLeapFinger().Type == fingerType)
 					return true;
 			}
 			return false;

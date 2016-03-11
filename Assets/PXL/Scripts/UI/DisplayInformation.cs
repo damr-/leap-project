@@ -39,11 +39,6 @@ namespace PXL.UI {
 		public ObjectManager[] ObjectManagers;
 
 		/// <summary>
-		/// The GameMode of this level
-		/// </summary>
-		public GameMode GameMode;
-
-		/// <summary>
 		/// The canvas which will display the game over message
 		/// </summary>
 		public Canvas MessageCanvas;
@@ -71,24 +66,16 @@ namespace PXL.UI {
 		private readonly IDictionary<GameObject, CompositeDisposable> objectSubscriptions =
 			new Dictionary<GameObject, CompositeDisposable>();
 
-		private void Start() {
-			TimeText.AssertNotNull();
+		private readonly CompositeDisposable objectManagerSubscriptions = new CompositeDisposable();
 
-			for (var i = 0; i < 2; i++) {
-				PicksTexts[i].AssertNotNull();
-				DropsTexts[i].AssertNotNull();
-				DistanceTexts[i].AssertNotNull();
-			}
+		private void Start() {
+			AssertReferences();
 
 			foreach (var objectManager in ObjectManagers) {
 				objectManager.AssertNotNull();
-				objectManager.ObjectSpawned.Subscribe(ObjectSpawned);
+				objectManager.ObjectSpawned.Subscribe(ObjectSpawned).AddTo(objectManagerSubscriptions);
 			}
-			GameMode.AssertNotNull("GameMode reference is missing!");
 			GameMode.GameWon.Subscribe(_ => HandleGameWon());
-
-			LevelInput.AssertNotNull("LevelInput reference is missing");
-			MessageCanvas.AssertNotNull("MessageCanvas reference is missing");
         }
 
 		private void Update() {
@@ -103,6 +90,19 @@ namespace PXL.UI {
 
 		}
 
+		private void AssertReferences() {
+			TimeText.AssertNotNull();
+
+			for (var i = 0; i < 2; i++) {
+				PicksTexts[i].AssertNotNull();
+				DropsTexts[i].AssertNotNull();
+				DistanceTexts[i].AssertNotNull();
+			}
+
+			LevelInput.AssertNotNull("LevelInput reference is missing");
+			MessageCanvas.AssertNotNull("MessageCanvas reference is missing");
+		}
+
 		/// <summary>
 		/// Called when an object is spawned. Sets up all needed subscriptions
 		/// </summary>
@@ -115,12 +115,11 @@ namespace PXL.UI {
 
 			var c = new CompositeDisposable();
 
-			grabbable.IsGrabbed.Where(grabbed => grabbed).Subscribe(_ => {
-				IncrementTextValue(grabbable, PicksTexts);
-				TryStartTimer();
-			}).AddTo(c);
-			grabbable.Dropped.Subscribe(_ => IncrementTextValue(grabbable, DropsTexts)).AddTo(c);
-			grabbable.MovedWhileGrabbed.Subscribe(movementInfo => ObjectMoved(grabbable, movementInfo)).AddTo(c);
+			grabbable.IsGrabbed.Subscribe(grabbed => HandleGrabStateChange(grabbable, grabbed)).AddTo(c);
+
+			var moveable = objectBehaviour.GetComponent<Moveable>();
+			if(moveable != null)
+				moveable.MovedWhileGrabbed.Subscribe(movementInfo => ObjectMoved(grabbable, movementInfo)).AddTo(c);
 
 			objectSubscriptions.Add(grabbable.gameObject, c);
 
@@ -130,6 +129,16 @@ namespace PXL.UI {
 				objectSubscriptions[grabbable.gameObject].Dispose();
 				objectSubscriptions.Remove(grabbable.gameObject);
 			});
+		}
+
+		private void HandleGrabStateChange(Grabbable grabbable, bool grabbed) {
+			if (grabbed) {
+				IncrementTextValue(grabbable, PicksTexts);
+				TryStartTimer();
+			}
+			else {
+				IncrementTextValue(grabbable, DropsTexts);
+			}
 		}
 
 		/// <summary>
@@ -183,14 +192,21 @@ namespace PXL.UI {
 		/// </summary>
 		private void HandleGameWon() {
 			startTime = -1;
-			
+
 			MessageCanvas.gameObject.SetActive(true);
-			MessageCanvas.GetComponentInChildren<Text>().text = "Well done! Press " + LevelInput.RestartKey.ToString() + " to restart!";
+			MessageCanvas.GetComponentInChildren<Text>().text = "Well done! Press " + LevelInput.RestartKey.ToString() +
+			                                                    " to restart!";
 
 			while (objectSubscriptions.Count > 0) {
 				var first = objectSubscriptions.ElementAt(0);
 				first.Value.Dispose();
 				objectSubscriptions.Remove(first);
+			}
+
+			objectManagerSubscriptions.Dispose();
+			foreach (var objectManager in ObjectManagers) {
+				SimplePool.Despawn(objectManager.gameObject);
+				
 			}
 		}
 

@@ -1,17 +1,16 @@
-﻿using UnityEngine;
-using PXL.Utility;
+﻿using PXL.Utility;
 
 namespace PXL.Gamemodes {
 
-	public class GameMode : MonoBehaviour {
+	public static class GameMode {
 
 		/// <summary>
 		/// Whether the game is won
 		/// </summary>
-		public ObservableProperty<bool> GameWon { get { return isGameWon; } }
-		private readonly ObservableProperty<bool> isGameWon = new ObservableProperty<bool>();
+		public static ObservableProperty<bool> GameWon { get { return IsGameWon; } }
+		private static readonly ObservableProperty<bool> IsGameWon = new ObservableProperty<bool>();
 
-		public void GameOver(bool win) {
+		public static void SetGameOver(bool win) {
 			GameWon.Value = win;
 		}
 	}

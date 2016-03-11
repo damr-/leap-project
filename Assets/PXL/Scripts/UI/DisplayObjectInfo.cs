@@ -1,5 +1,4 @@
-﻿using UnityEngine;
-using PXL.Objects;
+﻿using PXL.Objects;
 using UniRx;
 using PXL.Interaction;
 using UnityEngine.UI;
@@ -37,31 +36,31 @@ namespace PXL.UI {
 			if (grabbable == null)
 				return;
 
-			grabbable.IsGrabbed.Where(grabbed => grabbed).Subscribe(_ => ObjectGrabbed(grabbable));
-			grabbable.Dropped.Subscribe(_ => ObjectDropped(grabbable));
-			grabbable.MovedWhileGrabbed.Subscribe(movementInfo => ObjectMoved(grabbable, movementInfo));
+			grabbable.IsGrabbed.Subscribe(grabbed => ObjectGrabStateChange(grabbable, grabbed));
+
+			var moveable = objectBehaviour.GetComponent<Moveable>();
+
+			if (moveable != null)
+				moveable.MovedWhileGrabbed.Subscribe(movementInfo => ObjectMoved(grabbable, movementInfo));
 		}
 
 		/// <summary>
 		/// Called when an object was grabbed. Displayes this info if it's the correct hand
 		/// </summary>
 		/// <param name="grabbable">The object</param>
-		private void ObjectGrabbed(Grabbable grabbable) {
+		private void ObjectGrabStateChange(Grabbable grabbable, bool grabbed) {
 			var hand = grabbable.CurrentHand;
-			if (hand != null && hand.GetLeapHand().IsLeft == TrackLeftHand)
-				Text.text = grabbable.gameObject.name + " grabbed";
-		}
 
-		/// <summary>
-		/// Called when an object is dropped from the correct hand and displays this info.
-		/// </summary>
-		/// <param name="grabbable">The object</param>
-		private void ObjectDropped(Grabbable grabbable) {
-			var hand = grabbable.CurrentHand;
-			if (hand != null && hand.GetLeapHand().IsLeft == TrackLeftHand) {
+			if (hand == null || hand.GetLeapHand().IsLeft != TrackLeftHand)
+				return;
+
+			if (grabbed) {
+				Text.text = grabbable.gameObject.name + " grabbed";
+			}
+			else {
 				Text.text = grabbable.gameObject.name + " dropped";
 				PositionText.text = "";
-            }
+			}
 		}
 
 		/// <summary>
