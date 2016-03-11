@@ -224,6 +224,13 @@ namespace PXL.Objects {
 		public void SetObjectPrefab(GameObject newPrefab) {
 			currentObjectPrefab = newPrefab;
 		}
+
+		/// <summary>
+		/// Clear the subscriptions when this ObjectManager is disabled
+		/// </summary>
+		private void OnDisable() {
+			objectDestroySubscriptions.Dispose();
+        }
 	}
 
 }
