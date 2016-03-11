@@ -29,27 +29,12 @@ namespace PXL.Utility {
 		public KeyCode RestartKey = KeyCode.Space;
 
 		/// <summary>
-		/// Within how many seconds the second tap has to follow
-		/// </summary>
-		public float MaxDoubleTapDelay = 1f;
-
-		/// <summary>
 		/// All the names of the scenes and the corresponding keys to load them
 		/// </summary>
 		public List<SceneInfo> SceneInfos = new List<SceneInfo> {
 			new SceneInfo("dev", KeyCode.F1),
 			new SceneInfo("hanoi", KeyCode.F2)
 		};
-
-		/// <summary>
-		/// Last time the escape key was pressed
-		/// </summary>
-		private float lastTime;
-
-		/// <summary>
-		/// Whether the escape key has already been pressed once
-		/// </summary>
-		private bool pressedOnce;
 
 		private void Update() {
 			SceneInfos.ForEach(CheckSceneInput);
@@ -60,17 +45,8 @@ namespace PXL.Utility {
 			}
 
 			if (Input.GetKeyDown(QuitKey)) {
-				if (!pressedOnce) {
-					lastTime = Time.time;
-					pressedOnce = true;
-				}
-				else {
-					Application.Quit();
-				}
+				Application.Quit();
 			}
-
-			if (pressedOnce && Time.time - lastTime > MaxDoubleTapDelay)
-				pressedOnce = false;
 		}
 
 		private void CheckSceneInput(SceneInfo sceneInfo) {
