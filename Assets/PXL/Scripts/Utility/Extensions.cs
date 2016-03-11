@@ -54,7 +54,7 @@ namespace PXL.Utility {
 			TV value;
 			if (!dictionary.TryGetValue(key, out value)) {
 				value = key.GetComponent<TV>();
-				if (value == null) 
+				if (value == null)
 					throw new MissingReferenceException("GetOrAdd couldn't get the Component of the object!");
 				dictionary.Add(key, value);
 			}
