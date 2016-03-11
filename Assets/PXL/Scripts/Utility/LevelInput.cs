@@ -2,6 +2,7 @@
 using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 using System;
+using PXL.Gamemodes;
 
 namespace PXL.Utility {
 
@@ -35,6 +36,10 @@ namespace PXL.Utility {
 			new SceneInfo("dev", KeyCode.F1),
 			new SceneInfo("hanoi", KeyCode.F2)
 		};
+
+		private void Start() {
+			GameMode.SetGameOver(false);
+		}
 
 		private void Update() {
 			SceneInfos.ForEach(CheckSceneInput);

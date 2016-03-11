@@ -68,7 +68,7 @@ namespace PXL.Interaction {
 		/// Updates the state of the object
 		/// </summary>
 		private void Update() {
-			if (!isGrabbed && CanHoldObject() && Touchable.CanGrabObject(CurrentHand)) {
+			if (!isGrabbed && GrabbingHandsManager.CanHandGrab(CurrentHand) && CanHoldObject() && Touchable.CanGrabObject(CurrentHand)) {
 				Grab();
 			}
 

@@ -10,8 +10,8 @@ namespace PXL.Gamemodes {
 		public static ObservableProperty<bool> GameWon { get { return IsGameWon; } }
 		private static readonly ObservableProperty<bool> IsGameWon = new ObservableProperty<bool>();
 
-		public static void SetGameOver(bool win) {
-			GameWon.Value = win;
+		public static void SetGameOver(bool won) {
+			GameWon.Value = won;
 		}
 	}
 

@@ -82,7 +82,7 @@ namespace PXL.UI {
 
 			LabelText.text += ChangeColorKeys[0] + "-" + ChangeColorKeys.ElementAt(AvailableColors.Length - 1).ToString() + ")";
 
-			ObjectManager.ObjectSpawned.Subscribe(SetObjectColor);
+			ObjectManager.ForEach(o => o.ObjectSpawned.Subscribe(SetObjectColor));
 		}
 		
 		protected virtual void Update() {

@@ -34,7 +34,7 @@ namespace PXL.UI {
 
 		protected override void Start() {
 			base.Start();
-			ObjectManager.ObjectScale.Subscribe(SetText);
+			ObjectManager.ForEach(o => o.ObjectScale.Subscribe(SetText));
 
 			DecreaseButton.AssertNotNull();
 			IncreaseButton.AssertNotNull();

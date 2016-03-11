@@ -68,7 +68,7 @@ namespace PXL.Interaction {
 			if (!Grabbable.IsGrabbed)
 				return;
 
-			transform.position = CalculateObjectPosition(0.5f);
+			transform.position = CalculateObjectPosition();
 			transform.rotation = trackedTarget.rotation * rotOffset;
 
 			CheckMovement(movedWhileGrabbedSubject);

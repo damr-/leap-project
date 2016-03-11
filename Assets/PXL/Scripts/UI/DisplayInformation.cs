@@ -75,7 +75,7 @@ namespace PXL.UI {
 				objectManager.AssertNotNull();
 				objectManager.ObjectSpawned.Subscribe(ObjectSpawned).AddTo(objectManagerSubscriptions);
 			}
-			GameMode.GameWon.Subscribe(_ => HandleGameWon());
+			GameMode.GameWon.Subscribe(HandleGameWon);
         }
 
 		private void Update() {
@@ -190,12 +190,17 @@ namespace PXL.UI {
 		/// <summary>
 		/// Called when the stacking game is over
 		/// </summary>
-		private void HandleGameWon() {
+		private void HandleGameWon(bool won) {
+			if (!won)
+				return;
+			
 			startTime = -1;
 
-			MessageCanvas.gameObject.SetActive(true);
-			MessageCanvas.GetComponentInChildren<Text>().text = "Well done! Press " + LevelInput.RestartKey.ToString() +
-			                                                    " to restart!";
+			if (MessageCanvas != null) {
+				MessageCanvas.enabled = true;
+				MessageCanvas.GetComponentInChildren<Text>().text = "Well done! Press " + LevelInput.RestartKey.ToString() +
+				                                                    " to restart!";
+			}
 
 			while (objectSubscriptions.Count > 0) {
 				var first = objectSubscriptions.ElementAt(0);
@@ -205,8 +210,8 @@ namespace PXL.UI {
 
 			objectManagerSubscriptions.Dispose();
 			foreach (var objectManager in ObjectManagers) {
-				SimplePool.Despawn(objectManager.gameObject);
-				
+				if(objectManager != null)
+					Destroy(objectManager.gameObject);
 			}
 		}
 

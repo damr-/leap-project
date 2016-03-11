@@ -1,5 +1,6 @@
-﻿using PXL.Objects;
-using PXL.Utility;
+﻿using System.Collections.Generic;
+using System.Linq;
+using PXL.Objects;
 using UnityEngine;
 
 namespace PXL.UI {
@@ -24,12 +25,12 @@ namespace PXL.UI {
 		public static bool IsAdmin { get { return Mode == UserMode.Admin; } }
 		
 		/// <summary>
-		/// The referenced ObjectManager
+		/// ALl ObjectManagers in this scene
 		/// </summary>
-		public ObjectManager ObjectManager;
+		protected List<ObjectManager> ObjectManager = new List<ObjectManager>();
 
 		protected virtual void Start() {
-			ObjectManager.AssertNotNull();
+			ObjectManager = FindObjectsOfType<ObjectManager>().ToList();
 			Mode = UserMode.Admin;
 		}
 		
