@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace PXL.UI {
 
-	public class DisplayGrabbingHands : DisplayBase {
+	public class DisplayTextGrabbingHands : DisplayTextBase {
 
 		private readonly HashSet<string> grabbingHandNames = new HashSet<string>();
 

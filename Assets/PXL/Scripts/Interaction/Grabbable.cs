@@ -1,18 +1,9 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 using PXL.Utility;
 using UniRx;
 
 namespace PXL.Interaction {
-
-	public class MovementInfo {
-		public float Delta;
-		public Vector3 NewPosition;
-
-		public MovementInfo(float delta, Vector3 newPosition) {
-			Delta = delta;
-			NewPosition = newPosition;
-		}
-	}
 
 	[RequireComponent(typeof(Touchable))]
 	public class Grabbable : MonoBehaviour {
@@ -27,11 +18,14 @@ namespace PXL.Interaction {
 		/// The HandModel currently grabbing the object, or at least trying to
 		/// </summary>
 		public HandModel CurrentHand { get; private set; }
-
+		
 		/// <summary>
-		/// The minimum grab strength necessary to pick up an object
+		/// The hand interacting with this object
 		/// </summary>
-		private const float MinGrabStrength = 0.25f;
+		public InteractionHand InteractionHand { get {
+			return mInteractionHand ?? (mInteractionHand = interactionHands.GetOrAdd(CurrentHand));
+		} }
+		private InteractionHand mInteractionHand;
 
 		/// <summary>
 		/// The Touchable component of this object
@@ -40,6 +34,11 @@ namespace PXL.Interaction {
 			get { return mTouchable ?? (mTouchable = this.TryGetComponent<Touchable>()); }
 		}
 		private Touchable mTouchable;
+
+		/// <summary>
+		/// The minimum grab strength necessary to pick up an object
+		/// </summary>
+		private const float MinGrabStrength = 0.25f;
 
 		/// <summary>
 		/// How long to wait after changing hands before being able to change again
@@ -55,6 +54,11 @@ namespace PXL.Interaction {
 		/// Whether the object can change hands at this moment.
 		/// </summary>
 		private bool canChangeHands;
+
+		/// <summary>
+		/// Every HandModel and its corresponding InteractionHand
+		/// </summary>
+		private readonly IDictionary<HandModel, InteractionHand> interactionHands = new Dictionary<HandModel, InteractionHand>();
 
 		/// <summary>
 		/// Sets up the subscriptions
@@ -131,30 +135,37 @@ namespace PXL.Interaction {
 
 		/// <summary>
 		/// Sets up everything for the object to be grabbed and moved around
-		/// Notifies <see cref="GrabbingHandsManager"/> that <see cref="CurrentHand"/> is now grabbing an object.
 		/// </summary>
 		private void Grab() {
 			SetGrabbed(true);
-			GrabbingHandsManager.AddHand(CurrentHand);
 		}
 
 		/// <summary>
-		/// Unsets <see cref="CurrentHand"/> and calls <see cref="SetGrabbed(bool)"/> to re-enable physics
-		/// Notifies <see cref="GrabbingHandsManager"/> that <see cref="CurrentHand"/> is no longer grabbing an object.
+		/// Sets up everything for the object to be dropped again.
 		/// </summary>
 		private void Drop() {
 			SetGrabbed(false);
-			GrabbingHandsManager.RemoveHand(CurrentHand);
 			CurrentHand = null;
 		}
 
 		/// <summary>
-		/// Disables physics and sets the observable flag
+		/// Disables physics and sets the observable flag. 
+		/// Updates the GrabbindHandsManager and the Grabbing hand of this object.
 		/// </summary>
 		private void SetGrabbed(bool grabbed) {
 			Touchable.Rigidbody.useGravity = !grabbed;
 			Touchable.Rigidbody.isKinematic = grabbed;
 			isGrabbed.Value = grabbed;
+
+			var grabbingHand = interactionHands.GetOrAdd(CurrentHand);
+			if (grabbed) {
+				grabbingHand.GrabObject(this);
+				GrabbingHandsManager.AddHand(CurrentHand);
+			}
+			else {
+				grabbingHand.DropObject(this);
+				GrabbingHandsManager.RemoveHand(CurrentHand);
+			}
 		}
 
 		/// <summary>

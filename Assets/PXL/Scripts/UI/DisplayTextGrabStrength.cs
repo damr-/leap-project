@@ -1,6 +1,6 @@
 ﻿namespace PXL.UI {
 	
-	public class DisplayGrabStrength : DisplayBase {
+	public class DisplayTextGrabStrength : DisplayTextBase {
 
 		/// <summary>
 		/// The observed RigidHand

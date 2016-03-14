@@ -62,7 +62,7 @@ namespace PXL.UI {
 
 			LabelText.text += AvailableObjects.Length%10 + ")";
 
-			ObjectManager.ForEach(o => o.SpawnInitiated.Subscribe(_ => RandomiseIfNeeded()));
+			ObjectManagers.ForEach(o => o.SpawnInitiated.Subscribe(_ => RandomiseIfNeeded()));
 		}
 		
 		protected virtual void Update() {
@@ -87,7 +87,7 @@ namespace PXL.UI {
 		/// <param name="menuIndex">The new index of the menu</param>
 		public void SelectionChanged(int menuIndex) {
 			var newPrefab = AvailableObjects.ElementAt(menuIndex).Obj;
-			ObjectManager.ForEach(o => o.SetObjectPrefab(newPrefab));
+			ObjectManagers.ForEach(o => o.SetObjectPrefab(newPrefab));
 
 			ChooseRandomShape = menuIndex == 0;
 		}
@@ -105,7 +105,7 @@ namespace PXL.UI {
 		/// </summary>
 		protected virtual void RandomiseIfNeeded() {
 			if (ChooseRandomShape)
-				ObjectManager.ForEach(o => o.SetObjectPrefab(GetRandomShape()));
+				ObjectManagers.ForEach(o => o.SetObjectPrefab(GetRandomShape()));
 		}
 		
 		/// <summary>

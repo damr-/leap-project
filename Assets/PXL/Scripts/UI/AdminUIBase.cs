@@ -27,11 +27,10 @@ namespace PXL.UI {
 		/// <summary>
 		/// ALl ObjectManagers in this scene
 		/// </summary>
-		protected List<ObjectManager> ObjectManager = new List<ObjectManager>();
+		protected List<ObjectManager> ObjectManagers = new List<ObjectManager>();
 
 		protected virtual void Start() {
-			ObjectManager = FindObjectsOfType<ObjectManager>().ToList();
-			Mode = UserMode.Admin;
+			ObjectManagers = FindObjectsOfType<ObjectManager>().ToList();
 		}
 		
 		/// <summary>

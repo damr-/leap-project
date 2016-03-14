@@ -5,7 +5,7 @@ using PXL.Utility;
 namespace PXL.UI {
 
 	[RequireComponent(typeof(Text))]
-	public class DisplayBase : MonoBehaviour {
+	public class DisplayTextBase : MonoBehaviour {
 
 		/// <summary>
 		/// The Text Component of this GameObject

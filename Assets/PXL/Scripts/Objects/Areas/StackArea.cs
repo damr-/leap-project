@@ -15,14 +15,9 @@ namespace PXL.Objects.Areas {
 		public int RequiredObjectsAmount = 3;
 
 		/// <summary>
-		/// The objectManagers which spawned the cubes
-		/// </summary>
-		public List<ObjectManager> ObjectManagers = new List<ObjectManager>();
-
-		/// <summary>
 		/// List of sorted objects, by scale
 		/// </summary>
-		public List<ObjectBehaviour> SortedObjects = new List<ObjectBehaviour>();
+		protected List<ObjectBehaviour> SortedObjects = new List<ObjectBehaviour>();
 
 		/// <summary>
 		/// The color of the light on success
@@ -35,21 +30,20 @@ namespace PXL.Objects.Areas {
 		public Light AreaLight;
 
 		protected virtual void Start() {
-			if (ObjectManagers.Count == 0) {
-				throw new MissingReferenceException("There are no ObjectManagers assigned!");
-			}
-
 			AreaLight.AssertNotNull("The area light is missing");
 		}
 
 		protected virtual void Update() {
+			ClearSortedObjects();
+
 			if (GameMode.GameWon || SortedObjects.Count != RequiredObjectsAmount)
 				return;
 
 			SortObjectsIfNeeded();
+
 			if (!StackedCorrecly() || !AllObjectsDropped())
 				return;
-
+			
 			HandleGameWon();
 		}
 
@@ -88,6 +82,13 @@ namespace PXL.Objects.Areas {
 		}
 
 		/// <summary>
+		/// Removes inactive and missing objects from the list which might not have been noticed through the TriggerExit event.
+		/// </summary>
+		protected virtual void ClearSortedObjects() {
+			SortedObjects = SortedObjects.Where(o => o != null && o.gameObject != null && o.gameObject.activeInHierarchy).ToList();
+		}
+
+		/// <summary>
 		/// Returns whether all objects in the area have been dropped
 		/// </summary>
 		/// <returns>True if no objects is still grabbed, false if otherwise</returns>
@@ -109,10 +110,12 @@ namespace PXL.Objects.Areas {
 		/// Removes the object from the sorted list
 		/// </summary>
 		protected override void OnTriggerExit(Collider other) {
-			base.OnTriggerExit(other);
 			var objectBehaviour = other.GetComponent<ObjectBehaviour>();
-			if (objectBehaviour != null && SortedObjects.Contains(objectBehaviour))
+			if (objectBehaviour != null && SortedObjects.Contains(objectBehaviour)) {
 				SortedObjects.Remove(objectBehaviour);
+			}
+			
+			base.OnTriggerExit(other);
 		}
 
 		/// <summary>

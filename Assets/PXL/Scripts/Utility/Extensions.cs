@@ -52,12 +52,14 @@ namespace PXL.Utility {
 		/// <returns>The Component </returns>
 		public static TV GetOrAdd<TK, TV>(this IDictionary<TK, TV> dictionary, TK key) where TV : class where TK : Component {
 			TV value;
-			if (!dictionary.TryGetValue(key, out value)) {
-				value = key.GetComponent<TV>();
-				if (value == null)
-					throw new MissingReferenceException("GetOrAdd couldn't get the Component of the object!");
-				dictionary.Add(key, value);
-			}
+
+			if (dictionary.TryGetValue(key, out value)) 
+				return value;
+
+			value = key.GetComponent<TV>();
+			if (value == null)
+				throw new MissingReferenceException("GetOrAdd couldn't get the Component of the object!");
+			dictionary.Add(key, value);
 
 			return value;
 		}

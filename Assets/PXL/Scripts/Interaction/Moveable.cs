@@ -4,19 +4,25 @@ using UnityEngine;
 
 namespace PXL.Interaction {
 
+	public class MovementInfo {
+		public Moveable Moveable;
+		public Vector3 Delta;
+		public Vector3 NewPosition;
+
+		public MovementInfo(Moveable moveable, Vector3 delta, Vector3 newPosition) {
+			Moveable = moveable;
+			Delta = delta;
+			NewPosition = newPosition;
+		}
+	}
+
 	[RequireComponent(typeof(Grabbable))]
 	public class Moveable : MonoBehaviour {
 
 		/// <summary>
-		/// Observable for when the object is moved while grabbed
-		/// </summary>
-		public IObservable<MovementInfo> MovedWhileGrabbed { get { return movedWhileGrabbedSubject; } }
-		private readonly ISubject<MovementInfo> movedWhileGrabbedSubject = new Subject<MovementInfo>();
-
-		/// <summary>
 		/// The Touchable component of this object
 		/// </summary>
-		private Grabbable Grabbable {
+		public Grabbable Grabbable {
 			get { return mGrabbable ?? (mGrabbable = this.TryGetComponent<Grabbable>()); }
 		}
 		private Grabbable mGrabbable;
@@ -40,9 +46,9 @@ namespace PXL.Interaction {
 		private Vector3 lastPosition;
 
 		/// <summary>
-		/// How far an object has to move to invoke <see cref="movedWhileGrabbedSubject"/>
+		/// How far an object has to move to invoke an event
 		/// </summary>
-		private const float MoveThresHold = 0.1f;
+		private const float MoveThresHold = 0.05f;
 
 		/// <summary>
 		/// The offset of the object's position when being picked up
@@ -53,11 +59,12 @@ namespace PXL.Interaction {
 		/// The offset of the object's rotation when begin picked up
 		/// </summary>
 		private Quaternion rotOffset;
-		
+
 		/// <summary>
 		/// Sets up subscriptions
 		/// </summary>
 		private void Start() {
+			lastPosition = transform.position;
 			Grabbable.IsGrabbed.Subscribe(HandleGrabStateChange);
 		}
 
@@ -71,7 +78,7 @@ namespace PXL.Interaction {
 			transform.position = CalculateObjectPosition();
 			transform.rotation = trackedTarget.rotation * rotOffset;
 
-			CheckMovement(movedWhileGrabbedSubject);
+			CheckMovement();
 		}
 
 		/// <summary>
@@ -92,10 +99,15 @@ namespace PXL.Interaction {
 		/// <summary>
 		/// Checks whether the object has been moved beyond a certain threshold and if yes, emits the subject
 		/// </summary>
-		private void CheckMovement(ISubject<MovementInfo> subject) {
+		private void CheckMovement() {
 			if (!(Vector3.Distance(transform.position, lastPosition) > MoveThresHold))
 				return;
-			subject.OnNext(new MovementInfo(Vector3.Distance(transform.position, lastPosition), transform.position));
+
+			Grabbable.InteractionHand.MoveObject(
+				new MovementInfo(this, 
+								transform.position - lastPosition,
+								transform.position));
+
 			lastPosition = transform.position;
 		}
 
@@ -104,7 +116,7 @@ namespace PXL.Interaction {
 		/// </summary>
 		/// <param name="offsetPercent">How many percent of the original offset should be kept when holding it</param>
 		private Vector3 CalculateObjectPosition(float offsetPercent = 1f) {
-			return Touchable.GetAverageFingerPosition(Grabbable.CurrentHand) + posOffset.magnitude * trackedTarget.up * -1 * offsetPercent;
+			return Touchable.GetAverageFingerPosition(Grabbable.CurrentHand) - posOffset.magnitude * trackedTarget.up * 1 * offsetPercent;
 		}
 
 		/// <summary>

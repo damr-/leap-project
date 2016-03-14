@@ -34,9 +34,11 @@ namespace PXL.UI {
 		public Text[] DistanceTexts;
 
 		/// <summary>
-		/// The observed ObjectManagers
+		/// The two hands in this scene
 		/// </summary>
-		public ObjectManager[] ObjectManagers;
+		public List<HandModel> HandModels = new List<HandModel>();
+
+		protected List<InteractionHand> InteractionHands = new List<InteractionHand>();
 
 		/// <summary>
 		/// The canvas which will display the game over message
@@ -66,17 +68,19 @@ namespace PXL.UI {
 		private readonly IDictionary<GameObject, CompositeDisposable> objectSubscriptions =
 			new Dictionary<GameObject, CompositeDisposable>();
 
-		private readonly CompositeDisposable objectManagerSubscriptions = new CompositeDisposable();
-
 		private void Start() {
 			AssertReferences();
-
-			foreach (var objectManager in ObjectManagers) {
-				objectManager.AssertNotNull();
-				objectManager.ObjectSpawned.Subscribe(ObjectSpawned).AddTo(objectManagerSubscriptions);
+			
+            HandModels.ForEach(i => InteractionHands.Add(i.GetComponent<InteractionHand>()));
+			
+			foreach (var hand in InteractionHands) {
+				hand.ObjectGrabbed.Subscribe(grabbable => HandleGrabStateChange(grabbable, true));
+				hand.ObjectDropped.Subscribe(grabbable => HandleGrabStateChange(grabbable, false));
+				hand.ObjectMoved.Subscribe(ObjectMoved);
 			}
+
 			GameMode.GameWon.Subscribe(HandleGameWon);
-        }
+		}
 
 		private void Update() {
 			if (startTime < 0f)
@@ -90,6 +94,9 @@ namespace PXL.UI {
 
 		}
 
+		/// <summary>
+		/// Makes sure every needed reference is setup and not missing
+		/// </summary>
 		private void AssertReferences() {
 			TimeText.AssertNotNull();
 
@@ -101,36 +108,16 @@ namespace PXL.UI {
 
 			LevelInput.AssertNotNull("LevelInput reference is missing");
 			MessageCanvas.AssertNotNull("MessageCanvas reference is missing");
+
+			if(HandModels.Count != 2)
+				throw new MissingReferenceException("There aren't exactly two hands assigned!");
 		}
 
 		/// <summary>
-		/// Called when an object is spawned. Sets up all needed subscriptions
+		/// Called when the grab-state of a grabbable object changes
 		/// </summary>
-		/// <param name="objectBehaviour"></param>
-		private void ObjectSpawned(ObjectBehaviour objectBehaviour) {
-			var grabbable = objectBehaviour.GetComponent<Grabbable>();
-
-			if (grabbable == null)
-				return;
-
-			var c = new CompositeDisposable();
-
-			grabbable.IsGrabbed.Subscribe(grabbed => HandleGrabStateChange(grabbable, grabbed)).AddTo(c);
-
-			var moveable = objectBehaviour.GetComponent<Moveable>();
-			if(moveable != null)
-				moveable.MovedWhileGrabbed.Subscribe(movementInfo => ObjectMoved(grabbable, movementInfo)).AddTo(c);
-
-			objectSubscriptions.Add(grabbable.gameObject, c);
-
-			objectBehaviour.ObjectDestroyed.Subscribe(_ => {
-				if (grabbable.gameObject == null || !objectSubscriptions.ContainsKey(grabbable.gameObject))
-					return;
-				objectSubscriptions[grabbable.gameObject].Dispose();
-				objectSubscriptions.Remove(grabbable.gameObject);
-			});
-		}
-
+		/// <param name="grabbable">The grabbable object</param>
+		/// <param name="grabbed">The new grab-state</param>
 		private void HandleGrabStateChange(Grabbable grabbable, bool grabbed) {
 			if (grabbed) {
 				IncrementTextValue(grabbable, PicksTexts);
@@ -144,9 +131,11 @@ namespace PXL.UI {
 		/// <summary>
 		/// Called when an object, grabbed by the correct hand, is moved
 		/// </summary>
-		private void ObjectMoved(Grabbable grabbable, MovementInfo movementInfo) {
-			var index = GetHandIndexIfValid(grabbable);
-			distances[index] += movementInfo.Delta;
+		private void ObjectMoved(MovementInfo movementInfo) {
+			var index = GetHandIndexIfValid(movementInfo.Moveable.Grabbable);
+			if (index == -1)
+				return;
+			distances[index] += movementInfo.Delta.magnitude;
 			DistanceTexts[index].text = distances[index].ToString("0.000");
 		}
 
@@ -193,25 +182,18 @@ namespace PXL.UI {
 		private void HandleGameWon(bool won) {
 			if (!won)
 				return;
-			
+
 			startTime = -1;
 
 			if (MessageCanvas != null) {
 				MessageCanvas.enabled = true;
-				MessageCanvas.GetComponentInChildren<Text>().text = "Well done! Press " + LevelInput.RestartKey.ToString() +
-				                                                    " to restart!";
+				MessageCanvas.GetComponentInChildren<Text>().text = "Well done! Press " + LevelInput.RestartKey.ToString() + " to restart!";
 			}
 
 			while (objectSubscriptions.Count > 0) {
 				var first = objectSubscriptions.ElementAt(0);
 				first.Value.Dispose();
 				objectSubscriptions.Remove(first);
-			}
-
-			objectManagerSubscriptions.Dispose();
-			foreach (var objectManager in ObjectManagers) {
-				if(objectManager != null)
-					Destroy(objectManager.gameObject);
 			}
 		}
 
