@@ -59,6 +59,11 @@ namespace PXL.Interaction {
 		private const float TrackFrequency = 10f;
 
 		/// <summary>
+		/// How much data is required to invoke the Observable.
+		/// </summary>
+		private const int RequiredDataAmount = 10;
+
+		/// <summary>
 		/// The last time the object's data was tracked
 		/// </summary>
 		private float lastTrackTime;
@@ -111,7 +116,7 @@ namespace PXL.Interaction {
 				lastTrackTime = 0f;
 			}
 			else {
-				if (timeData.Count <= 2)
+				if (timeData.Count < RequiredDataAmount)
 					return;
 
 				var trackData = new TrackData(observedGrabbable, timeData, speedData);

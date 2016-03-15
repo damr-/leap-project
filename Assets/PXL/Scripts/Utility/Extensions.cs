@@ -87,6 +87,13 @@ namespace PXL.Utility {
 		public static bool IsHandValid(this HandModel hand) {
 			return (hand != null && hand.isActiveAndEnabled && hand.GetLeapHand() != null);
 		}
+
+		/// <summary>
+		/// Clears the list by removing all null entries and inactive scene objects
+		/// </summary>
+		public static List<T> Purge<T>(this List<T> list) where T : Component {
+			return list.Where(c => c != null && c.gameObject != null && c.gameObject.activeInHierarchy).ToList();
+		}
 	}
 
 }

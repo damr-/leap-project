@@ -4,6 +4,7 @@ using System.Linq;
 using PXL.Gamemodes;
 using PXL.Interaction;
 using PXL.Utility;
+using UniRx.Triggers;
 
 namespace PXL.Objects.Areas {
 
@@ -33,10 +34,12 @@ namespace PXL.Objects.Areas {
 			AreaLight.AssertNotNull("The area light is missing");
 		}
 
-		protected virtual void Update() {
-			ClearSortedObjects();
+		protected override void Update() {
+			base.Update();
 
-			if (GameMode.GameWon || SortedObjects.Count != RequiredObjectsAmount)
+			SortedObjects.Purge();
+
+			if (GameMode.GameWon || !AreaActive || SortedObjects.Count != RequiredObjectsAmount)
 				return;
 
 			SortObjectsIfNeeded();
@@ -82,13 +85,6 @@ namespace PXL.Objects.Areas {
 		}
 
 		/// <summary>
-		/// Removes inactive and missing objects from the list which might not have been noticed through the TriggerExit event.
-		/// </summary>
-		protected virtual void ClearSortedObjects() {
-			SortedObjects = SortedObjects.Where(o => o != null && o.gameObject != null && o.gameObject.activeInHierarchy).ToList();
-		}
-
-		/// <summary>
 		/// Returns whether all objects in the area have been dropped
 		/// </summary>
 		/// <returns>True if no objects is still grabbed, false if otherwise</returns>
@@ -99,7 +95,7 @@ namespace PXL.Objects.Areas {
 		}
 
 		/// <summary>
-		/// Adds the new object to the sorted objects List
+		/// Adds the new object to <see cref="SortedObjects"/>
 		/// </summary>
 		protected override void HandleValidObjectType(ObjectBehaviour objectBehaviour) {
 			if (!SortedObjects.Contains(objectBehaviour))
@@ -107,7 +103,12 @@ namespace PXL.Objects.Areas {
 		}
 
 		/// <summary>
-		/// Removes the object from the sorted list
+		/// <see cref="StackArea"/> doesn't worry about invalid object types
+		/// </summary>
+		protected override void HandleInvalidObjectType(ObjectBehaviour objectBehaviour) {}
+
+		/// <summary>
+		/// Removes the object from <see cref="SortedObjects"/>
 		/// </summary>
 		protected override void OnTriggerExit(Collider other) {
 			var objectBehaviour = other.GetComponent<ObjectBehaviour>();

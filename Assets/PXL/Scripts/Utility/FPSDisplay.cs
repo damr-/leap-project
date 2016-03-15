@@ -32,16 +32,16 @@ namespace PXL.Utility {
 			if (!CounterEnabled)
 				return;
 
-			framesSum += 1f / Time.deltaTime;
+			framesSum += 1f / UnityEngine.Time.deltaTime;
 			counter++;
 
-			if (lastTime + UpdateDelay >= Time.time)
+			if (lastTime + UpdateDelay >= UnityEngine.Time.time)
 				return;
 
 			Text.text = (int)(framesSum / counter) + " fps";
 			counter = 0;
 			framesSum = 0;
-			lastTime = Time.time;
+			lastTime = UnityEngine.Time.time;
 		}
 	}
 

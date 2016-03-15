@@ -15,11 +15,11 @@ namespace PXL.Utility {
 		private float startTime;
 		
 		private void OnEnable() {
-			startTime = Time.time;
+			startTime = UnityEngine.Time.time;
 		}
 
 		private void Update() {
-			if (Time.time - startTime > LifeTime)
+			if (UnityEngine.Time.time - startTime > LifeTime)
 				SimplePool.Despawn(gameObject);
 		}
 

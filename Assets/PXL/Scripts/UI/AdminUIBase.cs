@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using PXL.Objects;
+using PXL.Objects.Spawner;
 using UnityEngine;
 
 namespace PXL.UI {
@@ -27,10 +27,10 @@ namespace PXL.UI {
 		/// <summary>
 		/// ALl ObjectManagers in this scene
 		/// </summary>
-		protected List<ObjectManager> ObjectManagers = new List<ObjectManager>();
+		protected List<ObjectSpawner> ObjectManagers = new List<ObjectSpawner>();
 
 		protected virtual void Start() {
-			ObjectManagers = FindObjectsOfType<ObjectManager>().ToList();
+			ObjectManagers = FindObjectsOfType<ObjectSpawner>().ToList();
 		}
 		
 		/// <summary>

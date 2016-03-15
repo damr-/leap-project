@@ -53,17 +53,19 @@ namespace PXL.Utility {
 		}
 
 		private void Update() {
-			if (Oscillating) {
-				light.intensity = Mathf.Lerp(light.intensity, targetIntensity, OscillateSpeed * Time.deltaTime);
-				UpdateTargetIntensity();
-			}
+			if (!Oscillating)
+				return;
+
+			light.intensity = Mathf.Lerp(light.intensity, targetIntensity, OscillateSpeed * UnityEngine.Time.deltaTime);
+			UpdateTargetIntensity();
 		}
 
 		private void UpdateTargetIntensity() {
-			if (Mathf.Abs(targetIntensity - light.intensity) < ChangeMargin) {
-				targetIntensity = increasing ? MinIntensity : MaxIntensity;
-				increasing = !increasing;
-			}
+			if (Mathf.Abs(targetIntensity - light.intensity) >= ChangeMargin)
+				return;
+			
+			targetIntensity = increasing ? MinIntensity : MaxIntensity;
+			increasing = !increasing;
 		}
 		/// <summary>
 		/// Start oscillating towards <see cref="MaxIntensity"/>

@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
+using PXL.Gamemodes;
 using PXL.Utility;
 using UnityEngine;
 
@@ -30,10 +32,23 @@ namespace PXL.Objects.Areas {
 		/// <summary>
 		/// All valid objects that are inside the area
 		/// </summary>
-		protected HashSet<GameObject> Objects = new HashSet<GameObject>();
+		protected List<Collider> Objects = new List<Collider>();
+
+		/// <summary>
+		/// Whether this area is active
+		/// </summary>
+		protected bool AreaActive = true;
 
 		protected virtual void Awake() {
 			TargetTag = Tags.GetTagString(TargetTagType);
+			SetAreaActive(true);
+		}
+
+		protected virtual void Update() {
+			if (GameMode.GameWon || !AreaActive)
+				return;
+			
+			Objects.Purge();
 		}
 
 		/// <summary>
@@ -54,16 +69,16 @@ namespace PXL.Objects.Areas {
 		/// Called when an object exits the trigger
 		/// </summary>
 		protected virtual void HandleTriggerExit(Collider other) {
-			Objects.Remove(other.gameObject);
+			Objects.Remove(other);
 		}
 
 		/// <summary>
 		/// Called when any object enters the trigger
 		/// </summary>
 		protected virtual void HandleTriggerEntered(Collider other) {
-			if (!other.gameObject.CompareTag(TargetTag))
+			if (!HasCorrectTag(other.gameObject) || Objects.Contains(other))
 				return;
-			Objects.Add(other.gameObject);
+			Objects.Add(other);
 			HandleValidOther(other);
 		}
 
@@ -72,6 +87,21 @@ namespace PXL.Objects.Areas {
 		/// </summary>
 		protected abstract void HandleValidOther(Collider other);
 
+		/// <summary>
+		/// Returns whether the other object has the correct tag
+		/// </summary>
+		protected bool HasCorrectTag(GameObject other) {
+			return other.CompareTag(TargetTag);
+		}
+
+		/// <summary>
+		/// Enables the trigger and sets the flag
+		/// </summary>
+		/// <param name="active">Whether this area is active</param>
+		protected virtual void SetAreaActive(bool active) {
+			AreaCollider.enabled = active;
+			AreaActive = active;
+		}
 	}
 
 }

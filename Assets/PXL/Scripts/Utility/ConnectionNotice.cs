@@ -58,9 +58,9 @@ namespace PXL.Utility {
 				framesDisconnected++;
 
 			if (framesDisconnected < WaitFrames)
-				fadedIn -= Time.deltaTime / FadeOutTime;
+				fadedIn -= UnityEngine.Time.deltaTime / FadeOutTime;
 			else
-				fadedIn += Time.deltaTime / FadeInTime;
+				fadedIn += UnityEngine.Time.deltaTime / FadeInTime;
 			fadedIn = Mathf.Clamp(fadedIn, 0.0f, 1.0f);
 
 			SetAlpha(FadeCurve.Evaluate(fadedIn));
