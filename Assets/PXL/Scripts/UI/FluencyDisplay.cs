@@ -1,9 +1,6 @@
 ﻿using UniRx;
-using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using System.Collections;
-using System.Runtime.InteropServices;
 using PXL.Interaction;
 using PXL.Utility;
 using UnityEngine.UI;
@@ -86,7 +83,7 @@ namespace PXL.UI {
 
 				//Set pixel at fixed position
 				if (i == timePos) {
-					PaintPixelArea(texture, timePos, positionPos, Color.green);
+					PaintPixelArea(texture, timePos, positionPos, Color.black);
 					lastTimePos = timePos;
 					lastPositionPos = positionPos;
 					dataIndex++;

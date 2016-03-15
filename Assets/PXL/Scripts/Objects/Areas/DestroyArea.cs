@@ -34,7 +34,7 @@ namespace PXL.Objects.Areas {
 					rigidbody == null || !rigidbody.velocity.Equal(Vector3.zero))
 					continue;
 
-				if (++CurrentDestroyAmount >= WinDestroyAmount) {
+				if (++CurrentDestroyAmount == WinDestroyAmount) {
 					AreaCollider.enabled = false;
 					GameMode.SetGameOver(true);
 					o.GetComponent<ObjectBehaviour>().DestroyObject();

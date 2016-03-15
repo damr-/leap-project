@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
-using System.Linq;
 using UniRx;
 
 namespace PXL.Interaction {
@@ -50,6 +49,21 @@ namespace PXL.Interaction {
 		private float startTime;
 
 		/// <summary>
+		/// The last position of the observed Object
+		/// </summary>
+		private Vector3 lastPosition;
+
+		/// <summary>
+		/// How often per second the object's data is tracked
+		/// </summary>
+		private const float TrackFrequency = 10f;
+
+		/// <summary>
+		/// The last time the object's data was tracked
+		/// </summary>
+		private float lastTrackTime;
+
+		/// <summary>
 		/// Invoked when an object is dropped and the observing is finished
 		/// </summary>
 		public IObservable<TrackData> FinishedObserving { get { return finishedObservingSubject; } }
@@ -61,8 +75,27 @@ namespace PXL.Interaction {
 			foreach (var hand in InteractionHands) {
 				hand.ObjectGrabbed.Subscribe(grabbable => HandleGrabStateChanged(grabbable, true));
 				hand.ObjectDropped.Subscribe(grabbable => HandleGrabStateChanged(grabbable, false));
-				hand.ObjectMoved.Subscribe(HandleObjectMoved);
 			}
+		}
+
+		private void Update() {
+			if (observedGrabbable == null)
+				return;
+
+			if (Time.time - lastTrackTime < 1/TrackFrequency)
+				return;
+			
+			var observedTime = Time.time - startTime;
+
+			timeData.Add(observedTime);
+
+			var deltaTime = Time.time - lastTrackTime;
+			var deltaPos = observedGrabbable.transform.position - lastPosition;
+            
+			speedData.Add(deltaPos.magnitude / deltaTime);
+
+			lastPosition = observedGrabbable.transform.position;
+			lastTrackTime = Time.time;
 		}
 
 		/// <summary>
@@ -73,7 +106,9 @@ namespace PXL.Interaction {
 				observedGrabbable = grabbable;
 				speedData = new List<float>();
 				timeData = new List<float>();
+				lastPosition = observedGrabbable.transform.position;
 				startTime = Time.time;
+				lastTrackTime = 0f;
 			}
 			else {
 				if (timeData.Count <= 2)
@@ -83,19 +118,6 @@ namespace PXL.Interaction {
 				finishedObservingSubject.OnNext(trackData);
 				observedGrabbable = null;
 			}
-		}
-
-		/// <summary>
-		/// Called when an InteractionHand moves a grabbed object
-		/// </summary>
-		private void HandleObjectMoved(MovementInfo movementInfo) {
-			var deltaTime = Time.time - startTime;
-
-			if (deltaTime < 1f)
-				return;
-
-			timeData.Add(deltaTime);
-            speedData.Add(movementInfo.Delta.magnitude / deltaTime);
 		}
 
 	}
