@@ -64,8 +64,8 @@ namespace PXL.Interaction {
 		/// Sets up subscriptions
 		/// </summary>
 		private void Start() {
-			lastPosition = transform.position;
 			Grabbable.IsGrabbed.Subscribe(HandleGrabStateChange);
+			lastPosition = transform.position;
 		}
 
 		/// <summary>
@@ -116,7 +116,7 @@ namespace PXL.Interaction {
 		/// </summary>
 		/// <param name="offsetPercent">How many percent of the original offset should be kept when holding it</param>
 		private Vector3 CalculateObjectPosition(float offsetPercent = 1f) {
-			return Touchable.GetAverageFingerPosition(Grabbable.CurrentHand) - posOffset.magnitude * trackedTarget.up * 1 * offsetPercent;
+			return Touchable.GetAverageFingerPosition(Grabbable.CurrentHand) - posOffset.magnitude * trackedTarget.up * offsetPercent;
 		}
 
 		/// <summary>

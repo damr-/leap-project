@@ -50,7 +50,7 @@ namespace PXL.Utility {
 		/// <param name="dictionary">The dictionary to look for the component</param>
 		/// <param name="key">The Component as key for the dictionary</param>
 		/// <returns>The Component </returns>
-		public static TV GetOrAdd<TK, TV>(this IDictionary<TK, TV> dictionary, TK key) where TV : class where TK : Component {
+		public static TV GetOrAdd<TK, TV>(this IDictionary<TK, TV> dictionary, TK key) where TK : Component where TV : class {
 			TV value;
 
 			if (dictionary.TryGetValue(key, out value)) 

@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using System.Linq;
 using UniRx;
 
 namespace PXL.Interaction {
@@ -28,13 +29,29 @@ namespace PXL.Interaction {
 		/// </summary>
 		protected List<InteractionHand> InteractionHands = new List<InteractionHand>();
 
-		private Grabbable trackedGrabbable;
+		/// <summary>
+		/// The currently observed object
+		/// </summary>
+		private Grabbable observedGrabbable;
 
+		/// <summary>
+		/// Speed data of the currently observed object
+		/// </summary>
 		private List<float> speedData;
+
+		/// <summary>
+		/// Time data of the currently observed object
+		/// </summary>
 		private List<float> timeData;
 
+		/// <summary>
+		/// Time the tracking started
+		/// </summary>
 		private float startTime;
 
+		/// <summary>
+		/// Invoked when an object is dropped and the observing is finished
+		/// </summary>
 		public IObservable<TrackData> FinishedObserving { get { return finishedObservingSubject; } }
 		private readonly ISubject<TrackData> finishedObservingSubject = new Subject<TrackData>();
 
@@ -53,7 +70,7 @@ namespace PXL.Interaction {
 		/// </summary>
 		private void HandleGrabStateChanged(Grabbable grabbable, bool grabbed) {
 			if (grabbed) {
-				trackedGrabbable = grabbable;
+				observedGrabbable = grabbable;
 				speedData = new List<float>();
 				timeData = new List<float>();
 				startTime = Time.time;
@@ -62,9 +79,9 @@ namespace PXL.Interaction {
 				if (timeData.Count <= 2)
 					return;
 
-				var trackData = new TrackData(trackedGrabbable, timeData, speedData);
+				var trackData = new TrackData(observedGrabbable, timeData, speedData);
 				finishedObservingSubject.OnNext(trackData);
-				trackedGrabbable = null;
+				observedGrabbable = null;
 			}
 		}
 
@@ -73,8 +90,12 @@ namespace PXL.Interaction {
 		/// </summary>
 		private void HandleObjectMoved(MovementInfo movementInfo) {
 			var deltaTime = Time.time - startTime;
+
+			if (deltaTime < 1f)
+				return;
+
 			timeData.Add(deltaTime);
-			speedData.Add(movementInfo.Delta.magnitude / deltaTime);
+            speedData.Add(movementInfo.Delta.magnitude / deltaTime);
 		}
 
 	}

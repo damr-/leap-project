@@ -40,16 +40,8 @@ namespace PXL.UI {
 
 		protected List<InteractionHand> InteractionHands = new List<InteractionHand>();
 
-		/// <summary>
-		/// The canvas which will display the game over message
-		/// </summary>
-		public Canvas MessageCanvas;
-
-		/// <summary>
-		/// The LevelInput Component
-		/// </summary>
-		public LevelInput LevelInput;
-
+		private IDisposable gameWinSubscription = Disposable.Empty;
+		
 		/// <summary>
 		/// The distance each hand has carried an object
 		/// </summary>
@@ -79,7 +71,7 @@ namespace PXL.UI {
 				hand.ObjectMoved.Subscribe(ObjectMoved);
 			}
 
-			GameMode.GameWon.Subscribe(HandleGameWon);
+			gameWinSubscription = GameMode.GameWon.Subscribe(HandleGameWon);
 		}
 
 		private void Update() {
@@ -105,9 +97,6 @@ namespace PXL.UI {
 				DropsTexts[i].AssertNotNull();
 				DistanceTexts[i].AssertNotNull();
 			}
-
-			LevelInput.AssertNotNull("LevelInput reference is missing");
-			MessageCanvas.AssertNotNull("MessageCanvas reference is missing");
 
 			if(HandModels.Count != 2)
 				throw new MissingReferenceException("There aren't exactly two hands assigned!");
@@ -185,11 +174,6 @@ namespace PXL.UI {
 
 			startTime = -1;
 
-			if (MessageCanvas != null) {
-				MessageCanvas.enabled = true;
-				MessageCanvas.GetComponentInChildren<Text>().text = "Well done! Press " + LevelInput.RestartKey.ToString() + " to restart!";
-			}
-
 			while (objectSubscriptions.Count > 0) {
 				var first = objectSubscriptions.ElementAt(0);
 				first.Value.Dispose();
@@ -203,6 +187,11 @@ namespace PXL.UI {
 		private void TryStartTimer() {
 			if (startTime < 0f)
 				startTime = Time.time;
+		}
+
+
+		private void OnDisable() {
+			gameWinSubscription.Dispose();
 		}
 
 	}

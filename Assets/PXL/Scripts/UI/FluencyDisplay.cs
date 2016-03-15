@@ -25,9 +25,17 @@ namespace PXL.UI {
 		private RawImage mRawImage;
 
 		/// <summary>
+		/// The Canvas Rect Transform this Display belongs to
+		/// </summary>
+		public RectTransform CanvasTransform;
+
+		/// <summary>
 		/// Sets up the subscription
 		/// </summary>
 		private void Start() {
+			FluencyObserver.AssertNotNull("Missing FluencyObserver!");
+			CanvasTransform.AssertNotNull("Missing Canvas RectTransform!");
+
 			FluencyObserver.FinishedObserving.Subscribe(HandleObjectDropped);
 		}
 
@@ -35,7 +43,7 @@ namespace PXL.UI {
 		/// Called when an object has been dropped and the fluency should be displayed
 		/// </summary>
 		private void HandleObjectDropped(TrackData trackData) {
-			var texture = CreateTexture();//Color.black);
+			var texture = CreateTexture();
 
 			FillTexture(texture, trackData);
 
@@ -45,28 +53,22 @@ namespace PXL.UI {
 		/// <summary>
 		/// Creates a texture of the given size with black background
 		/// </summary>
-		private Texture2D CreateTexture(/*Color backGroundColor*/) {
-			const int width = 2048;
-			const int height = 1000;
+		private Texture2D CreateTexture() {
+			var width = (int)CanvasTransform.rect.width;
+			var height = (int)CanvasTransform.rect.height;
             var texture = new Texture2D(width, height);
-			//for (var y = 0; y < texture.height; y++) {
-			//	for (var x = 0; x < texture.width; x++) {
-			//		texture.SetPixel(x, y, backGroundColor);
-			//	}
-			//}
-			//texture.Apply();
 			return texture;
 		}
 
 		/// <summary>
-		/// Fills the texture with the given <see cref="TrackData"/>
+		/// Fills the <see cref="Texture2D"/> with the given <see cref="TrackData"/>
 		/// </summary>
 		private void FillTexture(Texture2D texture, TrackData trackData) {
 			var speedData = trackData.Speed;
 			var timeData = trackData.Time;
 
-			var startTime = timeData.First();
-			var stopTime = timeData.Last();
+			var startTime = timeData.ElementAt(0);
+			var stopTime = timeData.ElementAt(timeData.Count - 1);
 
 			var maxSpeed = speedData.Max();
 
@@ -80,28 +82,35 @@ namespace PXL.UI {
 
 			for (var i = 0; i < width; i++) {
 				var timePos = (int)timeData.ElementAt(dataIndex).Remap(startTime, stopTime, 0, width);
+				var positionPos = (int)speedData.ElementAt(dataIndex).Remap(0, maxSpeed, 0, height);
 
 				//Set pixel at fixed position
 				if (i == timePos) {
-					var positionPos = (int)speedData.ElementAt(dataIndex).Remap(0, maxSpeed, 0, height);
-					texture.SetPixel(timePos, positionPos, Color.green);
+					PaintPixelArea(texture, timePos, positionPos, Color.green);
 					lastTimePos = timePos;
 					lastPositionPos = positionPos;
 					dataIndex++;
 				}
 				//interpolate between last and next fixed position
 				else {
-					var nextTimePos = (int)timeData.ElementAt(dataIndex).Remap(startTime, stopTime, 0, width);
-					var nextPositionPos = (int)speedData.ElementAt(dataIndex).Remap(0, maxSpeed, 0, height);
-
-					var currentPositionPos = (int)Mathf.Lerp(lastPositionPos, nextPositionPos, ((float)i).Remap(lastTimePos, nextTimePos, 0, 1));
-
-					texture.SetPixel(i, currentPositionPos, Color.red);
+					var alpha = ((float) i).Remap(lastTimePos, timePos, 0, 1);
+                    var currentPositionPos = (int)Mathf.Lerp(lastPositionPos, positionPos, alpha);
+					PaintPixelArea(texture, i, currentPositionPos, Color.red);
 				}
 			}
 
-
 			texture.Apply();
+		}
+
+		/// <summary>
+		/// Applies the color at the given position and its surrounding 8 pixels to the given texture
+		/// </summary>
+		private void PaintPixelArea(Texture2D texture, int x, int y, Color color) {
+			for (var i = y - 1; i < y + 1; i++) {
+				for (var h = x - 1; h < x + 1; h++) {
+					texture.SetPixel(h, i, color);
+				}
+			}
 		}
 	}
 
