@@ -37,7 +37,7 @@ namespace PXL.Objects.Areas {
 		protected override void Update() {
 			base.Update();
 
-			SortedObjects.Purge();
+			SortedObjects = SortedObjects.Purge();
 
 			if (GameMode.GameWon || !AreaActive || SortedObjects.Count != RequiredObjectsAmount)
 				return;

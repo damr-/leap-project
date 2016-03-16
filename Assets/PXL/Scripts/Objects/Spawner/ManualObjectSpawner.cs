@@ -1,4 +1,5 @@
-﻿using PXL.Utility.Time;
+﻿using System;
+using PXL.Utility;
 using UniRx;
 
 namespace PXL.Objects.Spawner {
@@ -16,25 +17,10 @@ namespace PXL.Objects.Spawner {
 		private bool delayedSpawn;
 
 		/// <summary>
-		/// When the delay started
-		/// </summary>
-		private float delayStartTime;
-
-		/// <summary>
 		/// Adds the check for <see cref="delayedSpawn"/>
 		/// </summary>
 		protected override bool CanRespawnImmediately() {
 			return !delayedSpawn && base.CanRespawnImmediately();
-		}
-
-		protected override void Update() {
-			base.Update();
-
-			if (!delayedSpawn || !(UnityEngine.Time.time - delayStartTime > SpawnDelay))
-				return;
-
-			delayedSpawn = false;
-			SpawnObject();
 		}
 
 		/// <summary>
@@ -43,7 +29,11 @@ namespace PXL.Objects.Spawner {
 		public override void RemoveAllObjects() {
 			base.RemoveAllObjects();
 			delayedSpawn = true;
-			delayStartTime = UnityEngine.Time.time;
+
+			Observable.Timer(TimeSpan.FromSeconds(SpawnDelay)).Subscribe(_ => {
+				delayedSpawn = false;
+				SpawnObject();
+			});
 		}
 
 	}

@@ -9,7 +9,7 @@ namespace PXL.Objects.Spawner {
 	public class StopSpawnOnGoalReached : MonoBehaviour {
 
 		/// <summary>
-		/// The <see cref="DestroyArea"/> to subscribe to
+		/// The observed <see cref="DestroyArea"/>
 		/// </summary>
 		public DestroyArea DestroyArea;
 
@@ -20,6 +20,7 @@ namespace PXL.Objects.Spawner {
 			get { return mObjectSpawner ?? (mObjectSpawner = this.TryGetComponent<ObjectSpawner>()); }
 		}
 		private ObjectSpawner mObjectSpawner;
+
 
 		private void Start() {
 			DestroyArea.GoalReached.Subscribe(_ => HandleGoalReached());

@@ -16,7 +16,7 @@ namespace PXL.Objects.Areas {
 			if (GameMode.GameWon || !AreaActive)
 				return;
 
-			ValidObjects.Purge();
+			ValidObjects = ValidObjects.Purge();
 
 			foreach (var o in ValidObjects) {
 				if (!IsObjectDropped(o))
@@ -35,12 +35,10 @@ namespace PXL.Objects.Areas {
 		/// Adds the new object to <see cref="ValidObjects"/>
 		/// </summary>
 		protected override void HandleValidObjectType(ObjectBehaviour objectBehaviour) {
+			base.HandleValidObjectType(objectBehaviour);
+
 			if (!ValidObjects.Contains(objectBehaviour))
 				ValidObjects.Add(objectBehaviour);
-		}
-
-		protected override void HandleInvalidObjectType(ObjectBehaviour objectBehaviour) {
-			Debug.Log("PlacementDestroyArea ignores invalid object types");
 		}
 
 		/// <summary>

@@ -44,8 +44,20 @@ namespace PXL.Objects.Areas {
 		/// <summary>
 		/// Invoked when <see cref="CurrentDestroyAmount"/> reaches <see cref="WinDestroyAmount"/>
 		/// </summary>
-		public IObservable<Unit> GoalReached { get { return GoalReachedSubject; } } 
+		public IObservable<Unit> GoalReached { get { return GoalReachedSubject; } }
 		protected readonly ISubject<Unit> GoalReachedSubject = new Subject<Unit>();
+
+		/// <summary>
+		/// Invoked when an object with the correct type enters
+		/// </summary>
+		public IObservable<ObjectBehaviour> ValidObject { get { return validObjectSubject; } }
+		private readonly ISubject<ObjectBehaviour> validObjectSubject = new Subject<ObjectBehaviour>();
+
+		/// <summary>
+		/// Invoked when an object with the wrong type enters
+		/// </summary>
+		public IObservable<ObjectBehaviour> InvalidObject { get { return invalidObjectSubject; } }
+		private readonly ISubject<ObjectBehaviour> invalidObjectSubject = new Subject<ObjectBehaviour>();
 
 		/// <summary>
 		/// Reset <see cref="CurrentDestroyAmount"/>
@@ -68,8 +80,15 @@ namespace PXL.Objects.Areas {
 			}
 			SetAreaActive(false);
 			GoalReachedSubject.OnNext(Unit.Default);
-        }
+		}
 
+		protected override void HandleValidObjectType(ObjectBehaviour objectBehaviour) {
+			validObjectSubject.OnNext(objectBehaviour);
+		}
+		
+		protected override void HandleInvalidObjectType(ObjectBehaviour objectBehaviour) {
+			invalidObjectSubject.OnNext(objectBehaviour);
+		}
 	}
 
 }

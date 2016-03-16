@@ -47,8 +47,8 @@ namespace PXL.Objects.Areas {
 		protected virtual void Update() {
 			if (GameMode.GameWon || !AreaActive)
 				return;
-			
-			Objects.Purge();
+
+			Objects = Objects.Purge();
 		}
 
 		/// <summary>
@@ -78,6 +78,7 @@ namespace PXL.Objects.Areas {
 		protected virtual void HandleTriggerEntered(Collider other) {
 			if (!HasCorrectTag(other.gameObject) || Objects.Contains(other))
 				return;
+
 			Objects.Add(other);
 			HandleValidOther(other);
 		}

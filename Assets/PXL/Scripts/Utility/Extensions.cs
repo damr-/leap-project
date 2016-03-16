@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using UniRx;
 using UnityEngine;
 
 namespace PXL.Utility {
@@ -39,7 +41,7 @@ namespace PXL.Utility {
 		/// <param name="items">The array with all items</param>
 		/// <param name="minIndex">The minimum possible index</param>
 		public static T GetRandomElement<T>(this T[] items, int minIndex = 0) where T : struct {
-			var index = Random.Range(minIndex, items.Length);
+			var index = UnityEngine.Random.Range(minIndex, items.Length);
 			return items.ElementAt(index);
 		}
 
@@ -69,7 +71,7 @@ namespace PXL.Utility {
 		/// </summary>
 		/// <param name="o"></param>
 		/// <param name="message"></param>
-		public static void AssertNotNull(this Object o, string message = "Missing reference, object is null!") {
+		public static void AssertNotNull(this UnityEngine.Object o, string message = "Missing reference, object is null!") {
 			if (o == null)
 				throw new MissingReferenceException(message);
 		}
@@ -89,11 +91,12 @@ namespace PXL.Utility {
 		}
 
 		/// <summary>
-		/// Clears the list by removing all null entries and inactive scene objects
+		/// Returns the cleared list by removing all null entries and inactive scene objects. Also removes duplicates
 		/// </summary>
 		public static List<T> Purge<T>(this List<T> list) where T : Component {
-			return list.Where(c => c != null && c.gameObject != null && c.gameObject.activeInHierarchy).ToList();
+			return list.Where(c => c != null && c.gameObject != null && c.gameObject.activeInHierarchy).Distinct().ToList();
 		}
+
 	}
 
 }
