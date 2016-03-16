@@ -1,24 +1,25 @@
-﻿using UnityEngine;
+﻿using PXL.Utility;
+using UnityEngine;
 
 namespace PXL.Objects.Areas {
 
 	public class ImmediateDestroyArea : DestroyArea {
 		
-		protected override void HandleValidObjectType(ObjectBehaviour objectBehaviour) {
-			base.HandleValidObjectType(objectBehaviour);
+		protected override void HandleValidObjectType(InteractiveObject interactiveObject) {
+			base.HandleValidObjectType(interactiveObject);
 
 			CurrentDestroyAmount.Value++;
             if (CurrentDestroyAmount.Value == WinDestroyAmount) {
 				HandleGameWon();
 			}
-			objectBehaviour.DestroyObject();
-		}
+			interactiveObject.Kill();
+        }
 
-		protected override void HandleInvalidObjectType(ObjectBehaviour objectBehaviour) {
-			base.HandleInvalidObjectType(objectBehaviour);
+		protected override void HandleInvalidObjectType(InteractiveObject interactiveObject) {
+			base.HandleInvalidObjectType(interactiveObject);
 
 			if (DestroyWrongTypes) {
-				objectBehaviour.DestroyObject();
+				interactiveObject.Kill();
 			}
 			if (PunishWrongTypes) {
 				CurrentDestroyAmount.Value = Mathf.Clamp(CurrentDestroyAmount.Value - PunishAmount, 0, CurrentDestroyAmount.Value);

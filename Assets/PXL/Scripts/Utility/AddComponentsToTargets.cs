@@ -29,7 +29,7 @@ namespace PXL.Utility {
 		}
 
 		private void CreateAndAddComponent(GameObject target, string component) {
-			System.Type componentType = Types.GetType(component, assemblyName);
+			var componentType = Types.GetType(component, assemblyName);
 			target.AddComponent(componentType);
 		}
 	}

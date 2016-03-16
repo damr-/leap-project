@@ -71,7 +71,7 @@ namespace PXL.Objects.Areas {
 		/// <summary>
 		/// Called when a valid object enters the area
 		/// </summary>
-		private void HandleValidObject(ObjectBehaviour objectBehaviour) {
+		private void HandleValidObject(InteractiveObject interactiveObject) {
 			if(ValidObjectClip != null)
 				PlayAudio(ValidObjectClip);
 			SetLightColor(ValidObjectColor);
@@ -80,7 +80,7 @@ namespace PXL.Objects.Areas {
 		/// <summary>
 		/// Called when an invalid object enters the area
 		/// </summary>
-		private void HandleInvalidObject(ObjectBehaviour objectBehaviour) {
+		private void HandleInvalidObject(InteractiveObject interactiveObject) {
 			if(InvalidObjectClip != null)
 				PlayAudio(InvalidObjectClip);
 			SetLightColor(InvalidObjectColor);

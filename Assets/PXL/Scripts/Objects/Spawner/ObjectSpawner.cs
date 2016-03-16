@@ -38,6 +38,12 @@ namespace PXL.Objects.Spawner {
 		protected int StartAmount = 2;
 
 		/// <summary>
+		/// How many seconds to wait before this spawner gets activated
+		/// </summary>
+		[SerializeField]
+		protected int StartSpawnDelay = 0;
+
+		/// <summary>
 		/// The maximum amount of objects this spawner can spawn in total.
 		/// -1 means infinite
 		/// </summary>
@@ -87,7 +93,7 @@ namespace PXL.Objects.Spawner {
 		/// <summary>
 		/// All the objects spawned by this ObjectManager
 		/// </summary>
-		protected readonly List<ObjectBehaviour> SpawnedObjects = new List<ObjectBehaviour>();
+		protected readonly List<InteractiveObject> SpawnedObjects = new List<InteractiveObject>();
 
 		/// <summary>
 		/// The currently active prefab which will be spawned
@@ -108,8 +114,8 @@ namespace PXL.Objects.Spawner {
 		/// <summary>
 		/// Invoked when an object is spawned
 		/// </summary>
-		public IObservable<ObjectBehaviour> ObjectSpawned { get { return objectSpawnedSubject; } }
-		private readonly ISubject<ObjectBehaviour> objectSpawnedSubject = new Subject<ObjectBehaviour>();
+		public IObservable<InteractiveObject> ObjectSpawned { get { return objectSpawnedSubject; } }
+		private readonly ISubject<InteractiveObject> objectSpawnedSubject = new Subject<InteractiveObject>();
 
 		/// <summary>
 		/// Invoked when the spawning of an object is initiated
@@ -125,7 +131,7 @@ namespace PXL.Objects.Spawner {
 		/// <summary>
 		/// The length of the spawn delay when removing all objects
 		/// </summary>
-		private const float SpawnDelay = 0.5f;
+		private const float RemoveAllSpawnDelay = 0.5f;
 
 		/// <summary>
 		/// Setup the spawn position and spawn the first object
@@ -138,8 +144,13 @@ namespace PXL.Objects.Spawner {
 			CurrentObjectPrefab = DefaultObjectPrefab;
 			SetObjectScale(DefaultScaleFactor);
 
-			for (var i = 0; i < StartAmount; i++)
-				SpawnObject();
+			IsSpawningEnabled = false;
+
+			Observable.Timer(TimeSpan.FromSeconds(StartSpawnDelay)).Subscribe(_ => {
+				IsSpawningEnabled = true;
+				for (var i = 0; i < StartAmount; i++)
+					SpawnObject();
+			});
 		}
 
 		/// <summary>
@@ -173,9 +184,8 @@ namespace PXL.Objects.Spawner {
 		/// Called when a object was destroyed
 		/// Removes the object from the list and spawns one if possible and necessary
 		/// </summary>
-		/// <param name="objectBehaviour">The ObjectBehaviour of the object which is about to be despawned</param>
-		protected virtual void ObjectDespawned(ObjectBehaviour objectBehaviour) {
-			SpawnedObjects.Remove(objectBehaviour);
+		protected virtual void ObjectDespawned(InteractiveObject interactiveObject) {
+			SpawnedObjects.Remove(interactiveObject);
 
 			if (SpawnedObjects.Count <= 0) {
 				SpawnObject();
@@ -190,10 +200,10 @@ namespace PXL.Objects.Spawner {
 			IsSpawningEnabled = false;
 
 			while (SpawnedObjects.Count > 0) {
-				SpawnedObjects[0].DestroyObject();
+				SpawnedObjects[0].Kill();
 			}
 
-			Observable.Timer(TimeSpan.FromSeconds(SpawnDelay)).Subscribe(_ => {
+			Observable.Timer(TimeSpan.FromSeconds(RemoveAllSpawnDelay)).Subscribe(_ => {
 				IsSpawningEnabled = true;
 				SpawnObject();
 			});
@@ -212,12 +222,19 @@ namespace PXL.Objects.Spawner {
 
 			var newObject = ObjectFactory.Spawn();
 
-			var objectBehaviour = newObject.GetComponent<ObjectBehaviour>();
-			objectBehaviour.ObjectDestroyed.Subscribe(ObjectDespawned).AddTo(objectDestroySubscriptions);
+			var interactiveObject = newObject.GetComponent<InteractiveObject>();
+			
+			var health = newObject.GetComponent<Health.Health>();
+			if (health) {
+				health.Death.Subscribe(_ => ObjectDespawned(interactiveObject)).AddTo(objectDestroySubscriptions);
+			}
+			else {
+				Debug.LogWarning(newObject.name + " has no Health component!");
+			}
 
-			SpawnedObjects.Add(objectBehaviour);
+			SpawnedObjects.Add(interactiveObject);
 
-			objectSpawnedSubject.OnNext(objectBehaviour);
+			objectSpawnedSubject.OnNext(interactiveObject);
 
 			totalSpawnCount++;
 		}

@@ -125,12 +125,12 @@ namespace PXL.UI {
 		}
 		
 		/// <summary>
-		/// Applies the current color to the given ObjectBehaviour
+		/// Applies the current color to the given InteractiveObject
 		/// </summary>
-		/// <param name="objectBehaviour">The target object which will get the current color assigned</param>
-		protected virtual void SetObjectColor(ObjectBehaviour objectBehaviour) {
+		/// <param name="interactiveObject">The target object which will get the current color assigned</param>
+		protected virtual void SetObjectColor(InteractiveObject interactiveObject) {
 			var objectColor = CurrentColor == Color.white ? GetRandomColor() : CurrentColor;
-			objectBehaviour.GetComponent<Renderer>().material.color = objectColor;
+			interactiveObject.GetComponent<Renderer>().material.color = objectColor;
 		}
 
 		/// <summary>

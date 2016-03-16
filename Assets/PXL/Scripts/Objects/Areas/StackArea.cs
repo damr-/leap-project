@@ -18,7 +18,7 @@ namespace PXL.Objects.Areas {
 		/// <summary>
 		/// List of sorted objects, by scale
 		/// </summary>
-		protected List<ObjectBehaviour> SortedObjects = new List<ObjectBehaviour>();
+		protected List<InteractiveObject> SortedObjects = new List<InteractiveObject>();
 
 		/// <summary>
 		/// The color of the light on success
@@ -95,23 +95,23 @@ namespace PXL.Objects.Areas {
 		/// <summary>
 		/// Adds the new object to <see cref="SortedObjects"/>
 		/// </summary>
-		protected override void HandleValidObjectType(ObjectBehaviour objectBehaviour) {
-			if (!SortedObjects.Contains(objectBehaviour))
-				SortedObjects.Add(objectBehaviour);
+		protected override void HandleValidObjectType(InteractiveObject interactiveObject) {
+			if (!SortedObjects.Contains(interactiveObject))
+				SortedObjects.Add(interactiveObject);
 		}
 
 		/// <summary>
 		/// <see cref="StackArea"/> doesn't worry about invalid object types
 		/// </summary>
-		protected override void HandleInvalidObjectType(ObjectBehaviour objectBehaviour) {}
+		protected override void HandleInvalidObjectType(InteractiveObject interactiveObject) {}
 
 		/// <summary>
 		/// Removes the object from <see cref="SortedObjects"/>
 		/// </summary>
 		protected override void OnTriggerExit(Collider other) {
-			var objectBehaviour = other.GetComponent<ObjectBehaviour>();
-			if (objectBehaviour != null && SortedObjects.Contains(objectBehaviour)) {
-				SortedObjects.Remove(objectBehaviour);
+			var interactiveObject = other.GetComponent<InteractiveObject>();
+			if (interactiveObject != null && SortedObjects.Contains(interactiveObject)) {
+				SortedObjects.Remove(interactiveObject);
 			}
 			
 			base.OnTriggerExit(other);

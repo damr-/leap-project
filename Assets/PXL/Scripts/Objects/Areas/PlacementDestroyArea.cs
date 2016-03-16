@@ -8,7 +8,7 @@ namespace PXL.Objects.Areas {
 
 	public class PlacementDestroyArea : DestroyArea {
 
-		protected List<ObjectBehaviour> ValidObjects = new List<ObjectBehaviour>();
+		protected List<InteractiveObject> ValidObjects = new List<InteractiveObject>();
 
 		protected override void Update() {
 			base.Update();
@@ -25,30 +25,30 @@ namespace PXL.Objects.Areas {
 				CurrentDestroyAmount.Value++;
 				if (CurrentDestroyAmount.Value == WinDestroyAmount) {
 					HandleGameWon();
-					o.DestroyObject();
+					o.Kill();
 					break;
 				}
-				o.DestroyObject();
+				o.Kill();
 			}
 		}
 
 		/// <summary>
 		/// Adds the new object to <see cref="ValidObjects"/>
 		/// </summary>
-		protected override void HandleValidObjectType(ObjectBehaviour objectBehaviour) {
-			base.HandleValidObjectType(objectBehaviour);
+		protected override void HandleValidObjectType(InteractiveObject interactiveObject) {
+			base.HandleValidObjectType(interactiveObject);
 
-			if (!ValidObjects.Contains(objectBehaviour))
-				ValidObjects.Add(objectBehaviour);
+			if (!ValidObjects.Contains(interactiveObject))
+				ValidObjects.Add(interactiveObject);
 		}
 
 		/// <summary>
 		/// Removes the object from <see cref="ValidObjects"/>
 		/// </summary>
 		protected override void OnTriggerExit(Collider other) {
-			var objectBehaviour = other.GetComponent<ObjectBehaviour>();
-			if (objectBehaviour != null && ValidObjects.Contains(objectBehaviour)) {
-				ValidObjects.Remove(objectBehaviour);
+			var interactiveObject = other.GetComponent<InteractiveObject>();
+			if (interactiveObject != null && ValidObjects.Contains(interactiveObject)) {
+				ValidObjects.Remove(interactiveObject);
 			}
 
 			base.OnTriggerExit(other);

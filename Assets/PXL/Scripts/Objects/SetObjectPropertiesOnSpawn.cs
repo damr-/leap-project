@@ -1,5 +1,6 @@
-﻿using System.Linq;
-using PXL.Interaction;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using UniRx;
 using PXL.Objects.Spawner;
 using PXL.Utility;
@@ -9,8 +10,7 @@ namespace PXL.Objects {
 
 	[RequireComponent(typeof(ObjectSpawner))]
 	public class SetObjectPropertiesOnSpawn : MonoBehaviour {
-
-		#region Force
+	
 		/// <summary>
 		/// The amount of force to apply.
 		/// </summary>
@@ -18,10 +18,24 @@ namespace PXL.Objects {
 		public Vector3 Force = Vector3.zero;
 
 		/// <summary>
+		/// If the force is always the same or should be chosen randomly between <see cref="MinForce"/> and <see cref="MaxForce"/>
+		/// </summary>
+		public bool Random;
+
+		/// <summary>
+		/// The minimum possible force when choosing a random one
+		/// </summary>
+		public Vector3 MinForce = Vector3.zero;
+
+		/// <summary>
+		/// The maximum possible force when choosing a random one
+		/// </summary>
+		public Vector3 MaxForce = Vector3.zero;
+
+		/// <summary>
 		/// The ForceMode to apply to the spawned object
 		/// </summary>
 		public ForceMode ForceMode = ForceMode.Impulse;
-		#endregion
 		
 		/// <summary>
 		/// The <see cref="PhysicMaterial"/> to set
@@ -30,10 +44,12 @@ namespace PXL.Objects {
 		public PhysicMaterial PhysicMaterial;
 
 		/// <summary>
-		/// The constraints for the object's <see cref="Moveable"/> component
+		/// The components which will be added to the object on spawn
 		/// </summary>
-		[Header("Constraints")]
-		public RigidbodyConstraints Constraints;
+		[Header("Add Components")] 
+		public List<string> Components = new List<string>();
+
+		private string assemblyName;
 
 		/// <summary>
 		/// The ObjectSpawner of this object
@@ -44,37 +60,59 @@ namespace PXL.Objects {
 			}
 		}
 		private ObjectSpawner mObjectSpawner;
-
+		
 		private void Start() {
+			assemblyName = Assembly.GetExecutingAssembly().FullName;
 			ObjectSpawner.ObjectSpawned.Subscribe(HandleObjectSpawned);
 		}
-
+		
 		/// <summary>
 		/// Called when the referenced spawned spawned an object
 		/// </summary>
-		/// <param name="objectBehaviour"></param>
-		private void HandleObjectSpawned(ObjectBehaviour objectBehaviour) {
-			var rigidbodyComponent = objectBehaviour.GetComponent<Rigidbody>();
+		/// <param name="interactiveObject"></param>
+		private void HandleObjectSpawned(InteractiveObject interactiveObject) {
+			var rigidbodyComponent = interactiveObject.GetComponent<Rigidbody>();
 
-			if (rigidbodyComponent == null)
-				return;
+			if (rigidbodyComponent != null)
+				AddObjectForce(rigidbodyComponent);
 
-			rigidbodyComponent.AddForce(Force, ForceMode);
+			var collider = interactiveObject.GetComponents<Collider>().First(c => !c.isTrigger);
 
-			var collider = objectBehaviour.GetComponents<Collider>().First(c => !c.isTrigger);
+			if (collider != null && PhysicMaterial != null)
+				collider.material = PhysicMaterial;
 
-			if (collider == null || PhysicMaterial == null)
-				return;
-
-			collider.material = PhysicMaterial;
-
-			var moveable = objectBehaviour.GetComponent<Moveable>();
-
-			if (moveable != null) {
-				moveable.Constraints = Constraints;
-			}
-
+			AddComponents(interactiveObject.gameObject);
 		}
-    }
+
+		/// <summary>
+		/// Adds force to the given <see cref="Rigidbody"/>
+		/// </summary>
+		private void AddObjectForce(Rigidbody rigidbodyComponent) {
+			var force = Force;
+			if (Random) {
+				var x = UnityEngine.Random.Range(MinForce.x, MaxForce.x);
+				var y = UnityEngine.Random.Range(MinForce.y, MaxForce.y);
+				var z = UnityEngine.Random.Range(MinForce.z, MaxForce.z);
+				force = new Vector3(x, y, z);
+			}
+			rigidbodyComponent.AddForce(force, ForceMode);
+		}
+
+		/// <summary>
+		/// Calls <see cref="CreateAndAddComponent"/> for every component in <see cref="Components"/>
+		/// </summary>
+		private void AddComponents(GameObject target) {
+			Components.ForEach(c => CreateAndAddComponent(target, c));
+		}
+
+		/// <summary>
+		/// Adds the given component to the given target
+		/// </summary>
+		private void CreateAndAddComponent(GameObject target, string component) {
+			var componentType = Types.GetType(component, assemblyName);
+			target.AddComponent(componentType);
+		}
+
+	}
 
 }

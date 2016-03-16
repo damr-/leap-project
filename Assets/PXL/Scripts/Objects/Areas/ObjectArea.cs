@@ -15,33 +15,33 @@ namespace PXL.Objects.Areas {
 		/// </summary>
 		/// <param name="other">The Collider of the overlapping object</param>
 		protected override void HandleValidOther(Collider other) {
-			var objectBehaviour = other.TryGetComponent<ObjectBehaviour>();
-			objectBehaviour.AssertNotNull("GameObject '" + other.gameObject.name + "' has tag '" + TargetTag + "' but no component ObjectBehaviour!");
+			var interactiveObject = other.TryGetComponent<InteractiveObject>();
+			interactiveObject.AssertNotNull("GameObject '" + other.gameObject.name + "' has tag '" + TargetTag + "' but no component InteractiveObject!");
 
-			if (HasCorrectType(objectBehaviour)) {
-				HandleValidObjectType(objectBehaviour);
+			if (HasCorrectType(interactiveObject)) {
+				HandleValidObjectType(interactiveObject);
 			}
 			else {
-				HandleInvalidObjectType(objectBehaviour);
+				HandleInvalidObjectType(interactiveObject);
 			}
 		}
 
 		/// <summary>
-		/// Returns whether the given <see cref="ObjectBehaviour"/> has the correct <see cref="ObjectType"/>
+		/// Returns whether the given <see cref="InteractiveObject"/> has the correct <see cref="ObjectType"/>
 		/// </summary>
-		protected bool HasCorrectType(ObjectBehaviour objectBehaviour) {
-			return TargetObjectType == ObjectType.All || objectBehaviour.ObjectType == TargetObjectType;
+		protected bool HasCorrectType(InteractiveObject interactiveObject) {
+			return TargetObjectType == ObjectType.All || interactiveObject.ObjectType == TargetObjectType;
 		}
 
 		/// <summary>
 		/// Called when the other object is valid, has the correct tag and the correct object type
 		/// </summary>
-		protected abstract void HandleValidObjectType(ObjectBehaviour objectBehaviour);
+		protected abstract void HandleValidObjectType(InteractiveObject interactiveObject);
 
 		/// <summary>
 		/// Called when the other object is valid, has the correct tag but the wrong object type
 		/// </summary>
-		protected abstract void HandleInvalidObjectType(ObjectBehaviour objectBehaviour);
+		protected abstract void HandleInvalidObjectType(InteractiveObject interactiveObject);
 
 	}
 

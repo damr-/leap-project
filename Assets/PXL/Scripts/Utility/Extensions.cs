@@ -97,6 +97,19 @@ namespace PXL.Utility {
 			return list.Where(c => c != null && c.gameObject != null && c.gameObject.activeInHierarchy).Distinct().ToList();
 		}
 
+		/// <summary>
+		/// Tries to get the <see cref="Health.Health"/> Component of the given component and kill it
+		/// </summary>
+		public static void Kill<T>(this T component) where T : Component {
+			var health = component.GetComponent<Health.Health>();
+			if (health != null) {
+				health.Kill();
+			}
+			else {
+				Debug.LogWarning(component.gameObject.name + " has no Health Component!");
+			}
+		}
+
 	}
 
 }
