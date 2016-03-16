@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using PXL.Utility;
 using UniRx;
@@ -46,19 +47,21 @@ namespace PXL.Interaction {
 		private const float ChangeHandDelay = 0.5f;
 
 		/// <summary>
-		/// The last time the object changed hands
-		/// </summary>
-		private float lastChangeTime;
-
-		/// <summary>
 		/// Whether the object can change hands at this moment.
 		/// </summary>
-		private bool canChangeHands;
+		private bool canChangeHands = true;
 
 		/// <summary>
 		/// Every HandModel and its corresponding InteractionHand
 		/// </summary>
 		private readonly IDictionary<HandModel, InteractionHand> interactionHands = new Dictionary<HandModel, InteractionHand>();
+
+		/// <summary>
+		/// Returns whether this <see cref="Grabbable"/> is currently stationary and not grabbed
+		/// </summary>
+		public bool IsStationary {
+			get { return !IsGrabbed && Touchable.Rigidbody.velocity.Equal(Vector3.zero); }
+		}
 
 		/// <summary>
 		/// Sets up the subscriptions
@@ -78,10 +81,6 @@ namespace PXL.Interaction {
 
 			if (isGrabbed && !CanHoldObject()) {
 				Drop();
-			}
-
-			if (!canChangeHands && Time.time - lastChangeTime > ChangeHandDelay) {
-				canChangeHands = true;
 			}
 		}
 
@@ -105,8 +104,10 @@ namespace PXL.Interaction {
 				Drop();
 				CurrentHand = hand;
 				Grab();
-				lastChangeTime = Time.time;
 				canChangeHands = false;
+				Observable.Timer(TimeSpan.FromSeconds(ChangeHandDelay)).Subscribe(_ => {
+					canChangeHands = true;
+				});
 			}
 
 			Touchable.UpdateThumbTouches(CurrentHand);
@@ -187,6 +188,7 @@ namespace PXL.Interaction {
 					Touchable.IsCertainFingerTouching(newHand, Leap.Finger.FingerType.TYPE_THUMB) &&
 					canChangeHands;
 		}
+
 	}
 
 }

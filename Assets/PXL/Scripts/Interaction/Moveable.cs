@@ -1,4 +1,5 @@
-﻿using PXL.Utility;
+﻿using System.Runtime.Remoting.Messaging;
+using PXL.Utility;
 using UniRx;
 using UnityEngine;
 
@@ -18,6 +19,10 @@ namespace PXL.Interaction {
 
 	[RequireComponent(typeof(Grabbable))]
 	public class Moveable : MonoBehaviour {
+		/// <summary>
+		/// The constraints for this object
+		/// </summary>
+		public RigidbodyConstraints Constraints;
 
 		/// <summary>
 		/// The Touchable component of this object
@@ -60,6 +65,9 @@ namespace PXL.Interaction {
 		/// </summary>
 		private Quaternion rotOffset;
 
+		[SerializeField]
+		private Vector3 allowMovement;
+
 		/// <summary>
 		/// Sets up subscriptions
 		/// </summary>
@@ -75,7 +83,22 @@ namespace PXL.Interaction {
 			if (!Grabbable.IsGrabbed)
 				return;
 
-			transform.position = CalculateObjectPosition();
+			//var oldPos = transform.position;
+			
+			var newPos = CalculateObjectPosition();
+
+			newPos = new Vector3(newPos.x * 1f, newPos.y * 1f, newPos.z * 1f);
+
+			//if (newPos.x <= 0.001f) 
+			//	newPos += new Vector3(oldPos.x, 0, 0);
+			//if (newPos.y <= 0.001f)
+			//	newPos += new Vector3(0, oldPos.y, 0);
+			//if (newPos.z <= 0.001f)
+			//	newPos += new Vector3(0, 0, oldPos.z);
+
+			//transform.position = newPos;
+			transform.position = newPos;
+
 			transform.rotation = trackedTarget.rotation * rotOffset;
 
 			CheckMovement();
@@ -87,6 +110,11 @@ namespace PXL.Interaction {
 		/// <param name="grabbed"></param>
 		private void HandleGrabStateChange(bool grabbed) {
 			if (grabbed) {
+				var x = IsMovementAllowed(RigidbodyConstraints.FreezePositionX);
+				var y = IsMovementAllowed(RigidbodyConstraints.FreezePositionY);
+				var z = IsMovementAllowed(RigidbodyConstraints.FreezePositionZ);
+				allowMovement = new Vector3(x, y, z);
+
 				trackedTarget = Grabbable.CurrentHand.palm;
 				posOffset = transform.position - Touchable.GetAverageFingerPosition(Grabbable.CurrentHand);
 				rotOffset = Quaternion.Inverse(transform.rotation) * trackedTarget.rotation;
@@ -117,6 +145,13 @@ namespace PXL.Interaction {
 		/// <param name="offsetPercent">How many percent of the original offset should be kept when holding it</param>
 		private Vector3 CalculateObjectPosition(float offsetPercent = 1f) {
 			return Touchable.GetAverageFingerPosition(Grabbable.CurrentHand) - posOffset.magnitude * trackedTarget.up * offsetPercent;
+		}
+
+		/// <summary>
+		/// Checks if the given constraint is active on this <see cref="Moveable"/>'s <see cref="Constraints"/> and returns 0 if so. Returns 1 otherwise.
+		/// </summary>
+		private int IsMovementAllowed(RigidbodyConstraints constraint) {
+			return ( Constraints & constraint ) != RigidbodyConstraints.None ? 0 : 1;
 		}
 
 		/// <summary>

@@ -19,10 +19,11 @@ namespace PXL.Objects.Areas {
 			ValidObjects = ValidObjects.Purge();
 
 			foreach (var o in ValidObjects) {
-				if (!IsObjectDropped(o))
+				if (!o.GetComponent<Grabbable>().IsStationary)
 					continue;
 
-				if (++(CurrentDestroyAmount.Value) == WinDestroyAmount) {
+				CurrentDestroyAmount.Value++;
+				if (CurrentDestroyAmount.Value == WinDestroyAmount) {
 					HandleGameWon();
 					o.DestroyObject();
 					break;
@@ -51,15 +52,6 @@ namespace PXL.Objects.Areas {
 			}
 
 			base.OnTriggerExit(other);
-		}
-
-		/// <summary>
-		/// Returns whether the given object is not grabbed and has close to no velocity
-		/// </summary>
-		protected virtual bool IsObjectDropped(ObjectBehaviour objectBehaviour) {
-			var grabbable = objectBehaviour.GetComponent<Grabbable>();
-			var rigidbody = objectBehaviour.GetComponent<Rigidbody>();
-			return grabbable.IsGrabbed && rigidbody.velocity.Equal(Vector3.zero);
 		}
 
 	}

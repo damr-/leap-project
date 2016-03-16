@@ -89,9 +89,7 @@ namespace PXL.Objects.Areas {
 		/// </summary>
 		/// <returns>True if no objects is still grabbed, false if otherwise</returns>
 		protected virtual bool AllObjectsDropped() {
-			var result = SortedObjects.Select(o => o.GetComponent<Grabbable>()).All(grabbable => !grabbable.IsGrabbed);
-			result &= SortedObjects.Select(o => o.GetComponent<Rigidbody>()).All(r => r.velocity.Equal(Vector3.zero));
-			return result;
+			return SortedObjects.Select(o => o.GetComponent<Grabbable>()).All(grabbable => grabbable.IsStationary);
 		}
 
 		/// <summary>

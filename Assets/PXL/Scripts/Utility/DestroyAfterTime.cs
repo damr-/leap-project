@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System;
+using UniRx;
+using UnityEngine;
 
 namespace PXL.Utility {
 
@@ -8,19 +10,19 @@ namespace PXL.Utility {
 		/// After how many seconds this object will be despawned
 		/// </summary>
 		public float LifeTime = 1f;
-		
+
 		/// <summary>
-		/// What time the object began to live
+		/// Whether this object should be despawned or destroyed
 		/// </summary>
-		private float startTime;
+		public bool Despawn = true;
 		
 		private void OnEnable() {
-			startTime = UnityEngine.Time.time;
-		}
-
-		private void Update() {
-			if (UnityEngine.Time.time - startTime > LifeTime)
-				SimplePool.Despawn(gameObject);
+			Observable.Timer(TimeSpan.FromSeconds(LifeTime)).Subscribe(_ => { 
+				if(Despawn)
+					SimplePool.Despawn(gameObject);
+				else
+					Destroy(gameObject);
+			});
 		}
 
 	}

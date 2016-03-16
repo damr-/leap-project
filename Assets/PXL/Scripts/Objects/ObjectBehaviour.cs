@@ -35,12 +35,11 @@ namespace PXL.Objects {
 		/// </summary>
 		public GameObject DestroyEffectObject;
 
+		/// <summary>
+		/// Invoked when the Object is destroyed
+		/// </summary>
+		public IObservable<ObjectBehaviour> ObjectDestroyed { get { return destroySubject; } }
 		private readonly ISubject<ObjectBehaviour> destroySubject = new Subject<ObjectBehaviour>();
-		public IObservable<ObjectBehaviour> ObjectDestroyed {
-			get {
-				return destroySubject;
-			}
-		}
 
 		private void Start() {
 			DestroyEffectObject.AssertNotNull();

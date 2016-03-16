@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using System.Collections.Generic;
 using PXL.UI;
 using UniRx;
@@ -120,7 +121,12 @@ namespace PXL.Objects.Spawner {
 		/// Factory to spawn objects
 		/// </summary>
 		protected readonly ObjectFactory ObjectFactory = new ObjectFactory();
-		
+
+		/// <summary>
+		/// The length of the spawn delay when removing all objects
+		/// </summary>
+		private const float SpawnDelay = 0.5f;
+
 		/// <summary>
 		/// Setup the spawn position and spawn the first object
 		/// </summary>
@@ -171,25 +177,26 @@ namespace PXL.Objects.Spawner {
 		protected virtual void ObjectDespawned(ObjectBehaviour objectBehaviour) {
 			SpawnedObjects.Remove(objectBehaviour);
 
-			if (CanRespawnImmediately()) {
+			if (SpawnedObjects.Count <= 0) {
 				SpawnObject();
 			}
 		}
 
 		/// <summary>
-		/// Returns whether an object will be spawned immediately after another one has despawned
-		/// </summary>
-		protected virtual bool CanRespawnImmediately() {
-			return SpawnedObjects.Count <= 0;
-		}
-
-		/// <summary>
-		/// Removes all existing objects
+		/// Prevents spawning and removes all existing objects.
+		/// Enables spawning again after a small delay
 		/// </summary>
 		public virtual void RemoveAllObjects() {
+			IsSpawningEnabled = false;
+
 			while (SpawnedObjects.Count > 0) {
 				SpawnedObjects[0].DestroyObject();
 			}
+
+			Observable.Timer(TimeSpan.FromSeconds(SpawnDelay)).Subscribe(_ => {
+				IsSpawningEnabled = true;
+				SpawnObject();
+			});
 		}
 
 		/// <summary>

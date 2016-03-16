@@ -1,4 +1,6 @@
-﻿using UniRx;
+﻿using System.Linq;
+using PXL.Interaction;
+using UniRx;
 using PXL.Objects.Spawner;
 using PXL.Utility;
 using UnityEngine;
@@ -6,17 +8,32 @@ using UnityEngine;
 namespace PXL.Objects {
 
 	[RequireComponent(typeof(ObjectSpawner))]
-	public class AddForceOnSpawn : MonoBehaviour {
+	public class SetObjectPropertiesOnSpawn : MonoBehaviour {
 
+		#region Force
 		/// <summary>
-		/// The amount of force to apply
+		/// The amount of force to apply.
 		/// </summary>
-		public Vector3 Force = Vector3.forward;
+		[Header("Object Force")]
+		public Vector3 Force = Vector3.zero;
 
 		/// <summary>
 		/// The ForceMode to apply to the spawned object
 		/// </summary>
 		public ForceMode ForceMode = ForceMode.Impulse;
+		#endregion
+		
+		/// <summary>
+		/// The <see cref="PhysicMaterial"/> to set
+		/// </summary>
+		[Header("Physic Material")]
+		public PhysicMaterial PhysicMaterial;
+
+		/// <summary>
+		/// The constraints for the object's <see cref="Moveable"/> component
+		/// </summary>
+		[Header("Constraints")]
+		public RigidbodyConstraints Constraints;
 
 		/// <summary>
 		/// The ObjectSpawner of this object
@@ -41,8 +58,22 @@ namespace PXL.Objects {
 
 			if (rigidbodyComponent == null)
 				return;
-			
+
 			rigidbodyComponent.AddForce(Force, ForceMode);
+
+			var collider = objectBehaviour.GetComponents<Collider>().First(c => !c.isTrigger);
+
+			if (collider == null || PhysicMaterial == null)
+				return;
+
+			collider.material = PhysicMaterial;
+
+			var moveable = objectBehaviour.GetComponent<Moveable>();
+
+			if (moveable != null) {
+				moveable.Constraints = Constraints;
+			}
+
 		}
     }
 
