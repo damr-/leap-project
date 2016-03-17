@@ -12,14 +12,12 @@ namespace PXL.Objects.Spawner {
 		/// <summary>
 		/// The key used to spawn an object
 		/// </summary>
-		[SerializeField]
-		protected KeyCode SpawnKey = KeyCode.X;
+		public KeyCode SpawnKey = KeyCode.X;
 
 		/// <summary>
 		/// The key used to remove all objects
 		/// </summary>
-		[SerializeField]
-		protected KeyCode RemoveAllKey = KeyCode.C;
+		public KeyCode RemoveAllKey = KeyCode.C;
 
 		/// <summary>
 		/// The GameObject which will be spawned
@@ -34,51 +32,44 @@ namespace PXL.Objects.Spawner {
 		/// <summary>
 		/// The amount of objects spawned at start
 		/// </summary>
-		[SerializeField]
-		protected int StartAmount = 2;
+		public int StartAmount = 2;
 
 		/// <summary>
 		/// How many seconds to wait before this spawner gets activated
 		/// </summary>
-		[SerializeField]
-		protected int StartSpawnDelay = 0;
+		public int StartSpawnDelay = 0;
+
+		/// <summary>
+		/// How many seconds to wait before a new object is spawned after the current ones are gone
+		/// </summary>
+		public int RespawnDelay = 0;
 
 		/// <summary>
 		/// The maximum amount of objects this spawner can spawn in total.
 		/// -1 means infinite
 		/// </summary>
-		[SerializeField]
-		protected int TotalSpawnLimit = -1;
+		public int TotalSpawnLimit = -1;
 
 		/// <summary>
 		/// The maximum amount of active objects, spawned from this spawner, that are allowed at the same time.
 		/// -1 means infinite
 		/// </summary>
-		[SerializeField]
-		protected int ConcurrentSpawnLimit = -1;
-
-		/// <summary>
-		/// The total count of all objects spawned by this spawner
-		/// </summary>
-		private int totalSpawnCount;
+		public int ConcurrentSpawnLimit = -1;
 
 		/// <summary>
 		/// Minimum possible scale of the object
 		/// </summary>
-		[SerializeField]
-		protected float MinScaleFactor = 0.5f;
+		public float MinScaleFactor = 0.5f;
 
 		/// <summary>
 		/// Maximum possible scale of the object
 		/// </summary>
-		[SerializeField]
-		protected float MaxScaleFactor = 2.5f;
+		public float MaxScaleFactor = 2.5f;
 
 		/// <summary>
 		/// The default scale of the object
 		/// </summary>
-		[SerializeField]
-		protected float DefaultScaleFactor = 1f;
+		public float DefaultScaleFactor = 1f;
 
 		/// <summary>
 		/// How much the scale changes when de-/increasing
@@ -99,6 +90,11 @@ namespace PXL.Objects.Spawner {
 		/// The currently active prefab which will be spawned
 		/// </summary>
 		protected GameObject CurrentObjectPrefab;
+
+		/// <summary>
+		/// The total count of all objects spawned by this spawner
+		/// </summary>
+		private int totalSpawnCount;
 
 		/// <summary>
 		/// All subscriptions to every spawned object's Destroy-Observable
@@ -144,6 +140,13 @@ namespace PXL.Objects.Spawner {
 			CurrentObjectPrefab = DefaultObjectPrefab;
 			SetObjectScale(DefaultScaleFactor);
 
+			InitiateInitialSpawns();
+		}
+
+		/// <summary>
+		/// Disables spawning and sets up the timer for the <see cref="StartAmount"/> number of objects to be spawned
+		/// </summary>
+		protected virtual void InitiateInitialSpawns() {
 			IsSpawningEnabled = false;
 
 			Observable.Timer(TimeSpan.FromSeconds(StartSpawnDelay)).Subscribe(_ => {
@@ -187,8 +190,8 @@ namespace PXL.Objects.Spawner {
 		protected virtual void ObjectDespawned(InteractiveObject interactiveObject) {
 			SpawnedObjects.Remove(interactiveObject);
 
-			if (SpawnedObjects.Count <= 0) {
-				SpawnObject();
+			if (SpawnedObjects.Count == 0) {
+				Observable.Timer(TimeSpan.FromSeconds(RespawnDelay)).Subscribe(_ => SpawnObject());
 			}
 		}
 
@@ -210,20 +213,43 @@ namespace PXL.Objects.Spawner {
 		}
 
 		/// <summary>
-		/// Initiate the spawning of a new object
+		/// Initiate the spawning of a new object without an offset
 		/// </summary>
-		public void SpawnObject() {
+		public virtual void SpawnObject() {
+			SpawnObject(Vector3.zero);
+		}
+
+		/// <summary>
+		/// Initiate the spawning of a new object with the given offset
+		/// </summary>
+		public void SpawnObject(Vector3 offset) {
 			if (!CanSpawn())
 				return;
 
 			spawnInitiatedSubject.OnNext(Unit.Default);
 
+			var newObject = CreateObject(offset);
+
+			SetupSpawnedObject(newObject);
+
+			totalSpawnCount++;
+		}
+
+		/// <summary>
+		/// Sets the prefab and the offset of the factory and creates a new object with it
+		/// </summary>
+		private GameObject CreateObject(Vector3 offset) {
 			ObjectFactory.Prefab = CurrentObjectPrefab;
+			ObjectFactory.Position = transform.position + offset;
+			return ObjectFactory.Spawn();
+		}
 
-			var newObject = ObjectFactory.Spawn();
-
+		/// <summary>
+		/// Sets up subscriptions on the new object
+		/// </summary>
+		private void SetupSpawnedObject(GameObject newObject) {
 			var interactiveObject = newObject.GetComponent<InteractiveObject>();
-			
+
 			var health = newObject.GetComponent<Health.Health>();
 			if (health) {
 				health.Death.Subscribe(_ => ObjectDespawned(interactiveObject)).AddTo(objectDestroySubscriptions);
@@ -235,8 +261,6 @@ namespace PXL.Objects.Spawner {
 			SpawnedObjects.Add(interactiveObject);
 
 			objectSpawnedSubject.OnNext(interactiveObject);
-
-			totalSpawnCount++;
 		}
 
 		/// <summary>

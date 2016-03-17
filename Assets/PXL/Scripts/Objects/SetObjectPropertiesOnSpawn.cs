@@ -14,8 +14,12 @@ namespace PXL.Objects {
 		/// <summary>
 		/// The amount of force to apply.
 		/// </summary>
-		[Header("Object Force")]
 		public Vector3 Force = Vector3.zero;
+
+		/// <summary>
+		/// Whether to apply a force
+		/// </summary>
+		public bool ApplyForce;
 
 		/// <summary>
 		/// If the force is always the same or should be chosen randomly between <see cref="MinForce"/> and <see cref="MaxForce"/>
@@ -35,18 +39,21 @@ namespace PXL.Objects {
 		/// <summary>
 		/// The ForceMode to apply to the spawned object
 		/// </summary>
-		public ForceMode ForceMode = ForceMode.Impulse;
-		
+		public ForceMode ForceMode = ForceMode.Force;
+
+		/// <summary>
+		/// Whether to change the <see cref="PhysicMaterial"/>
+		/// </summary>
+		public bool SetPhysicMaterial;
+
 		/// <summary>
 		/// The <see cref="PhysicMaterial"/> to set
 		/// </summary>
-		[Header("Physic Material")]
 		public PhysicMaterial PhysicMaterial;
 
 		/// <summary>
 		/// The components which will be added to the object on spawn
 		/// </summary>
-		[Header("Add Components")] 
 		public List<string> Components = new List<string>();
 
 		private string assemblyName;
@@ -73,12 +80,12 @@ namespace PXL.Objects {
 		private void HandleObjectSpawned(InteractiveObject interactiveObject) {
 			var rigidbodyComponent = interactiveObject.GetComponent<Rigidbody>();
 
-			if (rigidbodyComponent != null)
+			if (rigidbodyComponent != null && ApplyForce)
 				AddObjectForce(rigidbodyComponent);
 
 			var collider = interactiveObject.GetComponents<Collider>().First(c => !c.isTrigger);
 
-			if (collider != null && PhysicMaterial != null)
+			if (collider != null && PhysicMaterial != null && SetPhysicMaterial)
 				collider.material = PhysicMaterial;
 
 			AddComponents(interactiveObject.gameObject);
