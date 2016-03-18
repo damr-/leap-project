@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using UniRx;
 using UnityEngine;
 
 namespace PXL.Utility {
@@ -55,7 +53,7 @@ namespace PXL.Utility {
 		public static TV GetOrAdd<TK, TV>(this IDictionary<TK, TV> dictionary, TK key) where TK : Component where TV : class {
 			TV value;
 
-			if (dictionary.TryGetValue(key, out value)) 
+			if (dictionary.TryGetValue(key, out value))
 				return value;
 
 			value = key.GetComponent<TV>();

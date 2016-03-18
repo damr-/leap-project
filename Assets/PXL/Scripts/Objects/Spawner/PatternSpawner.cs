@@ -93,7 +93,6 @@ namespace PXL.Objects.Spawner {
 			}
 
 			if (SpawnedObjects.Count == 0) {
-				Debug.LogError("Had to re-do!");
 				SpawnObject();
 			}
 		}

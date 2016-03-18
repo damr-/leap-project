@@ -14,6 +14,13 @@ namespace PXL.Objects.Breakout {
 		public float Speed = 1f;
 
 		/// <summary>
+		/// The axis in which the ball shouldn't travel for too long because it breaks the game or similar
+		/// </summary>
+		public Vector3 BadDirection;
+
+		public Vector3 CorrectionDirection;
+
+		/// <summary>
 		/// The last known velocity of the ball
 		/// </summary>
 		private Vector3 oldVelocity;
@@ -39,12 +46,13 @@ namespace PXL.Objects.Breakout {
 		/// Stores the current velocity of the ball
 		/// </summary>
 		private void LateUpdate() {
-			var diff = Rigidbody.velocity.magnitude - (Vector3.forward*Speed).magnitude;
+			if (Rigidbody.velocity.Equal(Vector3.zero))
+				Rigidbody.velocity = Vector3.forward * Speed;
+
+			var diff = Rigidbody.velocity.magnitude - (Vector3.forward * Speed).magnitude;
 			if (diff < 0) {
-				Rigidbody.velocity *= 1.01f + Math.Abs(diff);
+				Rigidbody.velocity *= 1.01f - diff;
 			}
-			if (diff > 0 || Rigidbody.velocity.Equal(Vector3.zero))
-				Rigidbody.velocity = Vector3.forward*Speed;
 
 			oldVelocity = Rigidbody.velocity;
 		}
@@ -67,6 +75,11 @@ namespace PXL.Objects.Breakout {
 			var contact = collision.contacts[0];
 			var reflectedVelocity = Vector3.Reflect(oldVelocity, contact.normal);
 			Rigidbody.velocity = reflectedVelocity;
+
+			var angle = Vector3.Angle(Rigidbody.velocity, BadDirection);
+			if (angle < 10 || angle > 170) {
+				Rigidbody.velocity += CorrectionDirection;
+			}
 		}
 
 		/// <summary>

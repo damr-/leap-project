@@ -21,6 +21,13 @@ namespace PXL.Interaction {
 	public class Moveable : MonoBehaviour {
 
 		/// <summary>
+		/// On which axis the object should not be able to move
+		/// </summary>
+		public Vector3 FreezePosition = Vector3.zero;
+
+		//public Vector3 FreezeRotation = Vector3.zero;
+
+		/// <summary>
 		/// The Touchable component of this object
 		/// </summary>
 		public Grabbable Grabbable {
@@ -76,7 +83,23 @@ namespace PXL.Interaction {
 			if (!Grabbable.IsGrabbed)
 				return;
 
-			transform.position = CalculateObjectPosition(); ;
+			var oldPos = transform.position;
+			var newPos = CalculateObjectPosition();
+
+			transform.position = new Vector3(
+				FreezePosition.x > 0 ? oldPos.x : newPos.x,
+				FreezePosition.y > 0 ? oldPos.y : newPos.y,
+				FreezePosition.z > 0 ? oldPos.z : newPos.z);
+
+
+			//var oldRotation = transform.rotation.eulerAngles;
+			//var newRotation = trackedTarget.rotation.eulerAngles;
+
+			//newRotation = new Vector3(
+			//	FreezeRotation.x > 0 ? oldRotation.x : newRotation.x,
+			//	FreezeRotation.y > 0 ? oldRotation.y : newRotation.y,
+			//	FreezeRotation.z > 0 ? oldRotation.z : newRotation.z);
+
 			transform.rotation = trackedTarget.rotation * rotOffset;
 
 			CheckMovement();
