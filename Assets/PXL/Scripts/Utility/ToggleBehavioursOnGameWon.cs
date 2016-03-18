@@ -3,7 +3,7 @@ using UniRx;
 using PXL.Gamemodes;
 using UnityEngine;
 
-namespace PXL.Utility.Toggle {
+namespace PXL.Utility {
 
 	public class ToggleBehavioursOnGameWon : MonoBehaviour {
 		/// <summary>

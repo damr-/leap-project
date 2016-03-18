@@ -3,6 +3,21 @@ using UniRx;
 
 namespace PXL.Interaction {
 
+	public enum HandSide {
+		None = 0,
+		Right = 1,
+		Left = 2,
+		Both = 3
+	}
+
+	public enum InteractionType {
+		Touch = 0,
+		EndTouch = 1,
+		Grab = 2,
+		Drop = 3,
+		Move = 4
+	}
+
 	public class InteractionHand : MonoBehaviour {
 
 		/// <summary>
@@ -10,6 +25,7 @@ namespace PXL.Interaction {
 		/// </summary>
 		public IObservable<Grabbable> ObjectGrabbed { get { return objectGrabbedSubject; } }
 		private readonly ISubject<Grabbable> objectGrabbedSubject = new Subject<Grabbable>();
+
 		/// <summary>
 		/// Invoked when an object is grabbed with this hand
 		/// </summary>
@@ -21,7 +37,7 @@ namespace PXL.Interaction {
 		/// </summary>
 		public IObservable<MovementInfo> ObjectMoved { get { return objectMovedSubject; } }
 		private readonly ISubject<MovementInfo> objectMovedSubject = new Subject<MovementInfo>();
-		
+
 		public void GrabObject(Grabbable grabbable) {
 			objectGrabbedSubject.OnNext(grabbable);
 		}

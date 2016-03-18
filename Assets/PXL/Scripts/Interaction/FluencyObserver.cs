@@ -16,18 +16,8 @@ namespace PXL.Interaction {
 		}
 	}
 
-	public class FluencyObserver : MonoBehaviour {
-
-		/// <summary>
-		/// The HandModels in this scene, used to setup InteractionHand references
-		/// </summary>
-		public List<HandModel> HandModels = new List<HandModel>();
-
-		/// <summary>
-		/// The actual InteractionHand references
-		/// </summary>
-		protected List<InteractionHand> InteractionHands = new List<InteractionHand>();
-
+	public class FluencyObserver : InteractionHandSubscriber {
+	
 		/// <summary>
 		/// The currently observed object
 		/// </summary>
@@ -73,16 +63,7 @@ namespace PXL.Interaction {
 		/// </summary>
 		public IObservable<TrackData> FinishedObserving { get { return finishedObservingSubject; } }
 		private readonly ISubject<TrackData> finishedObservingSubject = new Subject<TrackData>();
-
-		private void Start() {
-			HandModels.ForEach(i => InteractionHands.Add(i.GetComponent<InteractionHand>()));
-
-			foreach (var hand in InteractionHands) {
-				hand.ObjectGrabbed.Subscribe(grabbable => HandleGrabStateChanged(grabbable, true));
-				hand.ObjectDropped.Subscribe(grabbable => HandleGrabStateChanged(grabbable, false));
-			}
-		}
-
+		
 		private void Update() {
 			if (observedGrabbable == null)
 				return;
@@ -103,28 +84,27 @@ namespace PXL.Interaction {
 			lastTrackTime = Time.time;
 		}
 
-		/// <summary>
-		/// Called when an InteractionHand grabs or drops an object
-		/// </summary>
-		private void HandleGrabStateChanged(Grabbable grabbable, bool grabbed) {
-			if (grabbed) {
-				observedGrabbable = grabbable;
-				speedData = new List<float>();
-				timeData = new List<float>();
-				lastPosition = observedGrabbable.transform.position;
-				startTime = Time.time;
-				lastTrackTime = 0f;
-			}
-			else {
-				if (timeData.Count < RequiredDataAmount)
-					return;
-
-				var trackData = new TrackData(observedGrabbable, timeData, speedData);
-				finishedObservingSubject.OnNext(trackData);
-				observedGrabbable = null;
-			}
+		protected override void HandleGrabbed(Grabbable grabbable) {
+			observedGrabbable = grabbable;
+			speedData = new List<float>();
+			timeData = new List<float>();
+			lastPosition = observedGrabbable.transform.position;
+			startTime = Time.time;
+			lastTrackTime = 0f;
 		}
 
+		protected override void HandleDropped(Grabbable grabbable) {
+			if (timeData.Count < RequiredDataAmount)
+				return;
+
+			var trackData = new TrackData(observedGrabbable, timeData, speedData);
+			finishedObservingSubject.OnNext(trackData);
+			observedGrabbable = null;
+		}
+
+		protected override void HandleMoved(MovementInfo movementInfo) {
+			//movement is tracked every frame, not by observable
+		}
 	}
 
 }

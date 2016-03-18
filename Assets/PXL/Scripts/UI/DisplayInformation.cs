@@ -11,7 +11,7 @@ using UnityEngine.UI;
 
 namespace PXL.UI {
 
-	public class DisplayInformation : MonoBehaviour {
+	public class DisplayInformation : InteractionHandSubscriber {
 
 		/// <summary>
 		/// The Text components of the time labels for left and right hand
@@ -33,13 +33,6 @@ namespace PXL.UI {
 		/// </summary>
 		public Text[] DistanceTexts;
 
-		/// <summary>
-		/// The two hands in this scene
-		/// </summary>
-		public List<HandModel> HandModels = new List<HandModel>();
-
-		protected List<InteractionHand> InteractionHands = new List<InteractionHand>();
-
 		private IDisposable gameWinSubscription = Disposable.Empty;
 		
 		/// <summary>
@@ -60,18 +53,30 @@ namespace PXL.UI {
 		private readonly IDictionary<GameObject, CompositeDisposable> objectSubscriptions =
 			new Dictionary<GameObject, CompositeDisposable>();
 
-		private void Start() {
-			AssertReferences();
-			
-            HandModels.ForEach(i => InteractionHands.Add(i.GetComponent<InteractionHand>()));
-			
-			foreach (var hand in InteractionHands) {
-				hand.ObjectGrabbed.Subscribe(grabbable => HandleGrabStateChange(grabbable, true));
-				hand.ObjectDropped.Subscribe(grabbable => HandleGrabStateChange(grabbable, false));
-				hand.ObjectMoved.Subscribe(ObjectMoved);
-			}
+		protected override void Start() {
+			base.Start();
 
+			AssertReferences();
 			gameWinSubscription = GameMode.GameWon.Subscribe(HandleGameWon);
+		}
+
+		protected override void HandleGrabbed(Grabbable grabbable) {
+			IncrementTextValue(grabbable, PicksTexts);
+			TryStartTimer();
+		}
+
+		protected override void HandleDropped(Grabbable grabbable) {
+			IncrementTextValue(grabbable, DropsTexts);
+		}
+
+		protected override void HandleMoved(MovementInfo movementInfo) {
+			var side = GetHandSideIfValid(movementInfo.Moveable.Grabbable);
+			if (side == HandSide.None)
+				return;
+
+			var index = (int) side - 1;
+			distances[index] += movementInfo.Delta.magnitude;
+			DistanceTexts[index].text = distances[index].ToString("0.000");
 		}
 
 		private void Update() {
@@ -83,7 +88,6 @@ namespace PXL.UI {
 				timeSpan.Minutes,
 				timeSpan.Seconds,
 				timeSpan.Milliseconds);
-
 		}
 
 		/// <summary>
@@ -97,47 +101,8 @@ namespace PXL.UI {
 				DropsTexts[i].AssertNotNull();
 				DistanceTexts[i].AssertNotNull();
 			}
-
-			if(HandModels.Count != 2)
-				throw new MissingReferenceException("There aren't exactly two hands assigned!");
 		}
-
-		/// <summary>
-		/// Called when the grab-state of a grabbable object changes
-		/// </summary>
-		/// <param name="grabbable">The grabbable object</param>
-		/// <param name="grabbed">The new grab-state</param>
-		private void HandleGrabStateChange(Grabbable grabbable, bool grabbed) {
-			if (grabbed) {
-				IncrementTextValue(grabbable, PicksTexts);
-				TryStartTimer();
-			}
-			else {
-				IncrementTextValue(grabbable, DropsTexts);
-			}
-		}
-
-		/// <summary>
-		/// Called when an object, grabbed by the correct hand, is moved
-		/// </summary>
-		private void ObjectMoved(MovementInfo movementInfo) {
-			var index = GetHandIndexIfValid(movementInfo.Moveable.Grabbable);
-			if (index == -1)
-				return;
-			distances[index] += movementInfo.Delta.magnitude;
-			DistanceTexts[index].text = distances[index].ToString("0.000");
-		}
-
-		/// <summary>
-		/// Returns the index for accessing the arrays for the correct hand, -1 if the hand is invalid
-		/// </summary>
-		private int GetHandIndexIfValid(Grabbable grabbable) {
-			var hand = grabbable.CurrentHand;
-			if (!hand.IsHandValid())
-				return -1;
-			return hand.GetLeapHand().IsLeft ? 0 : 1;
-		}
-
+		
 		/// <summary>
 		/// Returns the text of the given Text component as an Integer, if possible
 		/// </summary>
@@ -152,15 +117,14 @@ namespace PXL.UI {
 		/// Increments the value of the Text component's text by one, if possible
 		/// </summary>
 		private void IncrementTextValue(Grabbable grabbable, IList<Text> possibleTexts) {
-			var index = GetHandIndexIfValid(grabbable);
+			var side = GetHandSideIfValid(grabbable);
 
-			if (index == -1)
+			if (side == HandSide.None)
 				return;
 
-			var text = possibleTexts[index];
+			var text = possibleTexts[(int)side-1];
 
 			var value = GetLabelTextAsNumber(text);
-
 			if (value != -1)
 				text.text = (value + 1).ToString();
 		}
