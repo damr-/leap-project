@@ -11,37 +11,12 @@ namespace PXL.Objects.Breakout {
 		/// <summary>
 		/// Speed of the ball at the beginning
 		/// </summary>
-		public float StartSpeed = 1f;
-
-		/// <summary>
-		/// How often per second the speed is increased
-		/// </summary>
-		public float SpeedIncreaseFrequency = 1f;
-
-		/// <summary>
-		/// The increase of the speed per <see cref="SpeedIncreaseFrequency"/>
-		/// </summary>
-		public float SpeedIncreaseAmount = 0.05f;
-		
-		/// <summary>
-		/// The maximum possible speed of this ball
-		/// </summary>
-		public float MaxSpeed = 4;
-
-		/// <summary>
-		/// The current speed of the ball
-		/// </summary>
-		private float currentSpeed;
+		public float Speed = 1f;
 
 		/// <summary>
 		/// The last known velocity of the ball
 		/// </summary>
 		private Vector3 oldVelocity;
-
-		/// <summary>
-		/// Disposable for the speed increase interval timer
-		/// </summary>
-		private IDisposable increaseSpeedDisposable = Disposable.Empty;
 
 		/// <summary>
 		/// The Rigidbody component of this object
@@ -54,31 +29,22 @@ namespace PXL.Objects.Breakout {
 		private void Start() {
 			SetupRigidbody();
 			transform.position = new Vector3(transform.position.x, -0.245f, transform.position.z);
-
-			currentSpeed = StartSpeed;
-
-			Rigidbody.velocity = Vector3.forward * currentSpeed;
-
-			increaseSpeedDisposable = Observable.Interval(TimeSpan.FromSeconds(1/SpeedIncreaseFrequency)).Subscribe(_ => IncreaseSpeed());
 		}
 
-		/// <summary>
-		/// Increases the speed of the ball b<see cref="SpeedIncreaseAmount"/> and stops increasing it if it's at <see cref="MaxSpeed"/>
-		/// </summary>
-		private void IncreaseSpeed() {
-			currentSpeed += SpeedIncreaseAmount;
-
-			if (currentSpeed < MaxSpeed)
-				return;
-
-			currentSpeed = MaxSpeed;
-			increaseSpeedDisposable.Dispose();
+		private void OnEnable() {
+			Start();
 		}
 
 		/// <summary>
 		/// Stores the current velocity of the ball
 		/// </summary>
 		private void LateUpdate() {
+			if(Rigidbody.velocity.Equal(Vector3.zero))
+				Rigidbody.velocity = Vector3.forward * Speed;
+
+			if (Rigidbody.velocity.magnitude < (Vector3.forward*Speed).magnitude)
+				Rigidbody.velocity *= 1.01f;
+
 			oldVelocity = Rigidbody.velocity;
 		}
 
@@ -86,9 +52,10 @@ namespace PXL.Objects.Breakout {
 		/// Sets up the needed settings for the <see cref="Rigidbody"/>
 		/// </summary>
 		private void SetupRigidbody() {
-			Rigidbody.isKinematic = false;
+			if (Rigidbody == null)
+				return;
+
 			Rigidbody.useGravity = false;
-			Rigidbody.drag = 0f;
 			Rigidbody.constraints = RigidbodyConstraints.FreezePositionY;
 		}
 
@@ -102,10 +69,11 @@ namespace PXL.Objects.Breakout {
 		}
 
 		/// <summary>
-		/// Handles the deactivation of this object
+		/// Reset the rigidbody settings to default
 		/// </summary>
 		private void OnDisable() {
-			increaseSpeedDisposable.Dispose();
+			Rigidbody.useGravity = true;
+			Rigidbody.constraints = RigidbodyConstraints.None;
 		}
 	}
 

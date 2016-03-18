@@ -13,7 +13,7 @@ namespace PXL.Objects.Spawner {
 		/// Whether <see cref="SpawnFrequency"/> should be applied or a random one 
 		/// between <see cref="MinSpawnFrequency"/> and <see cref="MaxSpawnFrequency"/> should be chosen every time.
 		/// </summary>
-		public bool RandomSpawnFrequency;
+		public bool ChooseRandomly;
 
 		/// <summary>
 		/// The maximum possible spawn frequency, if choosing randomly
@@ -56,7 +56,7 @@ namespace PXL.Objects.Spawner {
 		/// If not, sets the frequency to the default one.
 		/// </summary>
 		protected virtual void SetRandomSpawnFrequencyIfNecessary() {
-			if (RandomSpawnFrequency)
+			if (ChooseRandomly)
 				SetRandomSpawnFrequency();
 			else if (CurrentSpawnFrequency != SpawnFrequency)
 				CurrentSpawnFrequency = SpawnFrequency;

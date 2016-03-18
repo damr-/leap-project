@@ -26,12 +26,6 @@ namespace PXL.Objects.Spawner.Editor {
 					EditorGUILayout.ObjectField(new GUIContent("Preview Objects Container", "Parent for spawned preview objects"),
 						visualizer.PreviewContainer, typeof(Transform), false);
 
-			EditorGUILayout.Space();
-			
-			if (GUILayout.Button(new GUIContent("Refresh", "Delete all previews and recreate them"))) {
-				visualizer.Refresh();
-			}
-
 			showPreviewObjects = EditorGUILayout.Foldout(showPreviewObjects, "Preview Objects");
 			if (showPreviewObjects) {
 				EditorGUILayout.BeginVertical();
@@ -39,6 +33,14 @@ namespace PXL.Objects.Spawner.Editor {
 					EditorGUILayout.ObjectField(o.gameObject.name, o, typeof (Transform), true);
 				}
 				EditorGUILayout.EndVertical();
+
+				GUILayout.BeginHorizontal();
+				GUILayout.FlexibleSpace();
+				if (GUILayout.Button(new GUIContent("Refresh", "Delete all previews and recreate them"), GUILayout.MaxWidth(150))) {
+					visualizer.Refresh();
+				}
+				GUILayout.FlexibleSpace();
+				GUILayout.EndHorizontal();
 			}
 		}
 

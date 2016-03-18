@@ -39,6 +39,7 @@ namespace PXL.Objects.Editor {
 				typeof(PhysicMaterial),
 				false);
 			EditorGUILayout.EndToggleGroup();
+			EditorGUILayout.Space();
 		}
 
 		private void Header(string text) {

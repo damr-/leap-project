@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using PXL.UI;
 using UniRx;
 using PXL.Utility;
+using UnityEditor;
 
 namespace PXL.Objects.Spawner {
 
@@ -23,7 +24,7 @@ namespace PXL.Objects.Spawner {
 		/// The GameObject which will be spawned
 		/// </summary>
 		public GameObject DefaultObjectPrefab;
-		
+
 		/// <summary>
 		/// Whether this spawner is able to spawn anything
 		/// </summary>
@@ -190,9 +191,14 @@ namespace PXL.Objects.Spawner {
 		protected virtual void ObjectDespawned(InteractiveObject interactiveObject) {
 			SpawnedObjects.Remove(interactiveObject);
 
-			if (SpawnedObjects.Count == 0) {
-				Observable.Timer(TimeSpan.FromSeconds(RespawnDelay)).Subscribe(_ => SpawnObject());
-			}
+			if (SpawnedObjects.Count != 0 || !IsSpawningEnabled)
+				return;
+
+			IsSpawningEnabled = false;
+			Observable.Timer(TimeSpan.FromSeconds(RespawnDelay)).Subscribe(_ => {
+				IsSpawningEnabled = true;
+				SpawnObject();
+			});
 		}
 
 		/// <summary>

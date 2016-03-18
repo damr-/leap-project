@@ -42,14 +42,38 @@ namespace PXL.Objects.Spawner {
 		/// </summary>
 		public static IDictionary<PatternVisualizer, List<Transform>> VisualizerPreviews = new Dictionary<PatternVisualizer, List<Transform>>(); 
 
+		/// <summary>
+		/// Subscription for manually updating the preview
+		/// </summary>
 		private IDisposable timeSubscription = Disposable.Empty;
 
+		/// <summary>
+		/// Add the state change callback and start updating the previews if not playing
+		/// </summary>
 		private void OnEnable() {
-			if (Application.isEditor && Application.isPlaying) {
-				PreviewContainer.gameObject.SetActive(false);
-				return;
-			}
+			EditorApplication.playmodeStateChanged += StateChange;
 
+			if (!EditorApplication.isPlayingOrWillChangePlaymode && !EditorApplication.isPlaying) {
+				StartUpdating();
+			}
+		}
+
+		/// <summary>
+		/// Handles the change of application states.
+		/// </summary>
+		private void StateChange() {
+			timeSubscription.Dispose();
+			if (EditorApplication.isPlayingOrWillChangePlaymode && EditorApplication.isPlaying) {
+				PreviewContainer.gameObject.SetActive(false);
+                return;
+			}
+			StartUpdating();
+		}
+
+		/// <summary>
+		/// Loads the list of preview objects, if possible, and starts the manual update timer.
+		/// </summary>
+		private void StartUpdating() {
 			if (!VisualizerPreviews.ContainsKey(this)) {
 				VisualizerPreviews.Add(this, PreviewObjects);
 			}
@@ -58,13 +82,16 @@ namespace PXL.Objects.Spawner {
 			}
 
 			PreviewContainer.gameObject.SetActive(true);
-			timeSubscription.Dispose();
 			timeSubscription = Observable.Interval(TimeSpan.FromSeconds(0.01f)).Subscribe(_ => UpdatePreview());
 		}
 
+		/// <summary>
+		/// Saves the current list of preview objects, disposes the timer and removes the callback handle.
+		/// </summary>
 		private void OnDisable() {
 			VisualizerPreviews[this] = PreviewObjects;
 			timeSubscription.Dispose();
+			EditorApplication.playmodeStateChanged -= StateChange;
 		}
 
 		/// <summary>
@@ -77,7 +104,13 @@ namespace PXL.Objects.Spawner {
 			while (PreviewObjects.Count < activeFieldsCount) {
 				var previewObject = (GameObject)Instantiate(PreviewGameObject, transform.position, Quaternion.identity);
 				previewObject.transform.SetParent(PreviewContainer, true);
-				PreviewObjects.Add(previewObject.transform);
+
+				var name = previewObject.gameObject.name;
+				var index = name.IndexOf("(");
+				if(index != -1)
+					previewObject.gameObject.name = name.Remove(index);
+
+                PreviewObjects.Add(previewObject.transform);
 			}
 			while (PreviewObjects.Count > activeFieldsCount) {
 				RemovePreviewObject(0);
@@ -98,6 +131,9 @@ namespace PXL.Objects.Spawner {
 			}
 		}
 
+		/// <summary>
+		/// Removes all current objects and spawns a new set of previews
+		/// </summary>
 		public void Refresh() {
 			while (PreviewObjects.Count > 0) {
 				RemovePreviewObject(0);
@@ -113,6 +149,9 @@ namespace PXL.Objects.Spawner {
 		/// Removes the preview object from the scene with the given list's index
 		/// </summary>
 		private void RemovePreviewObject(int index) {
+			if (index >= PreviewObjects.Count)
+				return;
+
 			var o = PreviewObjects[index];
 			PreviewObjects.RemoveAt(index);
 			DestroyImmediate(o.gameObject);

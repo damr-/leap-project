@@ -47,7 +47,7 @@ namespace PXL.Health {
 
 			if (CurrentHealth > 0)
 				return;
-			
+
 			deathSubject.OnNext(Unit.Default);
 		}
 

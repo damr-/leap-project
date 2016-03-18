@@ -116,7 +116,7 @@ namespace PXL.Utility {
 
 			// Return an object to the inactive pool.
 			public void Despawn(GameObject obj) {
-				obj.transform.position = new Vector3(10, -10, 10);
+				//obj.transform.position = new Vector3(10, -10, 10);
 				obj.SetActive(false);
 
 				// Since Stack doesn't have a Capacity member, we can't control

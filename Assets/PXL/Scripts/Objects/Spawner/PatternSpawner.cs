@@ -1,4 +1,5 @@
 ﻿using UniRx;
+using UnityEditor;
 using UnityEngine;
 
 namespace PXL.Objects.Spawner {
@@ -60,7 +61,6 @@ namespace PXL.Objects.Spawner {
 						continue;
 
 					var spawnOffset = GetPositionOffset(row, column);
-
 					SpawnObject(spawnOffset);
 				}
 			}
