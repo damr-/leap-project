@@ -18,6 +18,16 @@ namespace PXL.Objects.Spawner {
 		public GameObject PreviewGameObject;
 
 		/// <summary>
+		/// The <see cref="GameObject"/> used for showing a spot in the preview which will have an object assigned randomly.
+		/// </summary>
+		public GameObject RandomPreviewGameObject;
+
+		/// <summary>
+		/// The <see cref="GameObject"/> used for showing a spot in the preview which might be added due to the random column and row count
+		/// </summary>
+		public GameObject PossiblyRandomPreviewGameObject;
+
+		/// <summary>
 		/// The parent for the spawned preview objects
 		/// </summary>
 		public Transform PreviewContainer;
@@ -33,14 +43,19 @@ namespace PXL.Objects.Spawner {
 		private PatternSpawner mPatternSpawner;
 
 		/// <summary>
-		/// All spawned preview Objects
+		/// The spawned preview objects
 		/// </summary>
 		public List<Transform> PreviewObjects = new List<Transform>();
 
 		/// <summary>
-		/// Static Dictionary with all PatternVisualizers and their Lists of preview objects to save them across game states
+		/// The spawned random preview objects
 		/// </summary>
-		public static IDictionary<PatternVisualizer, List<Transform>> VisualizerPreviews = new Dictionary<PatternVisualizer, List<Transform>>(); 
+		public List<Transform> RandomPreviewObjects = new List<Transform>();
+
+		/// <summary>
+		/// The spawned possibly random preview objects
+		/// </summary>
+		public List<Transform> PossiblyRandomPreviewObjects = new List<Transform>();
 
 		/// <summary>
 		/// Subscription for manually updating the preview
@@ -52,6 +67,7 @@ namespace PXL.Objects.Spawner {
 		/// </summary>
 		private void OnEnable() {
 			EditorApplication.playmodeStateChanged += StateChange;
+			RemoveAllPreviewObjects();
 
 			if (!EditorApplication.isPlayingOrWillChangePlaymode && !EditorApplication.isPlaying) {
 				StartUpdating();
@@ -64,8 +80,8 @@ namespace PXL.Objects.Spawner {
 		private void StateChange() {
 			timeSubscription.Dispose();
 			if (EditorApplication.isPlayingOrWillChangePlaymode && EditorApplication.isPlaying) {
-				PreviewContainer.gameObject.SetActive(false);
-                return;
+				RemoveAllPreviewObjects();
+				return;
 			}
 			StartUpdating();
 		}
@@ -74,14 +90,6 @@ namespace PXL.Objects.Spawner {
 		/// Loads the list of preview objects, if possible, and starts the manual update timer.
 		/// </summary>
 		private void StartUpdating() {
-			if (!VisualizerPreviews.ContainsKey(this)) {
-				VisualizerPreviews.Add(this, PreviewObjects);
-			}
-			else {
-				PreviewObjects = VisualizerPreviews[this];
-			}
-
-			PreviewContainer.gameObject.SetActive(true);
 			timeSubscription = Observable.Interval(TimeSpan.FromSeconds(0.01f)).Subscribe(_ => UpdatePreview());
 		}
 
@@ -89,9 +97,31 @@ namespace PXL.Objects.Spawner {
 		/// Saves the current list of preview objects, disposes the timer and removes the callback handle.
 		/// </summary>
 		private void OnDisable() {
-			VisualizerPreviews[this] = PreviewObjects;
 			timeSubscription.Dispose();
 			EditorApplication.playmodeStateChanged -= StateChange;
+		}
+
+		private void RemoveAllPreviewObjects() {
+			RemovePreviewObjects();
+			RemoveRandomPreviewObjects();
+			foreach (Transform o in PreviewContainer) {
+				DestroyImmediate(o.gameObject);
+			}
+		}
+
+		private void RemovePreviewObjects() {
+			while (PreviewObjects.Count > 0) {
+				RemoveObject(PreviewObjects, 0);
+			}
+		}
+
+		private void RemoveRandomPreviewObjects() {
+			while (RandomPreviewObjects.Count > 0) {
+				RemoveObject(RandomPreviewObjects, 0);
+			}
+			while (PossiblyRandomPreviewObjects.Count > 0) {
+				RemoveObject(PossiblyRandomPreviewObjects, 0);
+			}
 		}
 
 		/// <summary>
@@ -99,61 +129,88 @@ namespace PXL.Objects.Spawner {
 		/// and that every object is at the correct position
 		/// </summary>
 		private void UpdatePreview() {
-			var activeFieldsCount = PatternSpawner.SpawnPattern.Sum(column => column.Rows.Count(row => row));
 
-			while (PreviewObjects.Count < activeFieldsCount) {
-				var previewObject = (GameObject)Instantiate(PreviewGameObject, transform.position, Quaternion.identity);
-				previewObject.transform.SetParent(PreviewContainer, true);
+			if (PatternSpawner.RandomizePattern) {
+				RemovePreviewObjects();
 
-				var name = previewObject.gameObject.name;
-				var index = name.IndexOf("(");
-				if(index != -1)
-					previewObject.gameObject.name = name.Remove(index);
+				var randomRowCount = PatternSpawner.RandomizeRowCount ? PatternSpawner.MinRandomRowCount : PatternSpawner.PatternRows;
+				var randomColCount = PatternSpawner.RandomizeColumnCount ? PatternSpawner.MinRandomColumnCount : PatternSpawner.PatternColumns;
+				var randomCount = randomRowCount * randomColCount;
+				UpdatePreviewObjectsAmount(randomCount, RandomPreviewGameObject, RandomPreviewObjects);
 
-                PreviewObjects.Add(previewObject.transform);
+				var maxRowCount = PatternSpawner.RandomizeRowCount ? PatternSpawner.MaxRandomRowCount : PatternSpawner.PatternRows;
+				var maxColumnCount = PatternSpawner.RandomizeColumnCount ? PatternSpawner.MaxRandomColumnCount : PatternSpawner.PatternColumns;
+				var possiblyRandomCount = maxRowCount * maxColumnCount - randomCount;
+				UpdatePreviewObjectsAmount(possiblyRandomCount, PossiblyRandomPreviewGameObject, PossiblyRandomPreviewObjects);
+
+				var rowCount = PatternSpawner.RandomizeRowCount ? PatternSpawner.MaxRandomRowCount : PatternSpawner.PatternRows;
+				var columnCount = PatternSpawner.RandomizeColumnCount ? PatternSpawner.MaxRandomColumnCount : PatternSpawner.PatternColumns;
+
+				var randomCounter = 0;
+				var possiblyRandomCounter = 0;
+
+				for (var row = 0; row < rowCount; row++) {
+					for (var column = 0; column < columnCount; column++) {
+						var possiblyRandomField = (PatternSpawner.RandomizeColumnCount && column >= PatternSpawner.MinRandomColumnCount) || (PatternSpawner.RandomizeRowCount && row >= PatternSpawner.MinRandomRowCount);
+						var spawnOffset = PatternSpawner.GetPositionOffset(row, column);
+						var previewTransform = possiblyRandomField ? PossiblyRandomPreviewObjects[possiblyRandomCounter++] : RandomPreviewObjects[randomCounter++];
+						previewTransform.position = transform.position + spawnOffset;
+					}
+				}
+
+
 			}
-			while (PreviewObjects.Count > activeFieldsCount) {
-				RemovePreviewObject(0);
-			}
+			else {
+				RemoveRandomPreviewObjects();
 
-			var counter = 0;
-			for (var row = 0; row < PatternSpawner.PatternRows; row++) {
-				for (var column = 0; column < PatternSpawner.PatternColumns; column++) {
-					if (!PatternSpawner.SpawnPattern[column][row])
-						continue;
+				var activeFieldsCount = PatternSpawner.SpawnPattern.Sum(column => column.Rows.Count(row => row));
+				UpdatePreviewObjectsAmount(activeFieldsCount, PreviewGameObject, PreviewObjects);
+				var counter = 0;
+				for (var row = 0; row < PatternSpawner.PatternRows; row++) {
+					for (var column = 0; column < PatternSpawner.PatternColumns; column++) {
+						if (!PatternSpawner.SpawnPattern[column][row])
+							continue;
 
-					var spawnOffset = PatternSpawner.GetPositionOffset(row, column);
-					var previewObject = PreviewObjects[counter];
+						var spawnOffset = PatternSpawner.GetPositionOffset(row, column);
+						var previewObject = PreviewObjects[counter];
+						previewObject.transform.position = transform.position + spawnOffset;
 
-					previewObject.transform.position = transform.position + spawnOffset;
-					counter++;
+						counter++;
+					}
 				}
 			}
+
 		}
 
 		/// <summary>
-		/// Removes all current objects and spawns a new set of previews
+		/// Updates the size of the given list of objects of type <see cref="prefab"/> to the desired amount.
 		/// </summary>
-		public void Refresh() {
-			while (PreviewObjects.Count > 0) {
-				RemovePreviewObject(0);
+		private void UpdatePreviewObjectsAmount(int desiredAmount, GameObject prefab, List<Transform> existingPreviewObjects) {
+			while (existingPreviewObjects.Count < desiredAmount) {
+				var newObject = (GameObject)Instantiate(prefab, transform.position, Quaternion.identity);
+				newObject.transform.SetParent(PreviewContainer, true);
+
+				var name = newObject.gameObject.name;
+				var index = name.IndexOf("(");
+				if (index != -1)
+					newObject.name = name.Remove(index);
+
+				existingPreviewObjects.Add(newObject.transform);
 			}
-			foreach (Transform o in PreviewContainer) {
-				DestroyImmediate(o.gameObject);
+			while (existingPreviewObjects.Count > desiredAmount) {
+				RemoveObject(existingPreviewObjects, 0);
 			}
-			UpdatePreview();
-			VisualizerPreviews[this] = PreviewObjects;
 		}
 
 		/// <summary>
-		/// Removes the preview object from the scene with the given list's index
+		/// Removes the element with the given index from the given list
 		/// </summary>
-		private void RemovePreviewObject(int index) {
-			if (index >= PreviewObjects.Count)
+		private void RemoveObject(List<Transform> objects, int index) {
+			if (index >= objects.Count)
 				return;
 
-			var o = PreviewObjects[index];
-			PreviewObjects.RemoveAt(index);
+			var o = objects[index];
+			objects.RemoveAt(index);
 			DestroyImmediate(o.gameObject);
 		}
 

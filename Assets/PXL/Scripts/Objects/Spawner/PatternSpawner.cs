@@ -1,5 +1,4 @@
 ﻿using UniRx;
-using UnityEditor;
 using UnityEngine;
 
 namespace PXL.Objects.Spawner {
@@ -47,6 +46,27 @@ namespace PXL.Objects.Spawner {
 		public float ColumnMargin = 1f;
 
 		/// <summary>
+		/// Whether the fields of the pattern should be randomized
+		/// </summary>
+		public bool RandomizePattern;
+
+		/// <summary>
+		/// Whether the row count should be randomized
+		/// </summary>
+		public bool RandomizeRowCount;
+
+		/// <summary>
+		/// Whether the column count should be randomized
+		/// </summary>
+		public bool RandomizeColumnCount;
+
+		public int MinRandomColumnCount;
+		public int MaxRandomColumnCount;
+
+		public int MinRandomRowCount;
+		public int MaxRandomRowCount;
+
+		/// <summary>
 		/// The Pattern used by this spawner
 		/// </summary>
 		public PatternColumn[] SpawnPattern = new PatternColumn[MaxPatternColumns];
@@ -55,6 +75,13 @@ namespace PXL.Objects.Spawner {
 		private readonly ISubject<Unit> patternChangedSubject = new Subject<Unit>();
 
 		public override void SpawnObject() {
+			if (RandomizeColumnCount)
+				PatternColumns = Random.Range(MinRandomColumnCount, MaxRandomColumnCount + 1);
+			if (RandomizeRowCount)
+				PatternRows = Random.Range(MinRandomRowCount, MaxRandomRowCount + 1);
+			if (RandomizePattern)
+				CreateRandomPattern();
+
 			for (var row = 0; row < PatternRows; row++) {
 				for (var column = 0; column < PatternColumns; column++) {
 					if (!SpawnPattern[column][row])
@@ -63,6 +90,11 @@ namespace PXL.Objects.Spawner {
 					var spawnOffset = GetPositionOffset(row, column);
 					SpawnObject(spawnOffset);
 				}
+			}
+
+			if (SpawnedObjects.Count == 0) {
+				Debug.LogError("Had to re-do!");
+				SpawnObject();
 			}
 		}
 

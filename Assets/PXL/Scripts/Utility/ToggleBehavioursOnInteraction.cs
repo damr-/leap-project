@@ -68,6 +68,7 @@ namespace PXL.Utility {
 		}
 
 		protected override void HandleMoved(MovementInfo movementInfo) {
+
 		}
 
 	}

@@ -39,11 +39,12 @@ namespace PXL.Objects.Breakout {
 		/// Stores the current velocity of the ball
 		/// </summary>
 		private void LateUpdate() {
-			if(Rigidbody.velocity.Equal(Vector3.zero))
-				Rigidbody.velocity = Vector3.forward * Speed;
-
-			if (Rigidbody.velocity.magnitude < (Vector3.forward*Speed).magnitude)
-				Rigidbody.velocity *= 1.01f;
+			var diff = Rigidbody.velocity.magnitude - (Vector3.forward*Speed).magnitude;
+			if (diff < 0) {
+				Rigidbody.velocity *= 1.01f + Math.Abs(diff);
+			}
+			if (diff > 0 || Rigidbody.velocity.Equal(Vector3.zero))
+				Rigidbody.velocity = Vector3.forward*Speed;
 
 			oldVelocity = Rigidbody.velocity;
 		}

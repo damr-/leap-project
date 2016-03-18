@@ -7,13 +7,6 @@ namespace PXL.Objects.Spawner.Editor {
 	public class ObjectSpawnerEditor : UnityEditor.Editor {
 
 		/// <summary>
-		/// The layout options for a pattern toggle button
-		/// </summary>
-		protected readonly GUILayoutOption[] PatternToggleButtonOptions = {
-			GUILayout.MinHeight(20), GUILayout.MinWidth(20), GUILayout.MaxWidth(20), GUILayout.MaxHeight(20)
-		};
-
-		/// <summary>
 		/// Style for header labels
 		/// </summary>
 		protected readonly GUIStyle HeaderStyle = new GUIStyle() {
