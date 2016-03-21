@@ -30,7 +30,13 @@ namespace PXL.Objects.Spawner {
 		/// <summary>
 		/// The parent for the spawned preview objects
 		/// </summary>
-		public Transform PreviewContainer;
+		public Transform PreviewContainer {
+			get {
+				TryCreatePreviewContainer();
+				return mPreviewContainer;
+			}
+		}
+		private Transform mPreviewContainer;
 
 		/// <summary>
 		/// The <see cref="PatternSpawner"/> component of this object
@@ -61,6 +67,11 @@ namespace PXL.Objects.Spawner {
 		/// Subscription for manually updating the preview
 		/// </summary>
 		private IDisposable timeSubscription = Disposable.Empty;
+
+		/// <summary>
+		/// The last known name of this GameObject
+		/// </summary>
+		private string lastName = " ";
 
 		/// <summary>
 		/// Add the state change callback and start updating the previews if not playing
@@ -101,24 +112,46 @@ namespace PXL.Objects.Spawner {
 			EditorApplication.playmodeStateChanged -= StateChange;
 		}
 
+		/// <summary>
+		/// Removes all objects and the preview container
+		/// </summary>
+		private void OnDestroy() {
+			RemoveAllPreviewObjects();
+			DestroyImmediate(PreviewContainer.gameObject);
+		}
+
+		/// <summary>
+		/// Removes all preview objects and other Transforms inside PreviewContainer
+		/// </summary>
 		private void RemoveAllPreviewObjects() {
 			RemovePreviewObjects();
 			RemoveRandomPreviewObjects();
 			foreach (Transform o in PreviewContainer) {
-				DestroyImmediate(o.gameObject);
+				if (o != null)
+					DestroyImmediate(o.gameObject);
 			}
 		}
 
+		/// <summary>
+		/// Removes all objects from <see cref="PreviewObjects"/>
+		/// </summary>
 		private void RemovePreviewObjects() {
+			PreviewObjects = PreviewObjects.Purge();
 			while (PreviewObjects.Count > 0) {
 				RemoveObject(PreviewObjects, 0);
 			}
 		}
 
+		/// <summary>
+		/// Removes all objects from <see cref="RandomPreviewObjects"/> and <see cref="PossiblyRandomPreviewObjects"/>
+		/// </summary>
 		private void RemoveRandomPreviewObjects() {
+			RandomPreviewObjects = RandomPreviewObjects.Purge();
 			while (RandomPreviewObjects.Count > 0) {
 				RemoveObject(RandomPreviewObjects, 0);
 			}
+
+			PossiblyRandomPreviewObjects = PossiblyRandomPreviewObjects.Purge();
 			while (PossiblyRandomPreviewObjects.Count > 0) {
 				RemoveObject(PossiblyRandomPreviewObjects, 0);
 			}
@@ -129,6 +162,10 @@ namespace PXL.Objects.Spawner {
 		/// and that every object is at the correct position
 		/// </summary>
 		private void UpdatePreview() {
+			if (lastName != gameObject.name) {
+				PreviewContainer.gameObject.name = gameObject.name + " Container";
+				lastName = gameObject.name;
+			}
 
 			if (PatternSpawner.RandomizePattern) {
 				RemovePreviewObjects();
@@ -157,8 +194,6 @@ namespace PXL.Objects.Spawner {
 						previewTransform.position = transform.position + spawnOffset;
 					}
 				}
-
-
 			}
 			else {
 				RemoveRandomPreviewObjects();
@@ -214,6 +249,37 @@ namespace PXL.Objects.Spawner {
 			DestroyImmediate(o.gameObject);
 		}
 
+		/// <summary>
+		/// Recreates the preview objects
+		/// </summary>
+		public void Refresh() {
+			RemoveAllPreviewObjects();
+		}
+
+		/// <summary>
+		/// Search and remove all empty PreviewContainers
+		/// </summary>
+		private void RemoveEmptyContainers() {
+			var tag = Tags.GetTagString(Tags.TagType.PreviewContainer);
+			var emptyContainers = GameObject.FindGameObjectsWithTag(tag).Select(c => c.transform).Where(c => c.childCount == 0 && c != PreviewContainer).ToList();
+
+			while (emptyContainers.Count > 0) {
+				RemoveObject(emptyContainers, 0);
+			}
+		}
+
+		/// <summary>
+		/// Creates a new Preview Container for this spawner
+		/// </summary>
+		public void TryCreatePreviewContainer() {
+			if (mPreviewContainer != null) {
+				return;
+			}
+			mPreviewContainer = new GameObject(gameObject.name + "-Container") {
+				tag = Tags.GetTagString(Tags.TagType.PreviewContainer)
+			}.transform;
+			RemoveEmptyContainers();
+		}
 	}
 
 }

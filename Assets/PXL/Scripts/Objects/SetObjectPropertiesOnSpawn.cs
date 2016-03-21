@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using UniRx;
@@ -52,11 +53,36 @@ namespace PXL.Objects {
 		public PhysicMaterial PhysicMaterial;
 
 		/// <summary>
+		/// Whether to change the <see cref="Material"/>
+		/// </summary>
+		public bool SetMaterial;
+
+		/// <summary>
+		/// The <see cref="PhysicMaterial"/> to set
+		/// </summary>
+		public Material Material;
+
+		/// <summary>
 		/// The components which will be added to the object on spawn
 		/// </summary>
 		public List<string> Components = new List<string>();
 
 		private string assemblyName;
+
+		/// <summary>
+		/// Whether the health properties will be changed
+		/// </summary>
+		public bool SetHealth;
+
+		/// <summary>
+		/// The initial health of the object
+		/// </summary>
+		public float InitialHealth = 1f;
+
+		/// <summary>
+		/// The maximum health of the object
+		/// </summary>
+		public float MaxHealth = 1f;
 
 		/// <summary>
 		/// The ObjectSpawner of this object
@@ -67,7 +93,11 @@ namespace PXL.Objects {
 			}
 		}
 		private ObjectSpawner mObjectSpawner;
-		
+
+		public bool IsAddingComponents;
+
+		public string newComponentName;
+
 		private void Start() {
 			assemblyName = Assembly.GetExecutingAssembly().FullName;
 			ObjectSpawner.ObjectSpawned.Subscribe(HandleObjectSpawned);
@@ -88,7 +118,20 @@ namespace PXL.Objects {
 			if (collider != null && PhysicMaterial != null && SetPhysicMaterial)
 				collider.material = PhysicMaterial;
 
-			AddComponents(interactiveObject.gameObject);
+			var mesh = interactiveObject.GetComponent<MeshRenderer>();
+
+			if (SetMaterial && mesh != null && Material != null) {
+				mesh.material = Material;
+			}
+
+			Components.ForEach(c => CreateAndAddComponent(interactiveObject.gameObject, c));
+
+			var health = interactiveObject.GetComponent<Health.Health>();
+			if (health != null && SetHealth) {
+				health.MaxHealth = MaxHealth;
+				health.InitialHealth = InitialHealth;
+				health.CurrentHealth.Value = InitialHealth;
+			}
 		}
 
 		/// <summary>
@@ -106,20 +149,23 @@ namespace PXL.Objects {
 		}
 
 		/// <summary>
-		/// Calls <see cref="CreateAndAddComponent"/> for every component in <see cref="Components"/>
-		/// </summary>
-		private void AddComponents(GameObject target) {
-			Components.ForEach(c => CreateAndAddComponent(target, c));
-		}
-
-		/// <summary>
-		/// Adds the given component to the given target
+		/// Creates a component from the given string and adds it to the given target
 		/// </summary>
 		private void CreateAndAddComponent(GameObject target, string component) {
 			var componentType = Types.GetType(component, assemblyName);
 			target.AddComponent(componentType);
 		}
 
+		/// <summary>
+		/// Adds the content of <see cref="newComponentName"/> to <see cref="Components"/> if it's not already in the list and valid
+		/// </summary>
+		public void AddNewComponentToList() {
+			var componentName = newComponentName.Trim();
+            if (componentName.Length == 0 || Components.Contains(componentName))
+				return;
+
+			Components.Add(newComponentName);
+		}
 	}
 
 }

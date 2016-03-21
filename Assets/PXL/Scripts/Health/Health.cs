@@ -28,6 +28,12 @@ namespace PXL.Health {
 		private readonly ISubject<Unit> deathSubject = new Subject<Unit>();
 
 		/// <summary>
+		/// INvoked when this the amount of health points decrease
+		/// </summary>
+		public IObservable<Unit> Hurt { get { return hurtSubject; } } 
+		private readonly ISubject<Unit> hurtSubject = new Subject<Unit>(); 
+
+		/// <summary>
 		/// Returns whether this object has more than 0 health points
 		/// </summary>
 		public bool IsAlive { get { return CurrentHealth.Value > 0f; } }
@@ -43,7 +49,12 @@ namespace PXL.Health {
 			if (!IsAlive)
 				return;
 
+			var oldHealth = CurrentHealth.Value;
+
 			CurrentHealth.Value -= damage;
+
+			if (CurrentHealth.Value < oldHealth)
+				hurtSubject.OnNext(Unit.Default);
 
 			if (CurrentHealth > 0)
 				return;

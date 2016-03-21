@@ -14,7 +14,7 @@ namespace PXL.Objects.Spawner.Editor {
 		};
 
 		private const string RandomHelpText = "Normal '?' represent the guaranteed size of the pattern which will be randomly filled. " +
-		                                      "Greyed out '?' are fields which might be added due to the random amount of columns and rows.";
+											  "Greyed out '?' are fields which might be added due to the random amount of columns and rows.";
 
 		private const string NormalHelpText = "Checked boxes represent spots where the spawner will place an object. Unchecked boxes represent empty spots where no object will be placed.";
 
@@ -26,6 +26,15 @@ namespace PXL.Objects.Spawner.Editor {
 			var spawner = (PatternSpawner)target;
 
 			Header("Pattern Spawner Options");
+
+			spawner.PatternFinishPoints =
+				Mathf.Clamp(
+				EditorGUILayout.IntField(
+					new GUIContent("Win Points",
+						"How many points are added the the GameMode's CurrentPoints when this pattern has been finished"),
+					spawner.PatternFinishPoints), 0, int.MaxValue);
+
+			EditorGUILayout.Space();
 
 			spawner.RandomizePattern = EditorGUILayout.ToggleLeft("Randomise Pattern", spawner.RandomizePattern);
 			EditorGUILayout.Space();
@@ -96,7 +105,7 @@ namespace PXL.Objects.Spawner.Editor {
 
 			if (displayPatternHelp) {
 				EditorGUILayout.HelpBox(
-					"Below you see a preview for the generated pattern.\n" + (spawner.RandomizePattern ? RandomHelpText : NormalHelpText), 
+					"Below you see a preview for the generated pattern.\n" + (spawner.RandomizePattern ? RandomHelpText : NormalHelpText),
 					MessageType.Info,
 					true);
 			}
@@ -112,7 +121,7 @@ namespace PXL.Objects.Spawner.Editor {
 
 					if (spawner.RandomizePattern) {
 						var possiblyRandomField = (spawner.RandomizeColumnCount && column >= spawner.MinRandomColumnCount) || (spawner.RandomizeRowCount && row >= spawner.MinRandomRowCount);
-                        EditorGUI.BeginDisabledGroup(possiblyRandomField);
+						EditorGUI.BeginDisabledGroup(possiblyRandomField);
 						EditorGUILayout.BeginHorizontal("Box");
 						EditorGUILayout.LabelField("?", new GUIStyle { alignment = TextAnchor.MiddleCenter }, GUILayout.MaxWidth(20));
 						EditorGUILayout.EndHorizontal();

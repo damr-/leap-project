@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using PXL.UI;
 using UniRx;
 using PXL.Utility;
-using UnityEditor;
 
 namespace PXL.Objects.Spawner {
 
@@ -26,6 +25,11 @@ namespace PXL.Objects.Spawner {
 		public GameObject DefaultObjectPrefab;
 
 		/// <summary>
+		/// The Transform which will be parent of all spawned objects, if set.
+		/// </summary>
+		public Transform SpawnedObjectsContainer;
+
+		/// <summary>
 		/// Whether this spawner is able to spawn anything
 		/// </summary>
 		public bool IsSpawningEnabled = true;
@@ -33,7 +37,7 @@ namespace PXL.Objects.Spawner {
 		/// <summary>
 		/// The amount of objects spawned at start
 		/// </summary>
-		public int StartAmount = 2;
+		public int StartAmount = 1;
 
 		/// <summary>
 		/// How many seconds to wait before this spawner gets activated
@@ -41,7 +45,12 @@ namespace PXL.Objects.Spawner {
 		public int StartSpawnDelay = 0;
 
 		/// <summary>
-		/// How many seconds to wait before a new object is spawned after the current ones are gone
+		/// Whether the spawner should call <see cref="SpawnObject()"/> when all it's spawned objects have been destroyed
+		/// </summary>
+		public bool RespawnOnDepleted = true;
+
+		/// <summary>
+		/// How many seconds to wait before a new object is spawned after the spawner's spawned objects have been destroyed
 		/// </summary>
 		public int RespawnDelay = 0;
 
@@ -188,10 +197,10 @@ namespace PXL.Objects.Spawner {
 		/// Called when a object was destroyed
 		/// Removes the object from the list and spawns one if possible and necessary
 		/// </summary>
-		protected virtual void ObjectDespawned(InteractiveObject interactiveObject) {
+		protected virtual void HandleObjectDespawned(InteractiveObject interactiveObject) {
 			SpawnedObjects.Remove(interactiveObject);
 
-			if (SpawnedObjects.Count != 0 || !IsSpawningEnabled)
+			if (!RespawnOnDepleted || SpawnedObjects.Count != 0 || !IsSpawningEnabled)
 				return;
 
 			IsSpawningEnabled = false;
@@ -258,13 +267,16 @@ namespace PXL.Objects.Spawner {
 
 			var health = newObject.GetComponent<Health.Health>();
 			if (health) {
-				health.Death.Subscribe(_ => ObjectDespawned(interactiveObject)).AddTo(objectDestroySubscriptions);
+				health.Death.Subscribe(_ => HandleObjectDespawned(interactiveObject)).AddTo(objectDestroySubscriptions);
 			}
 			else {
 				Debug.LogWarning(newObject.name + " has no Health component!");
 			}
 
 			SpawnedObjects.Add(interactiveObject);
+
+			if(SpawnedObjectsContainer != null)
+				newObject.transform.SetParent(SpawnedObjectsContainer, true);
 
 			objectSpawnedSubject.OnNext(interactiveObject);
 		}

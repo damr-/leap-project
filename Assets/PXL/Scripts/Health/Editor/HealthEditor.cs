@@ -21,6 +21,10 @@ namespace PXL.Health.Editor {
 				EditorApplication.isPlaying) {
 				health.Heal();
 			}
+			if (GUILayout.Button(new GUIContent("Hurt", "Hurt the object for 1 damage")) && EditorApplication.isPlayingOrWillChangePlaymode &&
+				EditorApplication.isPlaying) {
+				health.ApplyDamage(1f);
+			}
 			if (GUILayout.Button(new GUIContent("Kill", "Kill the object")) && EditorApplication.isPlayingOrWillChangePlaymode &&
 				EditorApplication.isPlaying) {
 				health.Kill();

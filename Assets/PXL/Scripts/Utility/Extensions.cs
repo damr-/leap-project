@@ -100,12 +100,11 @@ namespace PXL.Utility {
 		/// </summary>
 		public static void Kill<T>(this T component) where T : Component {
 			var health = component.GetComponent<Health.Health>();
-			if (health != null) {
+			if (health != null)
 				health.Kill();
-			}
-			else {
+			else
 				Debug.LogWarning(component.gameObject.name + " has no Health Component!");
-			}
+
 		}
 
 	}

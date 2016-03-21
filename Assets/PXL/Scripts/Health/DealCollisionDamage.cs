@@ -16,6 +16,16 @@ namespace PXL.Health {
 		/// </summary>
 		public ObjectType ObjectType;
 
+		/// <summary>
+		/// Whether the other object should be instantly killed
+		/// </summary>
+		public bool InstantKill;
+
+		/// <summary>
+		/// The amount of damage that will be inflicted, if <see cref="InstantKill"/> is set to 'false'
+		/// </summary>
+		public float Damage = 1f;
+
 		private string targetTag;
 
 		private void Start() {
@@ -33,7 +43,15 @@ namespace PXL.Health {
 			if (ObjectType != ObjectType.All && ObjectType != interactiveObject.ObjectType)
 				return;
 
-			collision.transform.Kill();
+			var health = collision.transform.GetComponent<Health>();
+
+			if (health == null)
+				return;
+
+			if (InstantKill)
+				health.Kill();
+			else 
+				health.ApplyDamage(Damage);
 		}
 
 	}

@@ -24,6 +24,11 @@ namespace PXL.Interaction.Editor {
 			moveable.FreezeRotation = UpdateFreezeOptions("Freeze Rotation", moveable.FreezeRotation);
 		}
 
+		/// <summary>
+		/// Display the options to freeze certain axes
+		/// </summary>
+		/// <param name="title">The text of the label</param>
+		/// <param name="freezeVector">The vector which describes the freeze state of the object internally</param>
 		private Vector3 UpdateFreezeOptions(string title, Vector3 freezeVector) {
 			var freezeState = new bool[3];
 

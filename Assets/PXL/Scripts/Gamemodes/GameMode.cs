@@ -15,7 +15,7 @@ namespace PXL.Gamemodes {
 		public static int WinPoints = -1;
 
 		/// <summary>
-		/// The Current amount of points
+		/// The current amount of points
 		/// </summary>
 		public static int CurrentPoints = 0;
 

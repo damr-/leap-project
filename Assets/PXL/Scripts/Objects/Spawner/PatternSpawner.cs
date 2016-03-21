@@ -1,4 +1,5 @@
-﻿using UniRx;
+﻿using PXL.Gamemodes;
+using UniRx;
 using UnityEngine;
 
 namespace PXL.Objects.Spawner {
@@ -60,11 +61,30 @@ namespace PXL.Objects.Spawner {
 		/// </summary>
 		public bool RandomizeColumnCount;
 
+		/// <summary>
+		/// Minimum amount of columns possible when choosing the amount randomly
+		/// </summary>
 		public int MinRandomColumnCount;
+
+		/// <summary>
+		/// Maximum amount of columns possible when choosing the amount randomly
+		/// </summary>
 		public int MaxRandomColumnCount;
 
+		/// <summary>
+		/// Minimum amount of rows possible when choosing the amount randomly
+		/// </summary>
 		public int MinRandomRowCount;
+
+		/// <summary>
+		/// Maximum amount of rows possible when choosing the amount randomly
+		/// </summary>
 		public int MaxRandomRowCount;
+
+		/// <summary>
+		/// How many points are added to <see cref="GameMode.CurrentPoints"/> when all objects have been removed
+		/// </summary>
+		public int PatternFinishPoints = 1;
 
 		/// <summary>
 		/// The Pattern used by this spawner
@@ -94,6 +114,14 @@ namespace PXL.Objects.Spawner {
 
 			if (SpawnedObjects.Count == 0) {
 				SpawnObject();
+			}
+		}
+
+		protected override void HandleObjectDespawned(InteractiveObject interactiveObject) {
+			base.HandleObjectDespawned(interactiveObject);
+
+			if (SpawnedObjects.Count == 0) {
+				GameMode.AddPoints(PatternFinishPoints);
 			}
 		}
 
@@ -152,7 +180,7 @@ namespace PXL.Objects.Spawner {
 		/// Sets all fields unchecked
 		/// </summary>
 		public void ClearPattern() {
-			SetActivePatternChecked(false);
+			SetPatternChecked(false);
 		}
 
 		/// <summary>
@@ -172,8 +200,7 @@ namespace PXL.Objects.Spawner {
 		public void CreateRandomPattern() {
 			for (var row = 0; row < PatternRows; row++) {
 				for (var column = 0; column < PatternColumns; column++) {
-					var i = Random.Range(0, 2);
-					SpawnPattern[column][row] = (i == 0);
+					SpawnPattern[column][row] = Random.Range(0, 2) == 0;
 				}
 			}
 		}
@@ -181,7 +208,7 @@ namespace PXL.Objects.Spawner {
 		/// <summary>
 		/// Sets the given checked status on all visible fields
 		/// </summary>
-		private void SetActivePatternChecked(bool isChecked) {
+		private void SetPatternChecked(bool isChecked) {
 			for (var row = 0; row < PatternRows; row++) {
 				for (var column = 0; column < PatternColumns; column++) {
 					SpawnPattern[column][row] = isChecked;

@@ -11,6 +11,7 @@ namespace PXL.Utility {
 		public enum TagType {
 			Untagged = 0,
 			Object = 1,
+			PreviewContainer = 2,
 		}
 
 		/// <summary>
@@ -21,12 +22,13 @@ namespace PXL.Utility {
 		}
 
 		/// <summary>
-		/// All existing tags as <see cref="Tags.TagType"/> and their name in Unity as <see cref="string"/>
+		/// All existing tags as <see cref="TagType"/> and their name in Unity as <see cref="string"/>
 		/// </summary>
 		private static readonly Dictionary<TagType, string> AvailableTags = new Dictionary<TagType, string>() {
-		{ TagType.Untagged, "Untagged" },
-		{ TagType.Object, "Object" }
-	};
+			{TagType.Untagged, "Untagged"},
+			{TagType.Object, "Object"},
+			{TagType.PreviewContainer, "PreviewContainer"}
+		};
 
 	}
 
