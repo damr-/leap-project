@@ -1,5 +1,4 @@
-﻿using System.Runtime.Remoting.Messaging;
-using PXL.Utility;
+﻿using PXL.Utility;
 using UniRx;
 using UnityEngine;
 
@@ -25,7 +24,10 @@ namespace PXL.Interaction {
 		/// </summary>
 		public Vector3 FreezePosition = Vector3.zero;
 
-		//public Vector3 FreezeRotation = Vector3.zero;
+		/// <summary>
+		/// On which axis the object should not be able to rotate
+		/// </summary>
+		public Vector3 FreezeRotation = Vector3.zero;
 
 		/// <summary>
 		/// The Touchable component of this object
@@ -33,6 +35,7 @@ namespace PXL.Interaction {
 		public Grabbable Grabbable {
 			get { return mGrabbable ?? (mGrabbable = this.TryGetComponent<Grabbable>()); }
 		}
+
 		private Grabbable mGrabbable;
 
 		/// <summary>
@@ -41,6 +44,7 @@ namespace PXL.Interaction {
 		private Touchable Touchable {
 			get { return mTouchable ?? (mTouchable = this.TryGetComponent<Touchable>()); }
 		}
+
 		private Touchable mTouchable;
 
 		/// <summary>
@@ -69,6 +73,11 @@ namespace PXL.Interaction {
 		private Quaternion rotOffset;
 
 		/// <summary>
+		/// The percent of the distance to the grabbed object which will be kept while holding/moving
+		/// </summary>
+		public float OffsetPercent = 1f;
+
+		/// <summary>
 		/// Sets up subscriptions
 		/// </summary>
 		private void Start() {
@@ -79,7 +88,7 @@ namespace PXL.Interaction {
 		/// <summary>
 		/// Updates the state, position and rotation of the object, if grabbed
 		/// </summary>
-		private void Update() {
+		private void FixedUpdate() {
 			if (!Grabbable.IsGrabbed)
 				return;
 
@@ -91,16 +100,13 @@ namespace PXL.Interaction {
 				FreezePosition.y > 0 ? oldPos.y : newPos.y,
 				FreezePosition.z > 0 ? oldPos.z : newPos.z);
 
+			var oldRotation = transform.rotation.eulerAngles;
+			var newRotation = (trackedTarget.rotation * rotOffset).eulerAngles;
 
-			//var oldRotation = transform.rotation.eulerAngles;
-			//var newRotation = trackedTarget.rotation.eulerAngles;
+			for (var i = 0; i < 3; i++)
+				newRotation[i] = FreezeRotation[i] > 0 ? oldRotation[i] : newRotation[i];
 
-			//newRotation = new Vector3(
-			//	FreezeRotation.x > 0 ? oldRotation.x : newRotation.x,
-			//	FreezeRotation.y > 0 ? oldRotation.y : newRotation.y,
-			//	FreezeRotation.z > 0 ? oldRotation.z : newRotation.z);
-
-			transform.rotation = trackedTarget.rotation * rotOffset;
+			transform.rotation = Quaternion.Euler(newRotation);
 
 			CheckMovement();
 		}
@@ -113,7 +119,7 @@ namespace PXL.Interaction {
 			if (grabbed) {
 				trackedTarget = Grabbable.CurrentHand.palm;
 				posOffset = transform.position - Touchable.GetAverageFingerPosition(Grabbable.CurrentHand);
-				rotOffset = Quaternion.Inverse(transform.rotation) * trackedTarget.rotation;
+				rotOffset = Quaternion.Inverse(trackedTarget.rotation) * transform.rotation;
 			}
 			else {
 				trackedTarget = null;
@@ -129,8 +135,8 @@ namespace PXL.Interaction {
 
 			Grabbable.InteractionHand.MoveObject(
 				new MovementInfo(this,
-								transform.position - lastPosition,
-								transform.position));
+					transform.position - lastPosition,
+					transform.position));
 
 			lastPosition = transform.position;
 		}
@@ -139,8 +145,8 @@ namespace PXL.Interaction {
 		/// Returns the position of the object whilst being held
 		/// </summary>
 		/// <param name="offsetPercent">How many percent of the original offset should be kept when holding it</param>
-		private Vector3 CalculateObjectPosition(float offsetPercent = 1f) {
-			return Touchable.GetAverageFingerPosition(Grabbable.CurrentHand) - posOffset.magnitude * trackedTarget.up * offsetPercent;
+		private Vector3 CalculateObjectPosition() {
+			return Touchable.GetAverageFingerPosition(Grabbable.CurrentHand) - posOffset.magnitude * trackedTarget.up * OffsetPercent;
 		}
 
 		/// <summary>

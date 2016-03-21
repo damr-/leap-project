@@ -15,9 +15,6 @@ namespace PXL.Interaction {
 		protected List<InteractionHand> InteractionHands = new List<InteractionHand>();
 
 		protected virtual void Start() {
-			if (HandModels.Count != 2)
-				throw new MissingReferenceException("There aren't exactly two hands assigned!");
-
 			HandModels.ForEach(i => InteractionHands.Add(i.GetComponent<InteractionHand>()));
 
 			foreach (var hand in InteractionHands) {

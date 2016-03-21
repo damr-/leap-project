@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace PXL.Objects.Spawner.Editor {
 
-	[CustomEditor(typeof(PatternVisualizer))]
+	[CustomEditor(typeof(PatternSpawnerVisualizer))]
 	public class PatternVisualizerEditor : UnityEditor.Editor {
 
 		/// <summary>
@@ -14,7 +14,7 @@ namespace PXL.Objects.Spawner.Editor {
 		private bool showPreviewObjects;
 
 		public override void OnInspectorGUI() {
-			var visualizer = (PatternVisualizer) target;
+			var visualizer = (PatternSpawnerVisualizer) target;
 
 			visualizer.PreviewGameObject =
 				(GameObject)
@@ -46,6 +46,13 @@ namespace PXL.Objects.Spawner.Editor {
 				foreach (var o in visualizer.PreviewObjects) {
 					EditorGUILayout.ObjectField(o.gameObject.name, o, typeof (Transform), true);
 				}
+				foreach (var o in visualizer.RandomPreviewObjects) {
+					EditorGUILayout.ObjectField(o.gameObject.name, o, typeof(Transform), true);
+				}
+				foreach (var o in visualizer.PossiblyRandomPreviewObjects) {
+					EditorGUILayout.ObjectField(o.gameObject.name, o, typeof(Transform), true);
+				}
+
 				EditorGUILayout.EndVertical();
 			}
 		}

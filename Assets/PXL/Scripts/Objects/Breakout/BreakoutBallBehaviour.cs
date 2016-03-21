@@ -1,6 +1,4 @@
-﻿using System;
-using PXL.Utility;
-using UniRx;
+﻿using PXL.Utility;
 using UnityEngine;
 
 namespace PXL.Objects.Breakout {

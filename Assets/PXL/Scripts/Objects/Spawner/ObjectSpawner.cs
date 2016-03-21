@@ -251,7 +251,7 @@ namespace PXL.Objects.Spawner {
 		}
 
 		/// <summary>
-		/// Sets up subscriptions on the new object
+		/// Sets up subscriptions on the new object, adds it to the list of spawned objects and sets up component properties
 		/// </summary>
 		private void SetupSpawnedObject(GameObject newObject) {
 			var interactiveObject = newObject.GetComponent<InteractiveObject>();
