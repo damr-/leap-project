@@ -104,24 +104,34 @@ namespace PXL.Objects.Spawner {
 		/// <summary>
 		/// The total count of all objects spawned by this spawner
 		/// </summary>
-		private int totalSpawnCount;
+		public ObservableProperty<int> TotalSpawnCount = new ObservableProperty<int>();
+
+		/// <summary>
+		/// The total count of all objects which have been spawned by this spawner and despawned already
+		/// </summary>
+		public ObservableProperty<int> TotalDespawnCount = new ObservableProperty<int>();
 
 		/// <summary>
 		/// All subscriptions to every spawned object's Destroy-Observable
 		/// </summary>
-		private readonly CompositeDisposable objectDestroySubscriptions = new CompositeDisposable();
+		private readonly IDictionary<GameObject, IDisposable> objectDestroySubscriptions = new Dictionary<GameObject, IDisposable>();
 
 		/// <summary>
 		/// Invoked when the object scale changes
 		/// </summary>
-		public ObservableProperty<float> ObjectScale { get { return objectScale; } }
-		private readonly ObservableProperty<float> objectScale = new ObservableProperty<float>();
+		public ObservableProperty<float> ObjectScale = new ObservableProperty<float>();
 
 		/// <summary>
 		/// Invoked when an object is spawned
 		/// </summary>
 		public IObservable<InteractiveObject> ObjectSpawned { get { return objectSpawnedSubject; } }
 		private readonly ISubject<InteractiveObject> objectSpawnedSubject = new Subject<InteractiveObject>();
+
+		/// <summary>
+		/// Invoked when an object is despawned
+		/// </summary>
+		public IObservable<InteractiveObject> ObjectDespawned { get { return objectDespawnedSubject; } }
+		private readonly ISubject<InteractiveObject> objectDespawnedSubject = new Subject<InteractiveObject>();
 
 		/// <summary>
 		/// Invoked when the spawning of an object is initiated
@@ -187,7 +197,7 @@ namespace PXL.Objects.Spawner {
 			if (ConcurrentSpawnLimit != -1 && SpawnedObjects.Count >= ConcurrentSpawnLimit)
 				return false;
 
-			if (TotalSpawnLimit != -1 && totalSpawnCount >= TotalSpawnLimit)
+			if (TotalSpawnLimit != -1 && TotalSpawnCount >= TotalSpawnLimit)
 				return false;
 
 			return IsSpawningEnabled;
@@ -199,6 +209,9 @@ namespace PXL.Objects.Spawner {
 		/// </summary>
 		protected virtual void HandleObjectDespawned(InteractiveObject interactiveObject) {
 			SpawnedObjects.Remove(interactiveObject);
+
+			objectDespawnedSubject.OnNext(interactiveObject);
+			TotalDespawnCount.Value++;
 
 			if (!RespawnOnDepleted || SpawnedObjects.Count != 0 || !IsSpawningEnabled)
 				return;
@@ -247,7 +260,7 @@ namespace PXL.Objects.Spawner {
 
 			SetupSpawnedObject(newObject);
 
-			totalSpawnCount++;
+			TotalSpawnCount.Value++;
 		}
 
 		/// <summary>
@@ -266,12 +279,15 @@ namespace PXL.Objects.Spawner {
 			var interactiveObject = newObject.GetComponent<InteractiveObject>();
 
 			var health = newObject.GetComponent<Health.Health>();
-			if (health) {
-				health.Death.Subscribe(_ => HandleObjectDespawned(interactiveObject)).AddTo(objectDestroySubscriptions);
-			}
-			else {
-				Debug.LogWarning(newObject.name + " has no Health component!");
-			}
+			health.AssertNotNull("Object is missing a Health component!");
+
+			var subscription = health.Death.Subscribe(_ => {
+				objectDestroySubscriptions[health.gameObject].Dispose();
+                objectDestroySubscriptions.Remove(health.gameObject);
+				HandleObjectDespawned(interactiveObject);
+			});
+
+			objectDestroySubscriptions.Add(new KeyValuePair<GameObject, IDisposable>(newObject, subscription));
 
 			SpawnedObjects.Add(interactiveObject);
 
@@ -325,7 +341,9 @@ namespace PXL.Objects.Spawner {
 		/// Clear the subscriptions when this ObjectManager is disabled
 		/// </summary>
 		private void OnDisable() {
-			objectDestroySubscriptions.Dispose();
+			foreach (var entry in objectDestroySubscriptions) {
+				entry.Value.Dispose();
+			}
 		}
 	}
 

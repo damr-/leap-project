@@ -34,12 +34,10 @@ namespace PXL.Objects.Areas {
 			AreaLight.AssertNotNull("The area light is missing");
 		}
 
-		protected override void UpdateArea() {
-			base.UpdateArea();
-
+		protected override void Update() {
 			SortedObjects = SortedObjects.Purge();
 
-			if (GameMode.GameWon || !AreaActive || SortedObjects.Count != RequiredObjectsAmount)
+			if (GameMode.GameOver || !AreaActive || SortedObjects.Count != RequiredObjectsAmount)
 				return;
 
 			SortObjectsIfNeeded();
@@ -121,7 +119,7 @@ namespace PXL.Objects.Areas {
 		/// Called when the game is won
 		/// </summary>
 		protected virtual void HandleGameWon() {
-			GameMode.SetGameOver(true);
+			GameMode.SetGameWon(true);
 			SortedObjects.Clear();
 			AreaLight.color = SuccessColor;
 		}

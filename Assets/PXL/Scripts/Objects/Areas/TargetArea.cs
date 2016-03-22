@@ -44,11 +44,10 @@ namespace PXL.Objects.Areas {
 		protected virtual void Awake() {
 			TargetTag = Tags.GetTagString(TargetTagType);
 			SetAreaActive(true);
-			Observable.Interval(TimeSpan.FromSeconds(0.1f)).Subscribe(_ => UpdateArea());
 		}
 
-		protected virtual void UpdateArea() {
-			if (GameMode.GameWon || !AreaActive)
+		protected virtual void Update() {
+			if (GameMode.GameOver || !AreaActive)
 				return;
 
 			Objects = Objects.Purge();

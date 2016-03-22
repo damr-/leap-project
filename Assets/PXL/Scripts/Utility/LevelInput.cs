@@ -36,11 +36,7 @@ namespace PXL.Utility {
 			new SceneInfo("dev", KeyCode.F1),
 			new SceneInfo("hanoi", KeyCode.F2)
 		};
-
-		private void Start() {
-			GameMode.SetGameOver(false);
-		}
-
+		
 		private void Update() {
 			SceneInfos.ForEach(CheckSceneInput);
 

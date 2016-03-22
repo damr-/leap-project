@@ -77,7 +77,7 @@ namespace PXL.UI {
 		/// Checks whether the given key is pressed. If yes, sets the value of the dropdown menu
 		/// </summary>
 		private void CheckKey(KeyCode key, int index) {
-			if (Input.GetKeyDown(key))
+			if (!Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(key))
 				Dropdown.value = index;
 		}
 		

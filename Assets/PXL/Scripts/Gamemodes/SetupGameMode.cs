@@ -6,6 +6,7 @@ namespace PXL.Gamemodes {
 		public int NecessaryPoints = -1;
 
 		private void Start() {
+			GameMode.GameOver.Value = false;
 			GameMode.SetWinPoints(NecessaryPoints);
 		}
 

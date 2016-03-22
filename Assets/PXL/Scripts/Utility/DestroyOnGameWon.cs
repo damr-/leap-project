@@ -17,16 +17,13 @@ public class DestroyOnGameWon : MonoBehaviour {
 	private IDisposable gameWinSubscription = Disposable.Empty;
 
 	private void Start() {
-		gameWinSubscription = GameMode.GameWon.Subscribe(HandleGameWon);
+		gameWinSubscription = GameMode.GameWon.Subscribe(_ => HandleGameWon());
 	}
 
 	/// <summary>
 	/// Called when the GameWon state changes
 	/// </summary>
-	private void HandleGameWon(bool won) {
-		if(!won)
-			return;
-
+	private void HandleGameWon() {
 		if(Despawn)
 			SimplePool.Despawn(gameObject);
 		else

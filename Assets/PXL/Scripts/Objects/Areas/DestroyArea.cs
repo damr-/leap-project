@@ -73,7 +73,7 @@ namespace PXL.Objects.Areas {
 		/// </summary>
 		protected virtual void HandleGameWon() {
 			if (WorthWinPoints == -1) {
-				GameMode.SetGameOver(true);
+				GameMode.SetGameWon(true);
 			}
 			else {
 				GameMode.AddPoints(WorthWinPoints);
