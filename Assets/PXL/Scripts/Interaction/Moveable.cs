@@ -78,6 +78,26 @@ namespace PXL.Interaction {
 		public float OffsetPercent = 1f;
 
 		/// <summary>
+		/// The default state of position when frozen
+		/// </summary>
+		public Vector3 OverwritePositionValues = Vector3.zero;
+
+		/// <summary>
+		/// The default state of rotation when frozen
+		/// </summary>
+		public Vector3 OverwriteRotationValues = Vector3.zero;
+
+		/// <summary>
+		/// Information about which position axis has an overwritten value
+		/// </summary>
+		public bool[] OverwritePosition = new bool[3];
+
+		/// <summary>
+		/// Information about which rotation axis has an overwritten value
+		/// </summary>
+		public bool[] OverwriteRotation = new bool[3];
+
+		/// <summary>
 		/// Sets up subscriptions
 		/// </summary>
 		private void Start() {
@@ -86,35 +106,51 @@ namespace PXL.Interaction {
 		}
 
 		/// <summary>
-		/// Updates the state, position and rotation of the object, if grabbed
+		/// Updates the state, position and rotation of the object (if grabbed).
+		/// Checks for the movement threshold.
 		/// </summary>
 		private void FixedUpdate() {
 			if (!Grabbable.IsGrabbed)
 				return;
 
-			var oldPos = transform.position;
-			var newPos = CalculateObjectPosition();
+			UpdatePosition();
+			UpdateRotation();
+			CheckMovement();
+		}
 
-			transform.position = new Vector3(
-				FreezePosition.x > 0 ? oldPos.x : newPos.x,
-				FreezePosition.y > 0 ? oldPos.y : newPos.y,
-				FreezePosition.z > 0 ? oldPos.z : newPos.z);
+		/// <summary>
+		/// Calculates and sets the position of this object according to the tracked object, the frozen axes and the overwritten frozen values
+		/// </summary>
+		private void UpdatePosition() {
+			var oldPosition = transform.position;
+			var newPosition = CalculateObjectPosition();
 
+			for (var i = 0; i < 3; i++) {
+				var defaultPositionValue = OverwritePosition[i] ? OverwritePositionValues[i] : oldPosition[i];
+				newPosition[i] = FreezePosition[i] > 0 ? defaultPositionValue : newPosition[i];
+			}
+
+			transform.position = newPosition;
+		}
+
+		/// <summary>
+		/// Calculates and sets the rotation of this object according to the tracked object, the frozen axes and the overwritten frozen values
+		/// </summary>
+		private void UpdateRotation() {
 			var oldRotation = transform.rotation.eulerAngles;
 			var newRotation = (trackedTarget.rotation * rotOffset).eulerAngles;
 
-			for (var i = 0; i < 3; i++)
-				newRotation[i] = FreezeRotation[i] > 0 ? oldRotation[i] : newRotation[i];
+			for (var i = 0; i < 3; i++) {
+				var defaultRotationValue = OverwriteRotation[i] ? OverwriteRotationValues[i] : oldRotation[i];
+				newRotation[i] = FreezeRotation[i] > 0 ? defaultRotationValue : newRotation[i];
+			}
 
 			transform.rotation = Quaternion.Euler(newRotation);
-
-			CheckMovement();
 		}
 
 		/// <summary>
 		/// Called when the grabbed state of the object changes
 		/// </summary>
-		/// <param name="grabbed"></param>
 		private void HandleGrabStateChange(bool grabbed) {
 			if (grabbed) {
 				trackedTarget = Grabbable.CurrentHand.palm;
@@ -144,7 +180,6 @@ namespace PXL.Interaction {
 		/// <summary>
 		/// Returns the position of the object whilst being held
 		/// </summary>
-		/// <param name="offsetPercent">How many percent of the original offset should be kept when holding it</param>
 		private Vector3 CalculateObjectPosition() {
 			return Touchable.GetAverageFingerPosition(Grabbable.CurrentHand) - posOffset.magnitude * trackedTarget.up * OffsetPercent;
 		}

@@ -44,7 +44,7 @@ namespace PXL.Objects.Spawner.Editor {
 			EditorGUI.BeginDisabledGroup(true);
 			EditorGUILayout.ObjectField("", visualizer.PreviewContainer, typeof(Transform), false, GUILayout.MaxWidth(150));
 			EditorGUI.EndDisabledGroup();
-			if (GUILayout.Button(new GUIContent("Recreate", "Recreate the container for the preview objects"))) {
+			if (GUILayout.Button(new GUIContent("Recreate", "Recreate the container for the preview objects if it's missing or broken"))) {
 				visualizer.TryCreatePreviewContainer();
 			}
 			EditorGUILayout.EndHorizontal();

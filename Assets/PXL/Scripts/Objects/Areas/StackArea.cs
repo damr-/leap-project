@@ -34,8 +34,8 @@ namespace PXL.Objects.Areas {
 			AreaLight.AssertNotNull("The area light is missing");
 		}
 
-		protected override void Update() {
-			base.Update();
+		protected override void UpdateArea() {
+			base.UpdateArea();
 
 			SortedObjects = SortedObjects.Purge();
 

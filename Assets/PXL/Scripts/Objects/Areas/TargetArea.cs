@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using PXL.Gamemodes;
 using PXL.Utility;
+using UniRx;
 using UnityEngine;
 
 namespace PXL.Objects.Areas {
@@ -38,13 +40,14 @@ namespace PXL.Objects.Areas {
 		/// Whether this area is active
 		/// </summary>
 		protected bool AreaActive = true;
-
+		
 		protected virtual void Awake() {
 			TargetTag = Tags.GetTagString(TargetTagType);
 			SetAreaActive(true);
+			Observable.Interval(TimeSpan.FromSeconds(0.1f)).Subscribe(_ => UpdateArea());
 		}
 
-		protected virtual void Update() {
+		protected virtual void UpdateArea() {
 			if (GameMode.GameWon || !AreaActive)
 				return;
 

@@ -10,8 +10,8 @@ namespace PXL.Objects.Areas {
 
 		protected List<InteractiveObject> ValidObjects = new List<InteractiveObject>();
 
-		protected override void Update() {
-			base.Update();
+		protected override void UpdateArea() {
+			base.UpdateArea();
 
 			if (GameMode.GameWon || !AreaActive)
 				return;

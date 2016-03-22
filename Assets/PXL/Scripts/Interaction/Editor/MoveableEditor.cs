@@ -17,11 +17,26 @@ namespace PXL.Interaction.Editor {
 			moveable.OffsetPercent =
 				Mathf.Clamp(
 					EditorGUILayout.FloatField(
-						new GUIContent("Offset Percent", "How many percent of the initial distance to the grabbed object which will be used while holding/moving it"),
+						new GUIContent("Offset Percent",
+							"How many percent of the initial distance to the grabbed object which will be used while holding/moving it"),
 						moveable.OffsetPercent), 0f, 1f);
 
-			moveable.FreezePosition = UpdateFreezeOptions("Freeze Position", moveable.FreezePosition);
-			moveable.FreezeRotation = UpdateFreezeOptions("Freeze Rotation", moveable.FreezeRotation);
+			EditorGUILayout.LabelField(
+				new GUIContent("Freeze Movement",
+					"Define on which axes this object should not be able to move or rotate."),
+				new GUIStyle(EditorStyles.boldLabel));
+
+			UpdateFreezeOptions("Freeze Position", ref moveable.FreezePosition);
+			UpdateFreezeOptions("Freeze Rotation", ref moveable.FreezeRotation);
+
+			EditorGUILayout.LabelField(
+				new GUIContent("Overwrite State Values",
+					"Set values which will be used for the freeze state instead of the last known values."),
+				new GUIStyle(EditorStyles.boldLabel));
+
+			UpdateOverwriteValues("Position", moveable.FreezePosition, ref moveable.OverwritePosition, ref moveable.OverwritePositionValues);
+			UpdateOverwriteValues("Rotation", moveable.FreezeRotation, ref moveable.OverwriteRotation, ref moveable.OverwriteRotationValues);
+
 		}
 
 		/// <summary>
@@ -29,7 +44,8 @@ namespace PXL.Interaction.Editor {
 		/// </summary>
 		/// <param name="title">The text of the label</param>
 		/// <param name="freezeVector">The vector which describes the freeze state of the object internally</param>
-		private Vector3 UpdateFreezeOptions(string title, Vector3 freezeVector) {
+		/// <param name="defaultFreezeState">The Vector containing the default state for rotation/position of the frozen object</param>
+		private void UpdateFreezeOptions(string title, ref Vector3 freezeVector) {
 			var freezeState = new bool[3];
 
 			EditorGUILayout.BeginHorizontal();
@@ -43,9 +59,41 @@ namespace PXL.Interaction.Editor {
 
 			EditorGUILayout.EndHorizontal();
 
-			return new Vector3(freezeState[0] ? 1 : 0,
-								freezeState[1] ? 1 : 0,
-								freezeState[2] ? 1 : 0);
+			for (var i = 0; i < 3; i++)
+				freezeVector[i] = freezeState[i] ? 1 : 0;
+		}
+
+		/// <summary>
+		/// Adds toggles to overwrite the default values for the frozen state
+		/// </summary>
+		/// <param name="title">The content of the overwrite title label</param>
+		/// <param name="freezeVector">The Vector describing which axes are frozen</param>
+		/// <param name="overwriteBool">The bool array containing information about which axis will be overwritten</param>
+		/// <param name="overwriteVector">The Vector containing the values for overwriting</param>
+		private void UpdateOverwriteValues(string title, Vector3 freezeVector, ref bool[] overwriteBool, ref Vector3 overwriteVector) {
+			EditorGUILayout.BeginHorizontal();
+
+			EditorGUILayout.LabelField(title, GUILayout.MaxWidth(100));
+
+			for (var i = 0; i < 3; i++) {
+				EditorGUI.BeginDisabledGroup(freezeVector[i] <= 0);
+
+				if (freezeVector[i] <= 0)
+					overwriteBool[i] = false;
+
+				overwriteBool[i] = EditorGUILayout.Toggle("", overwriteBool[i], GUILayout.MaxWidth(10));
+
+				EditorGUILayout.LabelField(axes[i], GUILayout.MaxWidth(15));
+
+				EditorGUI.BeginDisabledGroup(!overwriteBool[i]);
+				overwriteVector[i] = EditorGUILayout.FloatField(overwriteVector[i], GUILayout.MaxWidth(50));
+				EditorGUI.EndDisabledGroup();
+				GUILayout.FlexibleSpace();
+
+				EditorGUI.EndDisabledGroup();
+			}
+
+			EditorGUILayout.EndHorizontal();
 		}
 
 	}
