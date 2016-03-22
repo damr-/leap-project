@@ -22,17 +22,32 @@ namespace PXL.Objects.Editor {
 
 			Header("Force");
 			c.ApplyForce = EditorGUILayout.BeginToggleGroup("Apply Force", c.ApplyForce);
-			c.ForceMode = (ForceMode)EditorGUILayout.EnumPopup(new GUIContent("Force Mode", "The ForceMode which will be used"), c.ForceMode);
+			c.ForceMode =
+				(ForceMode)EditorGUILayout.EnumPopup(new GUIContent("Force Mode", "The ForceMode which will be used"), c.ForceMode);
 			c.Random = EditorGUILayout.ToggleLeft("Randomise Force", c.Random);
 			if (c.Random) {
-				c.MinForce = EditorGUILayout.Vector3Field(new GUIContent("Min Force", "The minimum possible force applied"), c.MinForce);
-				c.MaxForce = EditorGUILayout.Vector3Field(new GUIContent("Max Force", "The maximum possible force applied"), c.MaxForce);
+				c.MinForce = EditorGUILayout.Vector3Field(new GUIContent("Min Force", "The minimum possible force applied"),
+					c.MinForce);
+				c.MaxForce = EditorGUILayout.Vector3Field(new GUIContent("Max Force", "The maximum possible force applied"),
+					c.MaxForce);
 			}
 			else {
 				c.Force = EditorGUILayout.Vector3Field(new GUIContent("Force", "The force to apply to spawned objects"), c.Force);
 			}
 			EditorGUILayout.EndToggleGroup();
-			
+
+			Header("Mass");
+			c.SetMass = EditorGUILayout.BeginToggleGroup("Set Mass", c.SetMass);
+			EditorGUI.BeginDisabledGroup(c.SetScaleMass);
+			c.Mass = Mathf.Clamp(
+				EditorGUILayout.FloatField(new GUIContent("Mass", "The mass each object will have set"), c.Mass), 0.01f, 100f);
+			EditorGUI.EndDisabledGroup();
+			c.SetScaleMass =
+				EditorGUILayout.Toggle(new GUIContent("Set Scale Mass", "Set the mass according to the object's scale"),
+					c.SetScaleMass);
+
+			EditorGUILayout.EndToggleGroup();
+
 			Header("Material");
 			c.SetMaterial = EditorGUILayout.BeginToggleGroup("Set Material", c.SetMaterial);
 			c.Material = (Material)EditorGUILayout.ObjectField(
@@ -56,11 +71,15 @@ namespace PXL.Objects.Editor {
 			Header("Health");
 			c.SetHealth = EditorGUILayout.BeginToggleGroup("Set Health Properties", c.SetHealth);
 
-			c.InitialHealth = Mathf.Clamp(EditorGUILayout.FloatField(new GUIContent("Initial Health", "The initial health of this object"), c.InitialHealth),
-											1f, float.MaxValue);
+			c.InitialHealth =
+				Mathf.Clamp(
+					EditorGUILayout.FloatField(new GUIContent("Initial Health", "The initial health of this object"), c.InitialHealth),
+					1f, float.MaxValue);
 
-			c.MaxHealth = Mathf.Clamp(EditorGUILayout.FloatField(new GUIContent("Max Health", "The maximumg health this object can have"), c.MaxHealth),
-											c.InitialHealth, float.MaxValue);
+			c.MaxHealth =
+				Mathf.Clamp(
+					EditorGUILayout.FloatField(new GUIContent("Max Health", "The maximumg health this object can have"), c.MaxHealth),
+					c.InitialHealth, float.MaxValue);
 
 			EditorGUILayout.EndToggleGroup();
 			EditorGUILayout.Space();
@@ -68,23 +87,24 @@ namespace PXL.Objects.Editor {
 
 			Header("Components");
 			c.IsAddingComponents = EditorGUILayout.BeginToggleGroup("Add Components", c.IsAddingComponents);
-			
+
 			showComponentList = EditorGUILayout.Foldout(showComponentList, "Components");
 			if (showComponentList) {
 				EditorGUILayout.BeginVertical();
 				for (var i = 0; i < c.Components.Count; i++) {
 					EditorGUILayout.BeginHorizontal();
 					c.Components[i] = EditorGUILayout.TextField("", c.Components[i], GUILayout.MaxWidth(150));
-					if (GUILayout.Button(new GUIContent("X", "Removes this item from the list"), GUILayout.MaxWidth(20), GUILayout.MaxHeight(20))) {
+					if (GUILayout.Button(new GUIContent("X", "Removes this item from the list"), GUILayout.MaxWidth(20),
+						GUILayout.MaxHeight(20))) {
 						c.Components.RemoveAt(i);
 					}
 					EditorGUILayout.EndHorizontal();
 				}
 
 				if (c.Components.Count > 5 &&
-				    GUILayout.Button(new GUIContent("Clear", "Removes all items from the list"), GUILayout.MaxWidth(75),
-					    GUILayout.MaxHeight(20))) {
-						c.Components.Clear();
+					GUILayout.Button(new GUIContent("Clear", "Removes all items from the list"), GUILayout.MaxWidth(75),
+						GUILayout.MaxHeight(20))) {
+					c.Components.Clear();
 				}
 
 				EditorGUILayout.EndVertical();

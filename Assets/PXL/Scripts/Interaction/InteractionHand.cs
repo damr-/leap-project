@@ -5,8 +5,8 @@ namespace PXL.Interaction {
 
 	public enum HandSide {
 		None = 0,
-		Right = 1,
-		Left = 2,
+		Left = 1,
+		Right = 2,
 		Both = 3
 	}
 

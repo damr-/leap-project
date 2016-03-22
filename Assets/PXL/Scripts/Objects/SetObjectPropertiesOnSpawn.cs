@@ -21,7 +21,7 @@ namespace PXL.Objects {
 		/// Whether to apply a force
 		/// </summary>
 		public bool ApplyForce;
-
+		
 		/// <summary>
 		/// If the force is always the same or should be chosen randomly between <see cref="MinForce"/> and <see cref="MaxForce"/>
 		/// </summary>
@@ -41,6 +41,21 @@ namespace PXL.Objects {
 		/// The ForceMode to apply to the spawned object
 		/// </summary>
 		public ForceMode ForceMode = ForceMode.Force;
+		
+		/// <summary>
+		/// Whether the mass should be set
+		/// </summary>
+		public bool SetMass;
+
+		/// <summary>
+		/// The set mass
+		/// </summary>
+		public float Mass;
+
+		/// <summary>
+		/// Whether the mass should be the same as the object's scale
+		/// </summary>
+		public bool SetScaleMass;
 
 		/// <summary>
 		/// Whether to change the <see cref="PhysicMaterial"/>
@@ -110,8 +125,12 @@ namespace PXL.Objects {
 		private void HandleObjectSpawned(InteractiveObject interactiveObject) {
 			var rigidbodyComponent = interactiveObject.GetComponent<Rigidbody>();
 
-			if (rigidbodyComponent != null && ApplyForce)
-				AddObjectForce(rigidbodyComponent);
+			if (rigidbodyComponent != null) {
+				if(ApplyForce)
+					AddObjectForce(rigidbodyComponent);
+				if(SetMass)
+					rigidbodyComponent.mass = SetScaleMass ? interactiveObject.Scale : Mass;
+			}
 
 			var collider = interactiveObject.GetComponents<Collider>().First(c => !c.isTrigger);
 

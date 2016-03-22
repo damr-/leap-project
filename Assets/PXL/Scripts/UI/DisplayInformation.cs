@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using PXL.Gamemodes;
+﻿using System.Collections.Generic;
 using PXL.Interaction;
 using PXL.Utility;
-using UniRx;
-using UnityEngine;
 using UnityEngine.UI;
 
 namespace PXL.UI {
