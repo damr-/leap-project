@@ -20,7 +20,7 @@ namespace PXL.UI {
 		/// <summary>
 		/// The Text component where the scale is shown
 		/// </summary>
-		public Text text;
+		public Text Text;
 
 		/// <summary>
 		/// The KeyCode for the key to increase the scale
@@ -38,7 +38,7 @@ namespace PXL.UI {
 
 			DecreaseButton.AssertNotNull();
 			IncreaseButton.AssertNotNull();
-			text.AssertNotNull();
+			Text.AssertNotNull();
 		}
 
 		protected virtual void Update() {
@@ -55,7 +55,7 @@ namespace PXL.UI {
 		/// </summary>
 		/// <param name="objectScale">The currently selected scale for objects</param>
 		private void SetText(float objectScale) {
-			text.text = objectScale.ToString("0.0");
+			Text.text = objectScale.ToString("0.0");
 		}
 	}
 

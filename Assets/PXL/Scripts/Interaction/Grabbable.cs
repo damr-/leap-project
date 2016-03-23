@@ -13,7 +13,7 @@ namespace PXL.Interaction {
 		/// <summary>
 		/// The minimum grab strength necessary to pick up an object
 		/// </summary>
-		private const float MinGrabStrength = 0.25f;
+		public static float MinGrabStrength = 0.25f;
 
 		/// <summary>
 		/// How long to wait after changing hands before being able to change again

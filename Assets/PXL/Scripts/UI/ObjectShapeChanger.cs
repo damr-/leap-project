@@ -111,7 +111,7 @@ namespace PXL.UI {
 		/// <summary>
 		/// Returns a random shape
 		/// </summary>
-		public GameObject GetRandomShape() {		
+		public GameObject GetRandomShape() {
 			return AvailableObjects.GetRandomElement(1).Obj;
 		}
 	}
