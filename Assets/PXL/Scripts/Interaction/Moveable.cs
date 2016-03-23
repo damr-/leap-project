@@ -5,8 +5,9 @@ using UnityEngine;
 namespace PXL.Interaction {
 
 	public class MovementInfo {
-		public Moveable Moveable;
+
 		public Vector3 Delta;
+		public Moveable Moveable;
 		public Vector3 NewPosition;
 
 		public MovementInfo(Moveable moveable, Vector3 delta, Vector3 newPosition) {
@@ -14,10 +15,16 @@ namespace PXL.Interaction {
 			Delta = delta;
 			NewPosition = newPosition;
 		}
+
 	}
 
 	[RequireComponent(typeof(Grabbable))]
 	public class Moveable : MonoBehaviour {
+
+		/// <summary>
+		/// How far an object has to move to invoke an event
+		/// </summary>
+		private const float MoveThresHold = 0.05f;
 
 		/// <summary>
 		/// On which axis the object should not be able to move
@@ -30,37 +37,34 @@ namespace PXL.Interaction {
 		public Vector3 FreezeRotation = Vector3.zero;
 
 		/// <summary>
-		/// The Touchable component of this object
-		/// </summary>
-		public Grabbable Grabbable {
-			get { return mGrabbable ?? (mGrabbable = this.TryGetComponent<Grabbable>()); }
-		}
-
-		private Grabbable mGrabbable;
-
-		/// <summary>
-		/// The Touchable component of this object
-		/// </summary>
-		private Touchable Touchable {
-			get { return mTouchable ?? (mTouchable = this.TryGetComponent<Touchable>()); }
-		}
-
-		private Touchable mTouchable;
-
-		/// <summary>
-		/// The Transform this object tracks when grabbed
-		/// </summary>
-		private Transform trackedTarget;
-
-		/// <summary>
 		/// Position of the object in the last frame
 		/// </summary>
 		private Vector3 lastPosition;
 
 		/// <summary>
-		/// How far an object has to move to invoke an event
+		/// The percent of the distance to the grabbed object which will be kept while holding/moving
 		/// </summary>
-		private const float MoveThresHold = 0.05f;
+		public float OffsetPercent = 1f;
+
+		/// <summary>
+		/// Information about which position axis has an overwritten value
+		/// </summary>
+		public bool[] OverwritePosition = new bool[3];
+
+		/// <summary>
+		/// The default state of position when frozen
+		/// </summary>
+		public Vector3 OverwritePositionValues = Vector3.zero;
+
+		/// <summary>
+		/// Information about which rotation axis has an overwritten value
+		/// </summary>
+		public bool[] OverwriteRotation = new bool[3];
+
+		/// <summary>
+		/// The default state of rotation when frozen
+		/// </summary>
+		public Vector3 OverwriteRotationValues = Vector3.zero;
 
 		/// <summary>
 		/// The offset of the object's position when being picked up
@@ -73,29 +77,33 @@ namespace PXL.Interaction {
 		private Quaternion rotOffset;
 
 		/// <summary>
-		/// The percent of the distance to the grabbed object which will be kept while holding/moving
+		/// The Transform this object tracks when grabbed
 		/// </summary>
-		public float OffsetPercent = 1f;
+		private Transform trackedTarget;
 
 		/// <summary>
-		/// The default state of position when frozen
+		/// The Touchable component of this object
 		/// </summary>
-		public Vector3 OverwritePositionValues = Vector3.zero;
+		public Grabbable Grabbable {
+			get { return mGrabbable ?? (mGrabbable = this.TryGetComponent<Grabbable>()); }
+		}
 
 		/// <summary>
-		/// The default state of rotation when frozen
+		/// The Grabbable component of this object
 		/// </summary>
-		public Vector3 OverwriteRotationValues = Vector3.zero;
+		private Grabbable mGrabbable;
 
 		/// <summary>
-		/// Information about which position axis has an overwritten value
+		/// The Touchable component of this object
 		/// </summary>
-		public bool[] OverwritePosition = new bool[3];
+		private Touchable Touchable {
+			get { return mTouchable ?? (mTouchable = this.TryGetComponent<Touchable>()); }
+		}
 
 		/// <summary>
-		/// Information about which rotation axis has an overwritten value
+		/// The touchable component of this object
 		/// </summary>
-		public bool[] OverwriteRotation = new bool[3];
+		private Touchable mTouchable;
 
 		/// <summary>
 		/// Sets up subscriptions
@@ -119,7 +127,8 @@ namespace PXL.Interaction {
 		}
 
 		/// <summary>
-		/// Calculates and sets the position of this object according to the tracked object, the frozen axes and the overwritten frozen values
+		/// Calculates and sets the position of this object according to the tracked object, the frozen axes and the overwritten
+		/// frozen values
 		/// </summary>
 		private void UpdatePosition() {
 			var oldPosition = transform.position;
@@ -134,7 +143,8 @@ namespace PXL.Interaction {
 		}
 
 		/// <summary>
-		/// Calculates and sets the rotation of this object according to the tracked object, the frozen axes and the overwritten frozen values
+		/// Calculates and sets the rotation of this object according to the tracked object, the frozen axes and the overwritten
+		/// frozen values
 		/// </summary>
 		private void UpdateRotation() {
 			var oldRotation = transform.rotation.eulerAngles;
@@ -181,7 +191,8 @@ namespace PXL.Interaction {
 		/// Returns the position of the object whilst being held
 		/// </summary>
 		private Vector3 CalculateObjectPosition() {
-			return Touchable.GetAverageFingerPosition(Grabbable.CurrentHand) - posOffset.magnitude * trackedTarget.up * OffsetPercent;
+			return Touchable.GetAverageFingerPosition(Grabbable.CurrentHand) -
+			       posOffset.magnitude * trackedTarget.up * OffsetPercent;
 		}
 
 		/// <summary>

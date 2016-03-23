@@ -27,14 +27,14 @@ namespace PXL.Objects.Spawner.Editor {
 		}
 
 		public override void OnInspectorGUI() {
-			var spawner = (ObjectSpawner) target;
+			var spawner = (ObjectSpawner)target;
 
 			Header("General Spawner Options");
-			spawner.SpawnKey = (KeyCode) EditorGUILayout.EnumPopup("Spawn object", spawner.SpawnKey);
-			spawner.RemoveAllKey = (KeyCode) EditorGUILayout.EnumPopup("Remove all objects", spawner.RemoveAllKey);
+			spawner.SpawnKey = (KeyCode)EditorGUILayout.EnumPopup("Spawn object", spawner.SpawnKey);
+			spawner.RemoveAllKey = (KeyCode)EditorGUILayout.EnumPopup("Remove all objects", spawner.RemoveAllKey);
 
 			spawner.DefaultObjectPrefab =
-				(GameObject) EditorGUILayout.ObjectField("Object Prefab", spawner.DefaultObjectPrefab, typeof (GameObject), false);
+				(GameObject)EditorGUILayout.ObjectField("Object Prefab", spawner.DefaultObjectPrefab, typeof(GameObject), false);
 			if (spawner.DefaultObjectPrefab == null) {
 				EditorGUILayout.HelpBox("Missing prefab!", MessageType.Warning);
 			}
@@ -109,13 +109,17 @@ namespace PXL.Objects.Spawner.Editor {
 						new GUIContent("Default Scale Factor", "The default scale factor this spawner applies"),
 						spawner.DefaultScaleFactor), spawner.MinScaleFactor, spawner.MaxScaleFactor);
 
+			spawner.SetObjectRotation = EditorGUILayout.BeginToggleGroup("Set Object Rotation", spawner.SetObjectRotation);
+			spawner.ObjectRotation = EditorGUILayout.Vector3Field("Rotation", spawner.ObjectRotation, GUILayout.MinWidth(150));
+			EditorGUILayout.EndToggleGroup();
+
 			GUILayout.BeginHorizontal();
 			if (GUILayout.Button(new GUIContent("Spawn", "Spawn an object")) && EditorApplication.isPlayingOrWillChangePlaymode &&
-			    EditorApplication.isPlaying) {
+				EditorApplication.isPlaying) {
 				spawner.SpawnObject();
 			}
 			if (GUILayout.Button(new GUIContent("Clear", "Remove all current objects")) &&
-			    EditorApplication.isPlayingOrWillChangePlaymode && EditorApplication.isPlaying) {
+				EditorApplication.isPlayingOrWillChangePlaymode && EditorApplication.isPlaying) {
 				spawner.RemoveAllObjects();
 			}
 			GUILayout.EndHorizontal();

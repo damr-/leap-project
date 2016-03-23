@@ -16,13 +16,9 @@ namespace PXL.UI {
 		public bool AutoStart;
 
 		/// <summary>
-		/// The Text components of the time label
+		/// Subscription for when the game is won
 		/// </summary>
-		private Text TimeText {
-			get { return mTimeText ?? (mTimeText = this.TryGetComponent<Text>()); }
-		}
-
-		private Text mTimeText;
+		private IDisposable gameWinSubscription = Disposable.Empty;
 
 		/// <summary>
 		/// The time the first object got picked up
@@ -34,7 +30,17 @@ namespace PXL.UI {
 		/// </summary>
 		private TimeSpan timeSpan;
 
-		private IDisposable gameWinSubscription = Disposable.Empty;
+		/// <summary>
+		/// The Text components of the time label
+		/// </summary>
+		private Text TimeText {
+			get { return mTimeText ?? (mTimeText = this.TryGetComponent<Text>()); }
+		}
+
+		/// <summary>
+		/// The private Text component for the <see cref="TimeText"/> property
+		/// </summary>
+		private Text mTimeText;
 
 		private void OnDisable() {
 			gameWinSubscription.Dispose();
@@ -50,8 +56,8 @@ namespace PXL.UI {
 			if (startTime < 0f)
 				return;
 
-			timeSpan = TimeSpan.FromSeconds((Time.time - startTime));
-			TimeText.text = string.Format("{0:D0}m:{1:D1}s:{2:D2}ms",
+			timeSpan = TimeSpan.FromSeconds(Time.time - startTime);
+			TimeText.text = string.Format("{0:D0}:{1:D1}:{2:D2}",
 				timeSpan.Minutes,
 				timeSpan.Seconds,
 				timeSpan.Milliseconds);
@@ -71,7 +77,6 @@ namespace PXL.UI {
 		public void StopTimer() {
 			startTime = -1;
 		}
-
 
 		/// <summary>
 		/// Called when the game is over

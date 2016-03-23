@@ -1,40 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using UnityEngine;
+using Leap;
 using PXL.Utility;
 using UniRx;
+using UnityEngine;
 
 namespace PXL.Interaction {
 
 	[RequireComponent(typeof(Touchable))]
 	public class Grabbable : MonoBehaviour {
-
-		/// <summary>
-		/// Whether this object is currently grabbed or not
-		/// </summary>
-		public ObservableProperty<bool> IsGrabbed { get { return isGrabbed; } }
-		private readonly ObservableProperty<bool> isGrabbed = new ObservableProperty<bool>();
-
-		/// <summary>
-		/// The HandModel currently grabbing the object, or at least trying to
-		/// </summary>
-		public HandModel CurrentHand { get; private set; }
-		
-		/// <summary>
-		/// The hand interacting with this object
-		/// </summary>
-		public InteractionHand InteractionHand { get {
-			return mInteractionHand ?? (mInteractionHand = interactionHands.GetOrAdd(CurrentHand));
-		} }
-		private InteractionHand mInteractionHand;
-
-		/// <summary>
-		/// The Touchable component of this object
-		/// </summary>
-		private Touchable Touchable {
-			get { return mTouchable ?? (mTouchable = this.TryGetComponent<Touchable>()); }
-		}
-		private Touchable mTouchable;
 
 		/// <summary>
 		/// The minimum grab strength necessary to pick up an object
@@ -47,17 +21,51 @@ namespace PXL.Interaction {
 		private const float ChangeHandDelay = 0.5f;
 
 		/// <summary>
+		/// Every HandModel and its corresponding InteractionHand
+		/// </summary>
+		private readonly IDictionary<HandModel, InteractionHand> interactionHands =
+			new Dictionary<HandModel, InteractionHand>();
+
+		private readonly ObservableProperty<bool> isGrabbed = new ObservableProperty<bool>();
+
+		/// <summary>
 		/// Whether the object can change hands at this moment.
 		/// </summary>
 		private bool canChangeHands = true;
 
 		/// <summary>
-		/// Every HandModel and its corresponding InteractionHand
+		/// Whether this object is currently grabbed or not
 		/// </summary>
-		private readonly IDictionary<HandModel, InteractionHand> interactionHands = new Dictionary<HandModel, InteractionHand>();
+		public ObservableProperty<bool> IsGrabbed {
+			get { return isGrabbed; }
+		}
 
 		/// <summary>
-		/// Returns whether this <see cref="Grabbable"/> is currently stationary and not grabbed
+		/// The HandModel currently grabbing the object, or at least trying to
+		/// </summary>
+		public HandModel CurrentHand { get; private set; }
+
+		/// <summary>
+		/// The hand interacting with this object
+		/// </summary>
+		public InteractionHand InteractionHand {
+			get { return interactionHands.GetOrAdd(CurrentHand); }
+		}
+
+		/// <summary>
+		/// The Touchable component of this object
+		/// </summary>
+		private Touchable Touchable {
+			get { return mTouchable ?? (mTouchable = this.TryGetComponent<Touchable>()); }
+		}
+
+		/// <summary>
+		/// The Touchable component of this object
+		/// </summary>
+		private Touchable mTouchable;
+
+		/// <summary>
+		/// Returns whether this <see cref="Grabbable" /> is currently stationary and not grabbed
 		/// </summary>
 		public bool IsStationary {
 			get { return !IsGrabbed && Touchable.Rigidbody.velocity.Equal(Vector3.zero); }
@@ -75,7 +83,8 @@ namespace PXL.Interaction {
 		/// Updates the state of the object
 		/// </summary>
 		private void Update() {
-			if (!isGrabbed && GrabbingHandsManager.CanHandGrab(CurrentHand) && CanHoldObject() && Touchable.CanGrabObject(CurrentHand)) {
+			if (!isGrabbed && GrabbingHandsManager.CanHandGrab(CurrentHand) && CanHoldObject() &&
+			    Touchable.CanGrabObject(CurrentHand)) {
 				Grab();
 			}
 
@@ -105,9 +114,7 @@ namespace PXL.Interaction {
 				CurrentHand = hand;
 				Grab();
 				canChangeHands = false;
-				Observable.Timer(TimeSpan.FromSeconds(ChangeHandDelay)).Subscribe(_ => {
-					canChangeHands = true;
-				});
+				Observable.Timer(TimeSpan.FromSeconds(ChangeHandDelay)).Subscribe(_ => { canChangeHands = true; });
 			}
 
 			Touchable.UpdateThumbTouches(CurrentHand);
@@ -128,7 +135,7 @@ namespace PXL.Interaction {
 		}
 
 		/// <summary>
-		/// Returns whether <see cref="CurrentHand"/> is valid and the grab strength is high enough
+		/// Returns whether <see cref="CurrentHand" /> is valid and the grab strength is high enough
 		/// </summary>
 		private bool CanHoldObject() {
 			return CurrentHand.IsHandValid() && CurrentHand.GetLeapHand().GrabStrength >= MinGrabStrength;
@@ -150,7 +157,7 @@ namespace PXL.Interaction {
 		}
 
 		/// <summary>
-		/// Disables physics and sets the observable flag. 
+		/// Disables physics and sets the observable flag.
 		/// Updates the GrabbindHandsManager and the Grabbing hand of this object.
 		/// </summary>
 		private void SetGrabbed(bool grabbed) {
@@ -184,9 +191,9 @@ namespace PXL.Interaction {
 		/// <returns></returns>
 		private bool CanChangeHands(HandModel newHand) {
 			return CurrentHand != newHand &&
-					Touchable.HandFingers[newHand].Count > Touchable.MinFingerCount &&
-					Touchable.IsCertainFingerTouching(newHand, Leap.Finger.FingerType.TYPE_THUMB) &&
-					canChangeHands;
+			       Touchable.HandFingers[newHand].Count > Touchable.MinFingerCount &&
+			       Touchable.IsCertainFingerTouching(newHand, Finger.FingerType.TYPE_THUMB) &&
+			       canChangeHands;
 		}
 
 	}

@@ -14,19 +14,48 @@ namespace PXL.Objects.Spawner {
 	public class PatternSpawnerVisualizer : MonoBehaviour {
 
 		/// <summary>
-		/// The <see cref="GameObject"/> used for previewing the pattern
+		/// The last known name of this GameObject
+		/// </summary>
+		private string lastName = " ";
+
+		private PatternSpawner mPatternSpawner;
+		private Transform mPreviewContainer;
+
+		/// <summary>
+		/// The <see cref="GameObject" /> used for showing a spot in the preview which might be added due to the random column and
+		/// row count
+		/// </summary>
+		public GameObject PossiblyRandomPreviewGameObject;
+
+		/// <summary>
+		/// The spawned possibly random preview objects
+		/// </summary>
+		public List<Transform> PossiblyRandomPreviewObjects = new List<Transform>();
+
+		/// <summary>
+		/// The <see cref="GameObject" /> used for previewing the pattern
 		/// </summary>
 		public GameObject PreviewGameObject;
 
 		/// <summary>
-		/// The <see cref="GameObject"/> used for showing a spot in the preview which will have an object assigned randomly.
+		/// The spawned preview objects
+		/// </summary>
+		public List<Transform> PreviewObjects = new List<Transform>();
+
+		/// <summary>
+		/// The <see cref="GameObject" /> used for showing a spot in the preview which will have an object assigned randomly.
 		/// </summary>
 		public GameObject RandomPreviewGameObject;
 
 		/// <summary>
-		/// The <see cref="GameObject"/> used for showing a spot in the preview which might be added due to the random column and row count
+		/// The spawned random preview objects
 		/// </summary>
-		public GameObject PossiblyRandomPreviewGameObject;
+		public List<Transform> RandomPreviewObjects = new List<Transform>();
+
+		/// <summary>
+		/// Subscription for manually updating the preview
+		/// </summary>
+		private IDisposable timeSubscription = Disposable.Empty;
 
 		/// <summary>
 		/// The parent for the spawned preview objects
@@ -37,42 +66,13 @@ namespace PXL.Objects.Spawner {
 				return mPreviewContainer;
 			}
 		}
-		private Transform mPreviewContainer;
 
 		/// <summary>
-		/// The <see cref="PatternSpawner"/> component of this object
+		/// The <see cref="PatternSpawner" /> component of this object
 		/// </summary>
 		private PatternSpawner PatternSpawner {
-			get {
-				return mPatternSpawner ?? (mPatternSpawner = this.TryGetComponent<PatternSpawner>());
-			}
+			get { return mPatternSpawner ?? (mPatternSpawner = this.TryGetComponent<PatternSpawner>()); }
 		}
-		private PatternSpawner mPatternSpawner;
-
-		/// <summary>
-		/// The spawned preview objects
-		/// </summary>
-		public List<Transform> PreviewObjects = new List<Transform>();
-
-		/// <summary>
-		/// The spawned random preview objects
-		/// </summary>
-		public List<Transform> RandomPreviewObjects = new List<Transform>();
-
-		/// <summary>
-		/// The spawned possibly random preview objects
-		/// </summary>
-		public List<Transform> PossiblyRandomPreviewObjects = new List<Transform>();
-
-		/// <summary>
-		/// Subscription for manually updating the preview
-		/// </summary>
-		private IDisposable timeSubscription = Disposable.Empty;
-
-		/// <summary>
-		/// The last known name of this GameObject
-		/// </summary>
-		private string lastName = " ";
 
 		/// <summary>
 		/// Add the state change callback and start updating the previews if not playing
@@ -134,7 +134,7 @@ namespace PXL.Objects.Spawner {
 		}
 
 		/// <summary>
-		/// Removes all objects from <see cref="PreviewObjects"/>
+		/// Removes all objects from <see cref="PreviewObjects" />
 		/// </summary>
 		private void RemovePreviewObjects() {
 			PreviewObjects = PreviewObjects.Purge();
@@ -144,7 +144,7 @@ namespace PXL.Objects.Spawner {
 		}
 
 		/// <summary>
-		/// Removes all objects from <see cref="RandomPreviewObjects"/> and <see cref="PossiblyRandomPreviewObjects"/>
+		/// Removes all objects from <see cref="RandomPreviewObjects" /> and <see cref="PossiblyRandomPreviewObjects" />
 		/// </summary>
 		private void RemoveRandomPreviewObjects() {
 			RandomPreviewObjects = RandomPreviewObjects.Purge();
@@ -181,15 +181,13 @@ namespace PXL.Objects.Spawner {
 				var possiblyRandomCount = maxRowCount * maxColumnCount - randomCount;
 				UpdatePreviewObjectsAmount(possiblyRandomCount, PossiblyRandomPreviewGameObject, PossiblyRandomPreviewObjects);
 
-				var rowCount = PatternSpawner.RandomizeRowCount ? PatternSpawner.MaxRandomRowCount : PatternSpawner.PatternRows;
-				var columnCount = PatternSpawner.RandomizeColumnCount ? PatternSpawner.MaxRandomColumnCount : PatternSpawner.PatternColumns;
-
 				var randomCounter = 0;
 				var possiblyRandomCounter = 0;
 
-				for (var row = 0; row < rowCount; row++) {
-					for (var column = 0; column < columnCount; column++) {
-						var possiblyRandomField = (PatternSpawner.RandomizeColumnCount && column >= PatternSpawner.MinRandomColumnCount) || (PatternSpawner.RandomizeRowCount && row >= PatternSpawner.MinRandomRowCount);
+				for (var row = 0; row < maxRowCount; row++) {
+					for (var column = 0; column < maxColumnCount; column++) {
+						var possiblyRandomField = (PatternSpawner.RandomizeColumnCount && column >= PatternSpawner.MinRandomColumnCount) ||
+												  (PatternSpawner.RandomizeRowCount && row >= PatternSpawner.MinRandomRowCount);
 						var spawnOffset = PatternSpawner.GetPositionOffset(row, column);
 						var previewTransform = possiblyRandomField ? PossiblyRandomPreviewObjects[possiblyRandomCounter++] : RandomPreviewObjects[randomCounter++];
 						previewTransform.position = transform.position + spawnOffset;
@@ -215,11 +213,10 @@ namespace PXL.Objects.Spawner {
 					}
 				}
 			}
-
 		}
 
 		/// <summary>
-		/// Updates the size of the given list of objects of type <see cref="prefab"/> to the desired amount.
+		/// Updates the size of the given list of objects of type <see cref="prefab" /> to the desired amount.
 		/// </summary>
 		private void UpdatePreviewObjectsAmount(int desiredAmount, GameObject prefab, List<Transform> existingPreviewObjects) {
 			while (existingPreviewObjects.Count < desiredAmount) {
@@ -262,7 +259,11 @@ namespace PXL.Objects.Spawner {
 		/// </summary>
 		private void RemoveEmptyContainers() {
 			var tag = Tags.GetTagString(Tags.TagType.PreviewContainer);
-			var emptyContainers = GameObject.FindGameObjectsWithTag(tag).Select(c => c.transform).Where(c => c.childCount == 0 && c != PreviewContainer).ToList();
+			var emptyContainers =
+				GameObject.FindGameObjectsWithTag(tag)
+					.Select(c => c.transform)
+					.Where(c => c.childCount == 0 && c != PreviewContainer)
+					.ToList();
 
 			while (emptyContainers.Count > 0) {
 				RemoveObject(emptyContainers, 0);
@@ -273,15 +274,17 @@ namespace PXL.Objects.Spawner {
 		/// Creates a new Preview Container for this spawner
 		/// </summary>
 		public void TryCreatePreviewContainer() {
-			if (mPreviewContainer != null) {
+			if (mPreviewContainer != null)
 				return;
-			}
+
 			mPreviewContainer = new GameObject(gameObject.name + "-Container") {
 				tag = Tags.GetTagString(Tags.TagType.PreviewContainer)
 			}.transform;
 			RemoveEmptyContainers();
 		}
+
 	}
 
 }
+
 #endif

@@ -1,5 +1,5 @@
-﻿using UniRx;
-using PXL.Utility;
+﻿using PXL.Utility;
+using UniRx;
 using UnityEngine;
 
 namespace PXL.Health {
@@ -12,18 +12,18 @@ namespace PXL.Health {
 		/// </summary>
 		public bool Despawn = true;
 
+		private Health mHealth;
+
 		private Health Health {
 			get { return mHealth ?? (mHealth = this.TryGetComponent<Health>()); }
 		}
-
-		private Health mHealth;
 
 		private void Start() {
 			Health.Death.Subscribe(_ => HandleDeath());
 		}
 
 		/// <summary>
-		/// Called when the <see cref="Health"/> component invokes the Death Observable
+		/// Called when the <see cref="Health" /> component invokes the Death Observable
 		/// </summary>
 		private void HandleDeath() {
 			if (Despawn) {
@@ -33,6 +33,7 @@ namespace PXL.Health {
 				Destroy(gameObject);
 			}
 		}
+
 	}
 
 }

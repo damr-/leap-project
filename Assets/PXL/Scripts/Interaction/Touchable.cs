@@ -1,12 +1,14 @@
-﻿using UnityEngine;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using Leap;
 using PXL.Utility;
 using UniRx;
+using UnityEngine;
 
 namespace PXL.Interaction {
 
 	public class FingerInfo {
+
 		public Fingertip Fingertip;
 		public HandModel HandModel;
 
@@ -14,15 +16,35 @@ namespace PXL.Interaction {
 			Fingertip = fingertip;
 			HandModel = handModel;
 		}
+
 	}
 
 	[RequireComponent(typeof(Collider))]
 	[RequireComponent(typeof(Rigidbody))]
 	public class Touchable : MonoBehaviour {
+
 		/// <summary>
 		/// The minimum fingers necessary to pick up an object
 		/// </summary>
 		public static int MinFingerCount = 3;
+
+		/// <summary>
+		/// Subject returned by <see cref="FingerEntered" />
+		/// </summary>
+		private readonly ISubject<FingerInfo> fingerEnteredSubject = new Subject<FingerInfo>();
+
+		/// <summary>
+		/// Subject returned by <see cref="FingerLeft" />
+		/// </summary>
+		private readonly ISubject<FingerInfo> fingerLeftSubject = new Subject<FingerInfo>();
+
+		/// <summary>
+		/// All the fingers of all hands currently overlapping this object
+		/// </summary>
+		public readonly IDictionary<HandModel, HashSet<Fingertip>> HandFingers =
+			new Dictionary<HandModel, HashSet<Fingertip>>();
+
+		private Rigidbody mRigidbody;
 
 		/// <summary>
 		/// Whether the thumb is actively touching the object
@@ -30,21 +52,18 @@ namespace PXL.Interaction {
 		private bool thumbTouches;
 
 		/// <summary>
-		/// All the fingers of all hands currently overlapping this object
+		/// Observable for when a fingertip enters
 		/// </summary>
-		public readonly IDictionary<HandModel, HashSet<Fingertip>> HandFingers = new Dictionary<HandModel, HashSet<Fingertip>>();
+		public IObservable<FingerInfo> FingerEntered {
+			get { return fingerEnteredSubject; }
+		}
 
 		/// <summary>
 		/// Observable for when a fingertip enters
 		/// </summary>
-		public IObservable<FingerInfo> FingerEntered { get { return fingerEnteredSubject; } }
-		private readonly ISubject<FingerInfo> fingerEnteredSubject = new Subject<FingerInfo>();
-
-		/// <summary>
-		/// Observable for when a fingertip enters
-		/// </summary>
-		public IObservable<FingerInfo> FingerLeft { get { return fingerLeftSubject; } }
-		private readonly ISubject<FingerInfo> fingerLeftSubject = new Subject<FingerInfo>();
+		public IObservable<FingerInfo> FingerLeft {
+			get { return fingerLeftSubject; }
+		}
 
 		/// <summary>
 		/// The Rigidbody component of this object
@@ -52,7 +71,6 @@ namespace PXL.Interaction {
 		public Rigidbody Rigidbody {
 			get { return mRigidbody ?? (mRigidbody = this.TryGetComponent<Rigidbody>()); }
 		}
-		private Rigidbody mRigidbody;
 
 		/// <summary>
 		/// Called when a fingertip entered the trigger of an object
@@ -65,15 +83,16 @@ namespace PXL.Interaction {
 				HandFingers[hand].Add(fingertip);
 			}
 			else {
-				HandFingers.Add(hand, new HashSet<Fingertip>() { fingertip });
+				HandFingers.Add(hand, new HashSet<Fingertip> { fingertip });
 			}
 
 			fingerEnteredSubject.OnNext(new FingerInfo(fingertip, hand));
 		}
 
 		/// <summary>
-		/// Called when a fingertip left the trigger of an object. 
-		/// Just invokes <see cref="fingerLeftSubject"/> because <see cref="Grabbable"/> needs to check their conditions first.
+		/// Called when a fingertip left the trigger of an object.
+		/// Just invokes <see cref="fingerLeftSubject" /> because <see cref="Grabbable" /> needs to check their conditions
+		/// first.
 		/// </summary>
 		/// <param name="fingertip">Particular fingertip</param>
 		public void RemoveFinger(Fingertip fingertip) {
@@ -101,7 +120,7 @@ namespace PXL.Interaction {
 		/// Check if the thumb of the given hand is touching the object and updates the corresponding flag
 		/// </summary>
 		public void UpdateThumbTouches(HandModel hand) {
-			thumbTouches = IsCertainFingerTouching(hand, Leap.Finger.FingerType.TYPE_THUMB);
+			thumbTouches = IsCertainFingerTouching(hand, Finger.FingerType.TYPE_THUMB);
 		}
 
 		/// <summary>
@@ -110,7 +129,7 @@ namespace PXL.Interaction {
 		/// <param name="hand"></param>
 		/// <param name="fingerType">The type of the finger to check for</param>
 		/// <returns>False if hand is null or the given finger is not touching the object</returns>
-		public bool IsCertainFingerTouching(HandModel hand, Leap.Finger.FingerType fingerType) {
+		public bool IsCertainFingerTouching(HandModel hand, Finger.FingerType fingerType) {
 			if (hand == null || !HandFingers.ContainsKey(hand))
 				return false;
 			foreach (var ft in HandFingers[hand]) {
@@ -129,9 +148,7 @@ namespace PXL.Interaction {
 		/// Returns whether there are enough fingers touching the object and the thumb is one of them
 		/// </summary>
 		public bool CanGrabObject(HandModel hand) {
-			return HandFingers.ContainsKey(hand) &&
-				   HandFingers[hand].Count > MinFingerCount &&
-				   thumbTouches;
+			return HandFingers.ContainsKey(hand) && HandFingers[hand].Count > MinFingerCount && thumbTouches;
 		}
 
 		/// <summary>
@@ -143,6 +160,7 @@ namespace PXL.Interaction {
 			result = fingers.Aggregate(result, (current, tip) => current + tip.transform.position);
 			return result / fingers.Count;
 		}
+
 	}
 
 }

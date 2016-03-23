@@ -150,12 +150,24 @@ namespace PXL.Objects.Spawner {
 		private const float RemoveAllSpawnDelay = 0.5f;
 
 		/// <summary>
+		/// Whether the rotation of the objects should be set
+		/// </summary>
+		public bool SetObjectRotation;
+
+		/// <summary>
+		/// The rotation of the spawned objects
+		/// </summary>
+		public Vector3 ObjectRotation;
+
+		/// <summary>
 		/// Setup the spawn position and spawn the first object
 		/// </summary>
 		protected virtual void Start() {
 			DefaultObjectPrefab.AssertNotNull();
 			ObjectFactory.Prefab = DefaultObjectPrefab;
 			ObjectFactory.Position = transform.position;
+			if(SetObjectRotation)
+				ObjectFactory.Rotation = ObjectRotation;
 
 			CurrentObjectPrefab = DefaultObjectPrefab;
 			SetObjectScale(DefaultScaleFactor);

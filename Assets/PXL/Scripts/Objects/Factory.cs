@@ -16,18 +16,15 @@ namespace PXL.Objects {
 		public Vector3 Position { get; set; }
 
 		/// <summary>
-		/// Spawns an instance of <see cref="Prefab"/> at <see cref="Position"/>
+		/// The rotation of the spawned object
 		/// </summary>
-		public virtual GameObject Spawn() {
-			return SimplePool.Spawn(Prefab, Position, Quaternion.identity);
-		}
+		public Vector3 Rotation { get; set; }
 
 		/// <summary>
-		/// Spawns an instance of the given <see cref="GameObject"/> at the given position.
-		/// Does not use <see cref="Prefab"/> and <see cref="Position"/>.
+		/// Spawns an instance of <see cref="Prefab"/> at <see cref="Position"/> with <see cref="Rotation"/>
 		/// </summary>
-		public virtual GameObject Spawn(GameObject prefab, Vector3 position) {
-			return SimplePool.Spawn(prefab, position, Quaternion.identity);
+		public virtual GameObject Spawn() {
+			return SimplePool.Spawn(Prefab, Position, Quaternion.Euler(Rotation));
 		}
 	}
 
