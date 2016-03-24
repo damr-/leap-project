@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using PXL.Gamemodes;
 using PXL.Utility;
-using UniRx;
 using UnityEngine;
 
 namespace PXL.Objects.Areas {
@@ -32,15 +30,15 @@ namespace PXL.Objects.Areas {
 		private Collider mAreaCollider;
 
 		/// <summary>
-		/// All valid objects that are inside the area
+		/// All valid objects that are inside the area with their overlapping colliders
 		/// </summary>
-		protected List<Collider> Objects = new List<Collider>();
+		protected IDictionary<GameObject, HashSet<Collider>> Objects = new Dictionary<GameObject, HashSet<Collider>>();
 
 		/// <summary>
 		/// Whether this area is active
 		/// </summary>
 		protected bool AreaActive = true;
-		
+
 		protected virtual void Awake() {
 			TargetTag = Tags.GetTagString(TargetTagType);
 			SetAreaActive(true);
@@ -50,7 +48,11 @@ namespace PXL.Objects.Areas {
 			if (GameMode.GameOver || !AreaActive)
 				return;
 
-			Objects = Objects.Purge();
+			if (Objects.Any(o => o.Key == null || !o.Key.activeInHierarchy || o.Value.Count == 0))
+				Objects =
+					Objects.Where(e => e.Key != null && e.Key.activeInHierarchy && e.Value.Count > 0)
+						.Distinct()
+						.ToDictionary(e => e.Key, e => e.Value);
 		}
 
 		/// <summary>
@@ -71,17 +73,31 @@ namespace PXL.Objects.Areas {
 		/// Called when an object exits the trigger
 		/// </summary>
 		protected virtual void HandleTriggerExit(Collider other) {
-			Objects.Remove(other);
+			var otherObject = other.gameObject;
+
+			if (!Objects.ContainsKey(otherObject))
+				return;
+
+			Objects[otherObject].Remove(other);
+
+			if (Objects[otherObject].Count == 0)
+				Objects.Remove(otherObject);
 		}
 
 		/// <summary>
 		/// Called when any object enters the trigger
 		/// </summary>
 		protected virtual void HandleTriggerEntered(Collider other) {
-			if (!HasCorrectTag(other.gameObject) || Objects.Contains(other))
+			if (other.isTrigger || !HasCorrectTag(other.gameObject))
 				return;
 
-			Objects.Add(other);
+			if (Objects.ContainsKey(other.gameObject)) {
+				Objects[other.gameObject].Add(other);
+			}
+			else {
+				Objects.Add(new KeyValuePair<GameObject, HashSet<Collider>>(other.gameObject, new HashSet<Collider>() { other }));
+			}
+
 			HandleValidOther(other);
 		}
 

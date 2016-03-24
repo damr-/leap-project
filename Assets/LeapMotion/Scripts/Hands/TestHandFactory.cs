@@ -59,7 +59,7 @@ using System.Runtime.InteropServices;
             //Thumb
             Vector position = new Vector(19.3382610281f, -6.0f, 53.168484654f);
             Vector forward = new Vector(0.436329113772f, 0.0f, -0.899787143982f);
-            Vector up = new Vector(0.804793943718f, 0.447213915513f, 0.390264553767f);
+            Vector up = new Vector(-0.804793943718f, 0.447213915513f, -0.390264553767f);
             float[] jointLengths = {0.0f, 46.22f, 31.57f, 21.67f};
             return MakeFinger (Finger.FingerType.TYPE_THUMB, position, forward, up, jointLengths, frameId, handId, handId + 0);
         }

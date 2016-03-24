@@ -3,7 +3,6 @@ using PXL.Utility;
 using UniRx;
 using UnityEngine;
 
-
 namespace PXL.Objects.Spawner {
 
 	[RequireComponent(typeof (ObjectSpawner))]

@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
 
 namespace PXL.Controls {
 
@@ -26,7 +25,7 @@ namespace PXL.Controls {
 				Velocity.z = 0f;
 
 			if (Input.GetKey(RightKey))
-				Velocity.x += Speed;
+				Velocity.x = Speed;
 			else if (Input.GetKey(LeftKey))
 				Velocity.x = -Speed;
 			else

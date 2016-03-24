@@ -1,5 +1,4 @@
-﻿using PXL.Objects;
-using UniRx;
+﻿using UniRx;
 using PXL.Objects.Spawner;
 using PXL.Utility;
 using UnityEngine;

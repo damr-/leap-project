@@ -20,23 +20,15 @@ namespace LeapInternal
   {
     private static Dictionary<int, Connection> connectionDictionary = new Dictionary<int, Connection>();
 
-    static Connection()
-    {
-    }
-
     public static Connection GetConnection(int connectionKey = 0)
     {
-      if (Connection.connectionDictionary.ContainsKey(connectionKey))
+      Connection conn;
+      if (!Connection.connectionDictionary.TryGetValue(connectionKey, out conn))
       {
-        Connection conn;
-        Connection.connectionDictionary.TryGetValue(connectionKey, out conn);
-        return conn;
+        conn = new Connection(connectionKey);
+        connectionDictionary.Add(connectionKey, conn);
       }
-      else {
-        Connection newConn = new Connection(connectionKey);
-        connectionDictionary.Add(connectionKey, newConn);
-        return newConn;
-      }
+      return conn;
     }
 
     public int ConnectionKey { get; private set; }
@@ -46,33 +38,45 @@ namespace LeapInternal
     private DeviceList _devices = new DeviceList();
     private FailedDeviceList _failedDevices;
 
-    private Dictionary<UInt32, ImageReference> _pendingImageRequests = new Dictionary<UInt32, ImageReference>();
+    private PendingImages _pendingImageRequestList = new PendingImages();
     private ObjectPool<ImageData> _imageDataCache;
     private ObjectPool<ImageData> _imageRawDataCache;
-    private CircularObjectBuffer<TrackedQuad> _quads;
     private int _frameBufferLength = 60;
     private int _imageBufferLength = 20 * 4;
-    private int _quadBufferLength = 60;
     private ulong _standardImageBufferSize = 640 * 240 * 2; //width * heigth * 2
     private ulong _standardRawBufferSize = 640 * 240 * 2 * 8; //width * heigth * 2 images * 8 bpp
     private DistortionData _currentDistortionData = new DistortionData();
-    //        private bool _growImageMemory = false;
 
     private IntPtr _leapConnection;
-    private Thread _polster;
     private bool _isRunning = false;
+    private Thread _polster;
 
     //Policy and enabled features
     private UInt64 _requestedPolicies = 0;
     private UInt64 _activePolicies = 0;
-    private bool _trackedQuadsAreEnabled = false;
 
     //Config change status
     private Dictionary<uint, string> _configRequests = new Dictionary<uint, string>();
 
     //Connection events
-    public EventHandler<LeapEventArgs> LeapInit;
-    public EventHandler<ConnectionEventArgs> LeapConnection;
+    private EventHandler<LeapEventArgs> _leapInit;
+    public event EventHandler <LeapEventArgs> LeapInit{
+      add{
+        _leapInit += value;
+        if(_leapConnection != IntPtr.Zero)
+          value(this, new LeapEventArgs(LeapEvent.EVENT_INIT));
+      }
+      remove{_leapInit -= value;}
+    }
+    private EventHandler<ConnectionEventArgs> _leapConnectionEvent;
+    public event EventHandler<ConnectionEventArgs> LeapConnection{
+      add{
+        _leapConnectionEvent += value;
+        if(IsServiceConnected)
+          value(this, new ConnectionEventArgs());
+        }
+      remove{_leapConnectionEvent -= value;}
+    }
     public EventHandler<ConnectionLostEventArgs> LeapConnectionLost;
     public EventHandler<DeviceEventArgs> LeapDevice;
     public EventHandler<DeviceEventArgs> LeapDeviceLost;
@@ -81,7 +85,6 @@ namespace LeapInternal
     public EventHandler<FrameEventArgs> LeapFrame;
     public EventHandler<ImageEventArgs> LeapImageReady;
     public EventHandler<ImageRequestFailedEventArgs> LeapImageRequestFailed;
-    public EventHandler<TrackedQuadEventArgs> LeapTrackedQuad;
     public EventHandler<LogEventArgs> LeapLogEvent;
     public EventHandler<SetConfigResponseEventArgs> LeapConfigResponse;
     public EventHandler<ConfigChangeEventArgs> LeapConfigChange;
@@ -103,10 +106,17 @@ namespace LeapInternal
 
       if (disposing)
       {
-        Stop();
       }
 
+      Stop();
+      LeapC.DestroyConnection(_leapConnection);
+
       _disposed = true;
+    }
+
+    ~Connection()
+    {
+      Dispose(false);
     }
 
     private Connection(int connectionKey)
@@ -115,34 +125,43 @@ namespace LeapInternal
       _leapConnection = IntPtr.Zero;
 
       Frames = new CircularObjectBuffer<Frame>(_frameBufferLength);
-      _quads = new CircularObjectBuffer<TrackedQuad>(_quadBufferLength);
       _imageDataCache = new ObjectPool<ImageData>(_imageBufferLength, false);
       _imageRawDataCache = new ObjectPool<ImageData>(_imageBufferLength, false);
     }
 
     public void Start()
     {
-      if (!_isRunning)
-      {
-        if (_leapConnection == IntPtr.Zero)
-        {
-          eLeapRS result = LeapC.CreateConnection(out _leapConnection);
+      if (_isRunning)
+        return;
+
+      if (_leapConnection == IntPtr.Zero) {
+        eLeapRS result = LeapC.CreateConnection(out _leapConnection);
+        if (result != eLeapRS.eLeapRS_Success || _leapConnection == IntPtr.Zero) {
           reportAbnormalResults("LeapC CreateConnection call was ", result);
-          result = LeapC.OpenConnection(_leapConnection);
-          reportAbnormalResults("LeapC OpenConnection call was ", result);
+          return;
         }
-        _isRunning = true;
-        _polster = new Thread(new ThreadStart(this.processMessages));
-        _polster.IsBackground = true;
-        _polster.Start();
+        result = LeapC.OpenConnection(_leapConnection);
+        if (result != eLeapRS.eLeapRS_Success) {
+          reportAbnormalResults("LeapC OpenConnection call was ", result);
+          return;
+        }
       }
+
+      _isRunning = true;
+
+      _polster = new Thread(new ThreadStart(this.processMessages));
+      _polster.IsBackground = true;
+      _polster.Start();
     }
 
     public void Stop()
     {
-      _isRunning = false;
-    }
+      if (!_isRunning)
+        return;
 
+      _isRunning = false;
+      _polster.Join();
+    }
 
     //Run in Polster thread, fills in object queues
     private void processMessages()
@@ -150,107 +169,114 @@ namespace LeapInternal
       try
       {
         eLeapRS result;
-        LeapInit.Dispatch<LeapEventArgs>(this, new LeapEventArgs(LeapEvent.EVENT_INIT));
+        _leapInit.Dispatch<LeapEventArgs>(this, new LeapEventArgs(LeapEvent.EVENT_INIT));
         while (_isRunning)
         {
-          if (_leapConnection != IntPtr.Zero)
-          {
-            LEAP_CONNECTION_MESSAGE _msg = new LEAP_CONNECTION_MESSAGE();
-            uint timeout = 1000;
-            result = LeapC.PollConnection(_leapConnection, timeout, ref _msg);
+          LEAP_CONNECTION_MESSAGE _msg = new LEAP_CONNECTION_MESSAGE();
+          uint timeout = 1000;
+          result = LeapC.PollConnection(_leapConnection, timeout, ref _msg);
+
+          if (result != eLeapRS.eLeapRS_Success) {
             reportAbnormalResults("LeapC PollConnection call was ", result);
-            if (result == eLeapRS.eLeapRS_Success)
-            {
-              switch (_msg.type)
-              {
-                case eLeapEventType.eLeapEventType_Connection:
-                  LEAP_CONNECTION_EVENT connection_evt = LeapC.PtrToStruct<LEAP_CONNECTION_EVENT>(_msg.eventStructPtr);
-                  handleConnection(ref connection_evt);
-                  break;
-                case eLeapEventType.eLeapEventType_ConnectionLost:
-                  LEAP_CONNECTION_LOST_EVENT connection_lost_evt = LeapC.PtrToStruct<LEAP_CONNECTION_LOST_EVENT>(_msg.eventStructPtr);
-                  handleConnectionLost(ref connection_lost_evt);
-                  break;
-                case eLeapEventType.eLeapEventType_Device:
-                  LEAP_DEVICE_EVENT device_evt = LeapC.PtrToStruct<LEAP_DEVICE_EVENT>(_msg.eventStructPtr);
-                  handleDevice(ref device_evt);
-                  break;
-                case eLeapEventType.eLeapEventType_DeviceLost:
-                  LEAP_DEVICE_EVENT device_lost_evt = LeapC.PtrToStruct<LEAP_DEVICE_EVENT>(_msg.eventStructPtr);
-                  handleLostDevice(ref device_lost_evt);
-                  break;
-                case eLeapEventType.eLeapEventType_DeviceFailure:
-                  LEAP_DEVICE_FAILURE_EVENT device_failure_evt = LeapC.PtrToStruct<LEAP_DEVICE_FAILURE_EVENT>(_msg.eventStructPtr);
-                  handleFailedDevice(ref device_failure_evt);
-                  break;
-                case eLeapEventType.eLeapEventType_Tracking:
-                  LEAP_TRACKING_EVENT tracking_evt = LeapC.PtrToStruct<LEAP_TRACKING_EVENT>(_msg.eventStructPtr);
-                  handleTrackingMessage(ref tracking_evt);
-                  break;
-                case eLeapEventType.eLeapEventType_ImageComplete:
-                  completeCount++;
-                  LEAP_IMAGE_COMPLETE_EVENT image_complete_evt = LeapC.PtrToStruct<LEAP_IMAGE_COMPLETE_EVENT>(_msg.eventStructPtr);
-                  handleImageCompletion(ref image_complete_evt);
-                  break;
-                case eLeapEventType.eLeapEventType_ImageRequestError:
-                  failedCount++;
-                  LEAP_IMAGE_FRAME_REQUEST_ERROR_EVENT failed_image_evt = LeapC.PtrToStruct<LEAP_IMAGE_FRAME_REQUEST_ERROR_EVENT>(_msg.eventStructPtr);
-                  handleFailedImageRequest(ref failed_image_evt);
-                  break;
-                case eLeapEventType.eLeapEventType_TrackedQuad:
-                  LEAP_TRACKED_QUAD_EVENT quad_evt = LeapC.PtrToStruct<LEAP_TRACKED_QUAD_EVENT>(_msg.eventStructPtr);
-                  handleQuadMessage(ref quad_evt);
-                  break;
-                case eLeapEventType.eLeapEventType_LogEvent:
-                  LEAP_LOG_EVENT log_evt = LeapC.PtrToStruct<LEAP_LOG_EVENT>(_msg.eventStructPtr);
-                  reportLogMessage(ref log_evt);
-                  break;
-                case eLeapEventType.eLeapEventType_PolicyChange:
-                  LEAP_POLICY_EVENT policy_evt = LeapC.PtrToStruct<LEAP_POLICY_EVENT>(_msg.eventStructPtr);
-                  handlePolicyChange(ref policy_evt);
-                  break;
-                case eLeapEventType.eLeapEventType_ConfigChange:
-                  LEAP_CONFIG_CHANGE_EVENT config_change_evt = LeapC.PtrToStruct<LEAP_CONFIG_CHANGE_EVENT>(_msg.eventStructPtr);
-                  handleConfigChange(ref config_change_evt);
-                  break;
-                case eLeapEventType.eLeapEventType_ConfigResponse:
-                  handleConfigResponse(ref _msg);
-                  break;
-                default:
-                  //discard unknown message types
-                  Logger.Log("Unhandled message type " + Enum.GetName(typeof(eLeapEventType), _msg.type));
-                  break;
-              } //switch on _msg.type
-            } // if valid _msg.type
-            else if (result == eLeapRS.eLeapRS_NotConnected)
-            {
-              this.LeapConnectionLost.Dispatch<ConnectionLostEventArgs>(this, new ConnectionLostEventArgs());
-              result = LeapC.CreateConnection(out _leapConnection);
-              reportAbnormalResults("LeapC CreateConnection call was ", result);
-              result = LeapC.OpenConnection(_leapConnection);
-              reportAbnormalResults("LeapC OpenConnection call was ", result);
-            }
-          } // if have connection handle
+            continue;
+          }
+
+          switch (_msg.type)
+          {
+            case eLeapEventType.eLeapEventType_Connection:
+              LEAP_CONNECTION_EVENT connection_evt = StructMarshal<LEAP_CONNECTION_EVENT>.PtrToStruct(_msg.eventStructPtr);
+              handleConnection(ref connection_evt);
+              break;
+            case eLeapEventType.eLeapEventType_ConnectionLost:
+              LEAP_CONNECTION_LOST_EVENT connection_lost_evt = StructMarshal<LEAP_CONNECTION_LOST_EVENT>.PtrToStruct(_msg.eventStructPtr);
+              handleConnectionLost(ref connection_lost_evt);
+              break;
+            case eLeapEventType.eLeapEventType_Device:
+              LEAP_DEVICE_EVENT device_evt = StructMarshal<LEAP_DEVICE_EVENT>.PtrToStruct(_msg.eventStructPtr);
+              handleDevice(ref device_evt);
+              break;
+            case eLeapEventType.eLeapEventType_DeviceLost:
+              LEAP_DEVICE_EVENT device_lost_evt = StructMarshal<LEAP_DEVICE_EVENT>.PtrToStruct(_msg.eventStructPtr);
+              handleLostDevice(ref device_lost_evt);
+              break;
+            case eLeapEventType.eLeapEventType_DeviceFailure:
+              LEAP_DEVICE_FAILURE_EVENT device_failure_evt = StructMarshal<LEAP_DEVICE_FAILURE_EVENT>.PtrToStruct(_msg.eventStructPtr);
+              handleFailedDevice(ref device_failure_evt);
+              break;
+            case eLeapEventType.eLeapEventType_Tracking:
+              LEAP_TRACKING_EVENT tracking_evt = StructMarshal<LEAP_TRACKING_EVENT>.PtrToStruct(_msg.eventStructPtr);
+              handleTrackingMessage(ref tracking_evt);
+              break;
+            case eLeapEventType.eLeapEventType_ImageComplete:
+              LEAP_IMAGE_COMPLETE_EVENT image_complete_evt = StructMarshal<LEAP_IMAGE_COMPLETE_EVENT>.PtrToStruct(_msg.eventStructPtr);
+              handleImageCompletion(ref image_complete_evt);
+              break;
+            case eLeapEventType.eLeapEventType_ImageRequestError:
+              LEAP_IMAGE_FRAME_REQUEST_ERROR_EVENT failed_image_evt = StructMarshal<LEAP_IMAGE_FRAME_REQUEST_ERROR_EVENT>.PtrToStruct(_msg.eventStructPtr);
+              handleFailedImageRequest(ref failed_image_evt);
+              break;
+            case eLeapEventType.eLeapEventType_LogEvent:
+              LEAP_LOG_EVENT log_evt = StructMarshal<LEAP_LOG_EVENT>.PtrToStruct(_msg.eventStructPtr);
+              reportLogMessage(ref log_evt);
+              break;
+            case eLeapEventType.eLeapEventType_PolicyChange:
+              LEAP_POLICY_EVENT policy_evt = StructMarshal<LEAP_POLICY_EVENT>.PtrToStruct(_msg.eventStructPtr);
+              handlePolicyChange(ref policy_evt);
+              break;
+            case eLeapEventType.eLeapEventType_ConfigChange:
+              LEAP_CONFIG_CHANGE_EVENT config_change_evt = StructMarshal<LEAP_CONFIG_CHANGE_EVENT>.PtrToStruct(_msg.eventStructPtr);
+              handleConfigChange(ref config_change_evt);
+              break;
+            case eLeapEventType.eLeapEventType_ConfigResponse:
+              handleConfigResponse(ref _msg);
+              break;
+            default:
+              //discard unknown message types
+              Logger.Log("Unhandled message type " + Enum.GetName(typeof(eLeapEventType), _msg.type));
+              break;
+          } //switch on _msg.type
         } //while running
       }
       catch (Exception e)
       {
         Logger.Log("Exception: " + e);
+        _isRunning = false;
       }
     }
 
     private void handleTrackingMessage(ref LEAP_TRACKING_EVENT trackingMsg)
     {
       Frame newFrame = frameFactory.makeFrame(ref trackingMsg);
-      if (_trackedQuadsAreEnabled)
-        newFrame.TrackedQuad = this.findTrackQuadForFrame(newFrame.Id);
       Frames.Put(newFrame);
       this.LeapFrame.Dispatch<FrameEventArgs>(this, new FrameEventArgs(newFrame));
     }
 
-    int requestCount = 0;
-    int completeCount = 0;
-    int failedCount = 0;
+    public void GetNearestFrameTimes(Int64 time, out Int64 before, out Int64 after){
+      eLeapRS result = LeapC.GetNearestFrames(_leapConnection, time, out before, out after);
+      reportAbnormalResults ("LeapC get nearest frame timestamp call was ", result);
+    }
+
+    public UInt64 GetInterpolatedFrameSize(Int64 time){
+      UInt64 size = 0;
+      eLeapRS result = LeapC.GetFrameSize(_leapConnection, time, out size);
+      reportAbnormalResults ("LeapC get interpolated frame call was ", result);
+      return size;
+    }
+
+    public Frame GetInterpolatedFrame(Int64 time){
+      UInt64 size = GetInterpolatedFrameSize(time);
+      IntPtr trackingBuffer = Marshal.AllocHGlobal((Int32)size);
+      eLeapRS result = LeapC.InterpolateFrame(_leapConnection, time, trackingBuffer, size);
+      reportAbnormalResults ("LeapC get interpolated frame call was ", result);
+      Frame frame = null;
+      if(result == eLeapRS.eLeapRS_Success){
+        LEAP_TRACKING_EVENT tracking_evt = StructMarshal<LEAP_TRACKING_EVENT>.PtrToStruct(trackingBuffer);
+        frame = frameFactory.makeFrame(ref tracking_evt);
+      }
+      Marshal.FreeHGlobal(trackingBuffer);
+      return frame;
+    }
+
     public Image RequestImages(Int64 frameId, Image.ImageType imageType)
     {
       ImageData imageData;
@@ -289,100 +315,81 @@ namespace LeapInternal
 
     private Image RequestImages(ImageData imageData)
     {
-      requestCount++;
+      if (!_isRunning)
+        return Image.Invalid;
+
       LEAP_IMAGE_FRAME_DESCRIPTION imageSpecifier = new LEAP_IMAGE_FRAME_DESCRIPTION();
       imageSpecifier.frame_id = imageData.frame_id;
       imageSpecifier.type = imageData.type;
-      imageSpecifier.pBuffer = imageData.getPinnedHandle();
+      imageSpecifier.pBuffer = imageData.getPinnedHandle ();
       imageSpecifier.buffer_len = (ulong)imageData.pixelBuffer.LongLength;
       LEAP_IMAGE_FRAME_REQUEST_TOKEN token;
-      eLeapRS result = LeapC.RequestImages(_leapConnection, ref imageSpecifier, out token);
+      eLeapRS result = eLeapRS.eLeapRS_UnknownError;
 
-      if (result == eLeapRS.eLeapRS_Success)
-      {
+      result = LeapC.RequestImages (_leapConnection, ref imageSpecifier, out token);
+
+      if (result == eLeapRS.eLeapRS_Success) {
         imageData.isComplete = false;
         imageData.index = token.requestID;
-        Image futureImage = new Image(imageData);
-        lock (lockPendingImageList)
-        {
-          _pendingImageRequests[token.requestID] = new ImageReference(futureImage, imageData, LeapC.GetNow());
-        }
+        Image futureImage = new Image (imageData);
+        _pendingImageRequestList.Add(new ImageFuture (futureImage, imageData, LeapC.GetNow (), token));
         return futureImage;
-      }
-      else {
-        imageData.unPinHandle();
-        reportAbnormalResults("LeapC Image Request call was ", result);
+      } else {
+        imageData.unPinHandle ();
+        reportAbnormalResults ("LeapC Image Request call was ", result);
         return Image.Invalid;
       }
-
     }
 
-    private object lockPendingImageList = new object();
     private void handleImageCompletion(ref LEAP_IMAGE_COMPLETE_EVENT imageMsg)
     {
-      LEAP_IMAGE_PROPERTIES props = LeapC.PtrToStruct<LEAP_IMAGE_PROPERTIES>(imageMsg.properties);
-      ImageReference pendingImage = null;
-      lock (lockPendingImageList)
-      {
-        _pendingImageRequests.TryGetValue(imageMsg.token.requestID, out pendingImage);
-      }
-      if (pendingImage != null)
-      {
-        //Update distortion data, if changed
-        if ((_currentDistortionData.Version != imageMsg.matrix_version) || !_currentDistortionData.IsValid)
-        {
-          _currentDistortionData = new DistortionData();
-          _currentDistortionData.Version = imageMsg.matrix_version;
-          _currentDistortionData.Width = LeapC.DistortionSize; //fixed value for now
-          _currentDistortionData.Height = LeapC.DistortionSize; //fixed value for now
-          if (_currentDistortionData.Data == null || _currentDistortionData.Data.Length != (2 * _currentDistortionData.Width * _currentDistortionData.Height * 2))
-            _currentDistortionData.Data = new float[(int)(2 * _currentDistortionData.Width * _currentDistortionData.Height * 2)]; //2 float values per map point
-          LEAP_DISTORTION_MATRIX matrix = LeapC.PtrToStruct<LEAP_DISTORTION_MATRIX>(imageMsg.distortionMatrix);
-          Array.Copy(matrix.matrix_data, _currentDistortionData.Data, matrix.matrix_data.Length);
-          this.LeapDistortionChange.Dispatch<DistortionEventArgs>(this, new DistortionEventArgs(_currentDistortionData));
-        }
+       LEAP_IMAGE_PROPERTIES props = StructMarshal<LEAP_IMAGE_PROPERTIES>.PtrToStruct(imageMsg.properties);
+      ImageFuture pendingImage = _pendingImageRequestList.FindAndRemove(imageMsg.token);
 
-        pendingImage.imageData.CompleteImageData(props.type,
-            props.format,
-            props.bpp,
-            props.width,
-            props.height,
-            imageMsg.info.timestamp,
-            imageMsg.info.frame_id,
-            props.x_offset,
-            props.y_offset,
-            props.x_scale,
-            props.y_scale,
-            _currentDistortionData,
-            LeapC.DistortionSize,
-            imageMsg.matrix_version);
+      if (pendingImage == null)
+        return;
 
-        Image completedImage = pendingImage.imageObject;
-        lock (lockPendingImageList)
-        {
-          _pendingImageRequests.Remove(imageMsg.token.requestID);
-        }
-        this.LeapImageReady.Dispatch<ImageEventArgs>(this, new ImageEventArgs(completedImage));
+      //Update distortion data, if changed
+      if ((_currentDistortionData.Version != imageMsg.matrix_version) || !_currentDistortionData.IsValid)
+      {
+        _currentDistortionData = new DistortionData();
+        _currentDistortionData.Version = imageMsg.matrix_version;
+        _currentDistortionData.Width = LeapC.DistortionSize; //fixed value for now
+        _currentDistortionData.Height = LeapC.DistortionSize; //fixed value for now
+        if (_currentDistortionData.Data == null || _currentDistortionData.Data.Length != (2 * _currentDistortionData.Width * _currentDistortionData.Height * 2))
+          _currentDistortionData.Data = new float[(int)(2 * _currentDistortionData.Width * _currentDistortionData.Height * 2)]; //2 float values per map point
+        LEAP_DISTORTION_MATRIX matrix = StructMarshal<LEAP_DISTORTION_MATRIX>.PtrToStruct(imageMsg.distortionMatrix);
+        Array.Copy(matrix.matrix_data, _currentDistortionData.Data, matrix.matrix_data.Length);
+        this.LeapDistortionChange.Dispatch<DistortionEventArgs>(this, new DistortionEventArgs(_currentDistortionData));
       }
+
+      pendingImage.imageData.CompleteImageData(props.type,
+          props.format,
+          props.bpp,
+          props.width,
+          props.height,
+          imageMsg.info.timestamp,
+          imageMsg.info.frame_id,
+          props.x_offset,
+          props.y_offset,
+          props.x_scale,
+          props.y_scale,
+          _currentDistortionData,
+          LeapC.DistortionSize,
+          imageMsg.matrix_version);
+
+      Image completedImage = pendingImage.imageObject;
+      this.LeapImageReady.Dispatch<ImageEventArgs>(this, new ImageEventArgs(completedImage));
     }
 
     private void handleFailedImageRequest(ref LEAP_IMAGE_FRAME_REQUEST_ERROR_EVENT failed_image_evt)
     {
-      ImageReference pendingImage = null;
-      lock (lockPendingImageList)
-      {
-        _pendingImageRequests.TryGetValue(failed_image_evt.token.requestID, out pendingImage);
-      }
+       ImageFuture pendingImage =_pendingImageRequestList.FindAndRemove(failed_image_evt.token);
 
-      if (pendingImage != null)
-      {
-        pendingImage.imageData.CheckIn();
-        lock (_pendingImageRequests)
-        {
-          _pendingImageRequests.Remove(failed_image_evt.token.requestID);
-        }
+      if (pendingImage != null) {
+        pendingImage.imageData.CheckIn ();
 
-        ImageRequestFailedEventArgs errorEventArgs = new ImageRequestFailedEventArgs(failed_image_evt.description.frame_id, pendingImage.imageObject.Type);
+        ImageRequestFailedEventArgs errorEventArgs = new ImageRequestFailedEventArgs (failed_image_evt.description.frame_id, pendingImage.imageObject.Type);
         switch (failed_image_evt.error)
         {
           case eLeapImageRequestError.eLeapImageRequestError_InsufficientBuffer:
@@ -408,82 +415,60 @@ namespace LeapInternal
         }
         errorEventArgs.requiredBufferSize = (long)failed_image_evt.required_buffer_len;
 
-        this.LeapImageRequestFailed.Dispatch<ImageRequestFailedEventArgs>(this, errorEventArgs);
+        this.LeapImageRequestFailed.Dispatch<ImageRequestFailedEventArgs> (this, errorEventArgs);
       }
-      //Purge old requests
-      List<UInt32> keys = new List<UInt32>(_pendingImageRequests.Keys);
-      ImageReference request;
-      long now = LeapC.GetNow();
-      for (int k = 0; k < keys.Count; k++)
-      {
-        request = _pendingImageRequests[keys[k]];
-        if ((now - request.Timestamp) > 90000)
-        {
-          lock (_pendingImageRequests)
-          {
-            _pendingImageRequests.Remove(keys[k]);
-          }
-          request.imageData.CheckIn();
-        }
-      }
-    }
-
-    private void handleQuadMessage(ref LEAP_TRACKED_QUAD_EVENT quad_evt)
-    {
-      TrackedQuad quad = frameFactory.makeQuad(ref quad_evt);
-      _quads.Put(quad);
-
-      this.LeapTrackedQuad.Dispatch<TrackedQuadEventArgs>(this, new TrackedQuadEventArgs(quad));
+      _pendingImageRequestList.purgeOld(_leapConnection);
     }
 
     private void handleConnection(ref LEAP_CONNECTION_EVENT connectionMsg)
     {
-      //TODO update connection on CONNECTION_EVENT
-      this.LeapConnection.Dispatch<ConnectionEventArgs>(this, new ConnectionEventArgs()); //TODO Meaningful Connection event args
+      this._leapConnectionEvent.Dispatch<ConnectionEventArgs>(this, new ConnectionEventArgs());
     }
 
     private void handleConnectionLost(ref LEAP_CONNECTION_LOST_EVENT connectionMsg)
     {
-      //TODO update connection on CONNECTION_LOST_EVENT
-      this.LeapConnectionLost.Dispatch<ConnectionLostEventArgs>(this, new ConnectionLostEventArgs()); //TODO Meaningful ConnectionLost event args
-      this.Stop();
+      this.LeapConnectionLost.Dispatch<ConnectionLostEventArgs>(this, new ConnectionLostEventArgs());
+      _isRunning = false;
     }
 
     private void handleDevice(ref LEAP_DEVICE_EVENT deviceMsg)
     {
       IntPtr deviceHandle = deviceMsg.device.handle;
-      if (deviceHandle != IntPtr.Zero)
-      {
-        IntPtr device;
-        eLeapRS result = LeapC.OpenDevice(deviceMsg.device, out device);
-        LEAP_DEVICE_INFO deviceInfo = new LEAP_DEVICE_INFO();
-        uint defaultLength = 14;
-        deviceInfo.serial_length = defaultLength;
-        deviceInfo.serial = Marshal.AllocCoTaskMem((int)defaultLength);
-        deviceInfo.size = (uint)Marshal.SizeOf(deviceInfo);
-        result = LeapC.GetDeviceInfo(device, out deviceInfo);
-        if (result == eLeapRS.eLeapRS_InsufficientBuffer)
-        {
-          Marshal.FreeCoTaskMem(deviceInfo.serial);
-          deviceInfo.serial = Marshal.AllocCoTaskMem((int)deviceInfo.serial_length);
-          deviceInfo.size = (uint)Marshal.SizeOf(deviceInfo);
-          result = LeapC.GetDeviceInfo(deviceHandle, out deviceInfo);
-        }
+      if (deviceHandle == IntPtr.Zero)
+        return;
 
-        if (result == eLeapRS.eLeapRS_Success)
-        {
-          Device apiDevice = new Device(deviceHandle,
-                                 deviceInfo.h_fov, //radians
-                                 deviceInfo.v_fov, //radians
-                                 deviceInfo.range / 1000, //to mm
-                                 deviceInfo.baseline / 1000, //to mm
-                                 (deviceInfo.caps == (UInt32)eLeapDeviceCaps.eLeapDeviceCaps_Embedded),
-                                 (deviceInfo.status == (UInt32)eLeapDeviceStatus.eLeapDeviceStatus_Streaming),
-                                 Marshal.PtrToStringAnsi(deviceInfo.serial));
-          Marshal.FreeCoTaskMem(deviceInfo.serial);
-          _devices.AddOrUpdate(apiDevice);
-          this.LeapDevice.Dispatch(this, new DeviceEventArgs(apiDevice));
-        }
+      LEAP_DEVICE_INFO deviceInfo = new LEAP_DEVICE_INFO();
+      eLeapRS result;
+
+      IntPtr device;
+      result = LeapC.OpenDevice(deviceMsg.device, out device);
+      uint defaultLength = 14;
+      deviceInfo.serial_length = defaultLength;
+      deviceInfo.serial = Marshal.AllocCoTaskMem((int)defaultLength);
+      deviceInfo.size = (uint)Marshal.SizeOf(deviceInfo);
+      result = LeapC.GetDeviceInfo(device, out deviceInfo);
+
+      if (result == eLeapRS.eLeapRS_InsufficientBuffer)
+      {
+        Marshal.FreeCoTaskMem(deviceInfo.serial);
+        deviceInfo.serial = Marshal.AllocCoTaskMem((int)deviceInfo.serial_length);
+        deviceInfo.size = (uint)Marshal.SizeOf(deviceInfo);
+        result = LeapC.GetDeviceInfo(deviceHandle, out deviceInfo);
+      }
+
+      if (result == eLeapRS.eLeapRS_Success)
+      {
+        Device apiDevice = new Device(deviceHandle,
+                               deviceInfo.h_fov, //radians
+                               deviceInfo.v_fov, //radians
+                               deviceInfo.range / 1000, //to mm
+                               deviceInfo.baseline / 1000, //to mm
+                               (deviceInfo.caps == (UInt32)eLeapDeviceCaps.eLeapDeviceCaps_Embedded),
+                               (deviceInfo.status == (UInt32)eLeapDeviceStatus.eLeapDeviceStatus_Streaming),
+                               Marshal.PtrToStringAnsi(deviceInfo.serial));
+        Marshal.FreeCoTaskMem(deviceInfo.serial);
+        _devices.AddOrUpdate(apiDevice);
+        this.LeapDevice.Dispatch(this, new DeviceEventArgs(apiDevice));
       }
     }
 
@@ -541,7 +526,7 @@ namespace LeapInternal
 
     private void handleConfigResponse(ref LEAP_CONNECTION_MESSAGE configMsg)
     {
-      LEAP_CONFIG_RESPONSE_EVENT config_response_evt = LeapC.PtrToStruct<LEAP_CONFIG_RESPONSE_EVENT>(configMsg.eventStructPtr);
+      LEAP_CONFIG_RESPONSE_EVENT config_response_evt = StructMarshal<LEAP_CONFIG_RESPONSE_EVENT>.PtrToStruct(configMsg.eventStructPtr);
       string config_key = "";
       _configRequests.TryGetValue(config_response_evt.requestId, out config_key);
       if (config_key != null)
@@ -575,7 +560,7 @@ namespace LeapInternal
       }
       else {
         LEAP_CONFIG_RESPONSE_EVENT_WITH_REF_TYPE config_ref_value =
-             LeapC.PtrToStruct<LEAP_CONFIG_RESPONSE_EVENT_WITH_REF_TYPE>(configMsg.eventStructPtr);
+             StructMarshal<LEAP_CONFIG_RESPONSE_EVENT_WITH_REF_TYPE>.PtrToStruct(configMsg.eventStructPtr);
         dataType = Config.ValueType.TYPE_STRING;
         value = config_ref_value.value.stringValue;
       }
@@ -621,13 +606,14 @@ namespace LeapInternal
     }
 
     public void SetPolicy(Controller.PolicyFlag policy)
-    {
+  {
       UInt64 setFlags = (ulong)flagForPolicy(policy);
       _requestedPolicies = _requestedPolicies | setFlags;
       setFlags = _requestedPolicies;
       UInt64 clearFlags = ~_requestedPolicies; //inverse of desired policies
 
-      eLeapRS result = LeapC.SetPolicyFlags(_leapConnection, setFlags, clearFlags);
+      eLeapRS result = eLeapRS.eLeapRS_UnknownError;
+      result = LeapC.SetPolicyFlags(_leapConnection, setFlags, clearFlags);
       reportAbnormalResults("LeapC SetPolicyFlags call was ", result);
     }
 
@@ -635,7 +621,8 @@ namespace LeapInternal
     {
       UInt64 clearFlags = (ulong)flagForPolicy(policy);
       _requestedPolicies = _requestedPolicies & ~clearFlags;
-      eLeapRS result = LeapC.SetPolicyFlags(_leapConnection, 0, clearFlags);
+      eLeapRS result = eLeapRS.eLeapRS_UnknownError;
+      result = LeapC.SetPolicyFlags(_leapConnection, 0, clearFlags);
       reportAbnormalResults("LeapC SetPolicyFlags call was ", result);
     }
 
@@ -678,55 +665,32 @@ namespace LeapInternal
       return (_activePolicies & policyToCheck) == policyToCheck;
     }
 
-    /**
-     * Returns a timestamp value as close as possible to the current time.
-     * Values are in microseconds, as with all the other timestamp values.
-     *
-     * @since 2.2.7
-     *
-     */
-    public long Now()
-    {
-      return LeapC.GetNow();
-    }
-
     public uint GetConfigValue(string config_key)
     {
       uint requestId = 0;
-      if (_leapConnection != IntPtr.Zero) { //Test IsServiceConnected (when it works)
-          eLeapRS result = LeapC.RequestConfigValue (_leapConnection, config_key, out requestId);
-          reportAbnormalResults ("LeapC RequestConfigValue call was ", result);
-          _configRequests [requestId] = config_key;
-      }
+      eLeapRS result = LeapC.RequestConfigValue (_leapConnection, config_key, out requestId);
+      reportAbnormalResults ("LeapC RequestConfigValue call was ", result);
+      _configRequests [requestId] = config_key;
       return requestId;
     }
 
-    public uint SetConfigValue<T>(string config_key, T value) where T : IConvertible
+    public uint SetConfigValue<T> (string config_key, T value) where T : IConvertible
     {
       uint requestId = 0;
       eLeapRS result;
-      Type dataType = value.GetType();
-      if (dataType == typeof(bool))
-      {
-        result = LeapC.SaveConfigValue(_leapConnection, config_key, Convert.ToBoolean(value), out requestId);
+      Type dataType = value.GetType ();
+      if (dataType == typeof(bool)) {
+        result = LeapC.SaveConfigValue (_leapConnection, config_key, Convert.ToBoolean (value), out requestId);
+      } else if (dataType == typeof(Int32)) {
+        result = LeapC.SaveConfigValue (_leapConnection, config_key, Convert.ToInt32 (value), out requestId);
+      } else if (dataType == typeof(float)) {
+        result = LeapC.SaveConfigValue (_leapConnection, config_key, Convert.ToSingle (value), out requestId);
+      } else if (dataType == typeof(string)) {
+        result = LeapC.SaveConfigValue (_leapConnection, config_key, Convert.ToString (value), out requestId);
+      } else {
+        throw new ArgumentException ("Only boolean, Int32, float, and string types are supported.");
       }
-      else if (dataType == typeof(Int32))
-      {
-        result = LeapC.SaveConfigValue(_leapConnection, config_key, Convert.ToInt32(value), out requestId);
-      }
-      else if (dataType == typeof(float))
-      {
-        result = LeapC.SaveConfigValue(_leapConnection, config_key, Convert.ToSingle(value), out requestId);
-      }
-      else if (dataType == typeof(string))
-      {
-        result = LeapC.SaveConfigValue(_leapConnection, config_key, Convert.ToString(value), out requestId);
-      }
-      else {
-        throw new ArgumentException("Only boolean, Int32, float, and string types are supported.");
-      }
-      reportAbnormalResults("LeapC SaveConfigValue call was ", result);
-
+      reportAbnormalResults ("LeapC SaveConfigValue call was ", result);
       _configRequests [requestId] = config_key;
       return requestId;
     }
@@ -753,50 +717,6 @@ namespace LeapInternal
 
         return false;
       }
-    }
-
-    /**
-     * Reports whether this Controller is connected to the Leap Motion service and
-     * the Leap Motion hardware is plugged in.
-     *
-     * When you first create a Controller object, isConnected() returns false.
-     * After the controller finishes initializing and connects to the Leap Motion
-     * software and if the Leap Motion hardware is plugged in, isConnected() returns true.
-     *
-     * You can either handle the onConnect event using a Listener instance or
-     * poll the isConnected() function if you need to wait for your
-     * application to be connected to the Leap Motion software before performing some other
-     * operation.
-     *
-     * \include Controller_isConnected.txt
-     * @returns True, if connected; false otherwise.
-     * @since 1.0
-     */
-    public bool IsConnected
-    {
-      get
-      {
-        return IsServiceConnected && Devices.Count > 0;
-      }
-    }
-
-    private TrackedQuad findTrackQuadForFrame(long frameId)
-    {
-      TrackedQuad quad = null;
-      for (int q = 0; q < _quads.Count; q++)
-      {
-        quad = _quads.Get(q);
-        if (quad.Id == frameId)
-          return quad;
-        if (quad.Id < frameId)
-          break;
-      }
-      return quad; //null
-    }
-
-    public TrackedQuad GetLatestQuad()
-    {
-      return _quads.Get(0);
     }
 
     /**

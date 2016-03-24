@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Leap.Unity;
 using UnityEngine;
 
 namespace PXL.Utility {
@@ -19,17 +20,16 @@ namespace PXL.Utility {
 		/// </summary>
 		public static T TryGetComponent<T>(this Component component) where T : Component {
 			var tryComponent = component.GetComponent<T>();
-			if (tryComponent == null) {
-				var errorMessage = new StringBuilder();
-				errorMessage.Append("Component ");
-				errorMessage.Append(component.ToString());
-				errorMessage.Append(" is trying to access Component ");
-				errorMessage.Append(typeof(T).FullName);
-				errorMessage.Append(", but it is missing");
-				throw new MissingComponentException(errorMessage.ToString());
-			}
+			if (tryComponent != null) 
+				return tryComponent;
 
-			return tryComponent;
+			var errorMessage = new StringBuilder();
+			errorMessage.Append("Component ");
+			errorMessage.Append(component.ToString());
+			errorMessage.Append(" is trying to access Component ");
+			errorMessage.Append(typeof(T).FullName);
+			errorMessage.Append(", but it is missing");
+			throw new MissingComponentException(errorMessage.ToString());
 		}
 
 		/// <summary>
@@ -39,7 +39,7 @@ namespace PXL.Utility {
 		/// <param name="items">The array with all items</param>
 		/// <param name="minIndex">The minimum possible index</param>
 		public static T GetRandomElement<T>(this T[] items, int minIndex = 0) where T : struct {
-			var index = UnityEngine.Random.Range(minIndex, items.Length);
+			var index = Random.Range(minIndex, items.Length);
 			return items.ElementAt(index);
 		}
 
@@ -65,11 +65,29 @@ namespace PXL.Utility {
 		}
 
 		/// <summary>
+		/// Tries to retreive the value (a class) for the given key (a GameObject) from the given dictionary.
+		/// If there is no value for the given key, an entry is added.
+		/// </summary>
+		public static TV GetOrAddFromGameObject<TV>(this IDictionary<GameObject, TV> dictionary, GameObject key) where TV : class {
+			TV value;
+
+			if (dictionary.TryGetValue(key, out value))
+				return value;
+
+			value = key.GetComponent<TV>();
+			if (value == null)
+				throw new MissingReferenceException("GetOrAddFromGameObject couldn't get the Component of the object!");
+			dictionary.Add(key, value);
+
+			return value;
+		}
+
+		/// <summary>
 		/// Makes sure the given object is not null. If it is, a MissingReferenceException will be thrown with the given message.
 		/// </summary>
 		/// <param name="o"></param>
 		/// <param name="message"></param>
-		public static void AssertNotNull(this UnityEngine.Object o, string message = "Missing reference, object is null!") {
+		public static void AssertNotNull(this Object o, string message = "Missing reference, object is null!") {
 			if (o == null)
 				throw new MissingReferenceException(message);
 		}
@@ -77,7 +95,7 @@ namespace PXL.Utility {
 		/// <summary>
 		/// Compares two Vectors for near equality, optionally with the given epsilon.
 		/// </summary>
-		public static bool Equal(this Vector3 a, Vector3 b, float epsilon = 0.0001f) {
+		public static bool Equal(this Vector3 a, Vector3 b, float epsilon = 0.001f) {
 			return Vector3.Magnitude(a - b) < epsilon;
 		}
 
@@ -85,14 +103,22 @@ namespace PXL.Utility {
 		/// Returns whether the given hand and it's leap hand are valid and visible
 		/// </summary>
 		public static bool IsHandValid(this HandModel hand) {
-			return (hand != null && hand.isActiveAndEnabled && hand.GetLeapHand() != null);
+			return hand != null && hand.isActiveAndEnabled && hand.GetLeapHand() != null;
 		}
 
 		/// <summary>
 		/// Returns the cleared list by removing all null entries and inactive scene objects. Also removes duplicates
 		/// </summary>
-		public static List<T> Purge<T>(this List<T> list) where T : Component {
-			return list.Where(c => c != null && c.gameObject != null && c.gameObject.activeInHierarchy).Distinct().ToList();
+		public static void PurgeIfNecessary<T>(ref List<T> list) where T : Component {
+			if(list.PurgeNeeded())
+				list = list.Where(c => c != null && c.gameObject != null && c.gameObject.activeInHierarchy).Distinct().ToList();
+		}
+
+		/// <summary>
+		/// Returns whether the given list has to be purged
+		/// </summary>
+		private static bool PurgeNeeded<T>(this IEnumerable<T> list) where T : Component {
+			return list.Any(element => element == null || element.gameObject == null || !element.gameObject.activeInHierarchy);
 		}
 
 		/// <summary>
@@ -104,7 +130,6 @@ namespace PXL.Utility {
 				health.Kill();
 			else
 				Debug.LogWarning(component.gameObject.name + " has no Health Component!");
-
 		}
 
 	}

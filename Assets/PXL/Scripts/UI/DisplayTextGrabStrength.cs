@@ -1,4 +1,6 @@
-﻿namespace PXL.UI {
+﻿using Leap.Unity;
+
+namespace PXL.UI {
 	
 	public class DisplayTextGrabStrength : DisplayTextBase {
 

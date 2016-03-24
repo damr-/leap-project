@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using PXL.Interaction;
 using UnityEngine;
-using UniRx;
 
 namespace PXL.Utility {
 

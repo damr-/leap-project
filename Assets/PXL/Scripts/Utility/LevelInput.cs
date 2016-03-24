@@ -2,7 +2,6 @@
 using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 using System;
-using PXL.Gamemodes;
 
 namespace PXL.Utility {
 

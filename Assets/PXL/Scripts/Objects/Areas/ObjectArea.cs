@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 using PXL.Utility;
 
 namespace PXL.Objects.Areas {
@@ -9,6 +10,11 @@ namespace PXL.Objects.Areas {
 		/// The object type to look for
 		/// </summary>
 		public ObjectType TargetObjectType;
+
+		/// <summary>
+		/// All known GameObjects and their InteractiveObject component
+		/// </summary>
+		protected static readonly IDictionary<GameObject, InteractiveObject> InteractiveObjects = new Dictionary<GameObject, InteractiveObject>();
 
 		/// <summary>
 		/// Called when the other object is valid and has the correct tag

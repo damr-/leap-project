@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Leap;
+using Leap.Unity;
 using PXL.Utility;
 using UniRx;
 using UnityEngine;
@@ -78,6 +79,9 @@ namespace PXL.Interaction {
 		/// <param name="fingertip">Particular fingertip</param>
 		public void AddFinger(Fingertip fingertip) {
 			var hand = fingertip.HandModel;
+
+			if (hand == null)
+				return;
 
 			if (HandFingers.ContainsKey(hand)) {
 				HandFingers[hand].Add(fingertip);

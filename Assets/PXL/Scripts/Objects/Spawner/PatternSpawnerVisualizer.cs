@@ -137,7 +137,7 @@ namespace PXL.Objects.Spawner {
 		/// Removes all objects from <see cref="PreviewObjects" />
 		/// </summary>
 		private void RemovePreviewObjects() {
-			PreviewObjects = PreviewObjects.Purge();
+			Extensions.PurgeIfNecessary(ref PreviewObjects);
 			while (PreviewObjects.Count > 0) {
 				RemoveObject(PreviewObjects, 0);
 			}
@@ -147,12 +147,12 @@ namespace PXL.Objects.Spawner {
 		/// Removes all objects from <see cref="RandomPreviewObjects" /> and <see cref="PossiblyRandomPreviewObjects" />
 		/// </summary>
 		private void RemoveRandomPreviewObjects() {
-			RandomPreviewObjects = RandomPreviewObjects.Purge();
+			Extensions.PurgeIfNecessary(ref RandomPreviewObjects);
 			while (RandomPreviewObjects.Count > 0) {
 				RemoveObject(RandomPreviewObjects, 0);
 			}
 
-			PossiblyRandomPreviewObjects = PossiblyRandomPreviewObjects.Purge();
+			Extensions.PurgeIfNecessary(ref PossiblyRandomPreviewObjects);
 			while (PossiblyRandomPreviewObjects.Count > 0) {
 				RemoveObject(PossiblyRandomPreviewObjects, 0);
 			}
@@ -244,7 +244,8 @@ namespace PXL.Objects.Spawner {
 
 			var o = objects[index];
 			objects.RemoveAt(index);
-			DestroyImmediate(o.gameObject);
+			if(o != null)
+				DestroyImmediate(o.gameObject);
 		}
 
 		/// <summary>

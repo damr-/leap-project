@@ -1,5 +1,4 @@
-﻿using UniRx;
-using PXL.Interaction;
+﻿using PXL.Interaction;
 using UnityEngine.UI;
 using PXL.Utility;
 

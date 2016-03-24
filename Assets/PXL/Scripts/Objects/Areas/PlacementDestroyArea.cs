@@ -14,10 +14,10 @@ namespace PXL.Objects.Areas {
 			if (GameMode.GameOver || !AreaActive)
 				return;
 
-			ValidObjects = ValidObjects.Purge();
+			Extensions.PurgeIfNecessary(ref ValidObjects);
 
 			foreach (var o in ValidObjects) {
-				if (!o.GetComponent<Grabbable>().IsStationary)
+				if (!o.GetComponent<Grabbable>().IsStationary())
 					continue;
 
 				CurrentDestroyAmount.Value++;

@@ -237,7 +237,7 @@ namespace PXL.Objects.Spawner {
 
 		/// <summary>
 		/// Prevents spawning and removes all existing objects.
-		/// Enables spawning again after a small delay
+		/// Enables spawning again after a small delay, if respawning is enabled
 		/// </summary>
 		public virtual void RemoveAllObjects() {
 			IsSpawningEnabled = false;
@@ -245,6 +245,9 @@ namespace PXL.Objects.Spawner {
 			while (SpawnedObjects.Count > 0) {
 				SpawnedObjects[0].Kill();
 			}
+
+			if (!RespawnOnDepleted)
+				return;
 
 			Observable.Timer(TimeSpan.FromSeconds(RemoveAllSpawnDelay)).Subscribe(_ => {
 				IsSpawningEnabled = true;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Leap;
+using Leap.Unity;
 using PXL.Utility;
 using UniRx;
 using UnityEngine;
@@ -11,14 +12,19 @@ namespace PXL.Interaction {
 	public class Grabbable : MonoBehaviour {
 
 		/// <summary>
-		/// The minimum grab strength necessary to pick up an object
+		/// The position where the object was grabbed
 		/// </summary>
-		public static float MinGrabStrength = 0.25f;
+		public Vector3 PickupPosition;
 
 		/// <summary>
 		/// How long to wait after changing hands before being able to change again
 		/// </summary>
 		private const float ChangeHandDelay = 0.5f;
+
+		/// <summary>
+		/// The minimum grab strength necessary to pick up an object
+		/// </summary>
+		public static float MinGrabStrength = 0.25f;
 
 		/// <summary>
 		/// Every HandModel and its corresponding InteractionHand
@@ -32,6 +38,11 @@ namespace PXL.Interaction {
 		/// Whether the object can change hands at this moment.
 		/// </summary>
 		private bool canChangeHands = true;
+
+		/// <summary>
+		/// The Touchable component of this object
+		/// </summary>
+		private Touchable mTouchable;
 
 		/// <summary>
 		/// Whether this object is currently grabbed or not
@@ -53,22 +64,17 @@ namespace PXL.Interaction {
 		}
 
 		/// <summary>
-		/// The Touchable component of this object
+		/// Returns whether this <see cref="Grabbable" /> is currently stationary and not grabbed
 		/// </summary>
-		private Touchable Touchable {
-			get { return mTouchable ?? (mTouchable = this.TryGetComponent<Touchable>()); }
+		public bool IsStationary(float epsilon = 0.001f) {
+			return !IsGrabbed && Touchable.Rigidbody.velocity.Equal(Vector3.zero, epsilon);
 		}
 
 		/// <summary>
 		/// The Touchable component of this object
 		/// </summary>
-		private Touchable mTouchable;
-
-		/// <summary>
-		/// Returns whether this <see cref="Grabbable" /> is currently stationary and not grabbed
-		/// </summary>
-		public bool IsStationary {
-			get { return !IsGrabbed && Touchable.Rigidbody.velocity.Equal(Vector3.zero); }
+		private Touchable Touchable {
+			get { return mTouchable ?? (mTouchable = this.TryGetComponent<Touchable>()); }
 		}
 
 		/// <summary>
@@ -145,6 +151,7 @@ namespace PXL.Interaction {
 		/// Sets up everything for the object to be grabbed and moved around
 		/// </summary>
 		private void Grab() {
+			PickupPosition = transform.position;
 			SetGrabbed(true);
 		}
 
