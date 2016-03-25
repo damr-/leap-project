@@ -161,13 +161,18 @@ namespace PXL.Objects.Spawner {
 		public Vector3 ObjectRotation;
 
 		/// <summary>
+		/// Subscription for spawning new objects when all got removed
+		/// </summary>
+		private IDisposable removeAllSubscription = Disposable.Empty;
+
+		/// <summary>
 		/// Setup the spawn position and spawn the first object
 		/// </summary>
 		protected virtual void Start() {
 			DefaultObjectPrefab.AssertNotNull();
 			ObjectFactory.Prefab = DefaultObjectPrefab;
 			ObjectFactory.Position = transform.position;
-			if(SetObjectRotation)
+			if (SetObjectRotation)
 				ObjectFactory.Rotation = ObjectRotation;
 
 			CurrentObjectPrefab = DefaultObjectPrefab;
@@ -250,7 +255,8 @@ namespace PXL.Objects.Spawner {
 			if (!RespawnOnDepleted)
 				return;
 
-			Observable.Timer(TimeSpan.FromSeconds(RemoveAllSpawnDelay)).Subscribe(_ => {
+			removeAllSubscription.Dispose();
+			removeAllSubscription = Observable.Timer(TimeSpan.FromSeconds(RemoveAllSpawnDelay)).Subscribe(_ => {
 				IsSpawningEnabled = true;
 				SpawnObject();
 			});
@@ -299,7 +305,7 @@ namespace PXL.Objects.Spawner {
 
 			var subscription = health.Death.Subscribe(_ => {
 				objectDestroySubscriptions[health.gameObject].Dispose();
-                objectDestroySubscriptions.Remove(health.gameObject);
+				objectDestroySubscriptions.Remove(health.gameObject);
 				HandleObjectDespawned(interactiveObject);
 			});
 
@@ -307,7 +313,7 @@ namespace PXL.Objects.Spawner {
 
 			SpawnedObjects.Add(interactiveObject);
 
-			if(SpawnedObjectsContainer != null)
+			if (SpawnedObjectsContainer != null)
 				newObject.transform.SetParent(SpawnedObjectsContainer, true);
 
 			objectSpawnedSubject.OnNext(interactiveObject);
@@ -357,6 +363,7 @@ namespace PXL.Objects.Spawner {
 		/// Clear the subscriptions when this ObjectManager is disabled
 		/// </summary>
 		private void OnDisable() {
+			removeAllSubscription.Dispose();
 			foreach (var entry in objectDestroySubscriptions) {
 				entry.Value.Dispose();
 			}

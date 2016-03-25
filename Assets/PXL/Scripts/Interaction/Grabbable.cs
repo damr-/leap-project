@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using Leap;
 using Leap.Unity;
+using LeapInternal;
+using PXL.Objects;
 using PXL.Utility;
 using UniRx;
 using UnityEngine;
@@ -67,7 +69,12 @@ namespace PXL.Interaction {
 		/// Returns whether this <see cref="Grabbable" /> is currently stationary and not grabbed
 		/// </summary>
 		public bool IsStationary(float epsilon = 0.001f) {
-			return !IsGrabbed && Touchable.Rigidbody.velocity.Equal(Vector3.zero, epsilon);
+			//Debug.DrawRay(transform.position, Vector3.down * InteractiveObject.Scale / 2f, Color.green, Time.deltaTime, false);
+
+			var hit = Physics.Raycast(transform.position, Vector3.down, InteractiveObject.Scale / 2f);
+			//Debug.Log(hit);
+
+			return !IsGrabbed && Touchable.Rigidbody.velocity.Equal(Vector3.zero, epsilon) && hit;
 		}
 
 		/// <summary>
@@ -76,6 +83,13 @@ namespace PXL.Interaction {
 		private Touchable Touchable {
 			get { return mTouchable ?? (mTouchable = this.TryGetComponent<Touchable>()); }
 		}
+		/// <summary>
+		/// The Touchable component of this object
+		/// </summary>
+		private InteractiveObject InteractiveObject {
+			get { return mInteractiveObject ?? (mInteractiveObject = this.TryGetComponent<InteractiveObject>()); }
+		}
+		private InteractiveObject mInteractiveObject;
 
 		/// <summary>
 		/// Sets up the subscriptions
@@ -90,7 +104,7 @@ namespace PXL.Interaction {
 		/// </summary>
 		private void Update() {
 			if (!isGrabbed && GrabbingHandsManager.CanHandGrab(CurrentHand) && CanHoldObject() &&
-			    Touchable.CanGrabObject(CurrentHand)) {
+				Touchable.CanGrabObject(CurrentHand)) {
 				Grab();
 			}
 
@@ -198,9 +212,9 @@ namespace PXL.Interaction {
 		/// <returns></returns>
 		private bool CanChangeHands(HandModel newHand) {
 			return CurrentHand != newHand &&
-			       Touchable.HandFingers[newHand].Count > Touchable.MinFingerCount &&
-			       Touchable.IsCertainFingerTouching(newHand, Finger.FingerType.TYPE_THUMB) &&
-			       canChangeHands;
+				   Touchable.HandFingers[newHand].Count > Touchable.MinFingerCount &&
+				   Touchable.IsCertainFingerTouching(newHand, Finger.FingerType.TYPE_THUMB) &&
+				   canChangeHands;
 		}
 
 	}

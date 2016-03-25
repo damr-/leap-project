@@ -27,6 +27,9 @@ namespace PXL.UI {
 				return;
 
 			button.onClick.Invoke();
+		}
+
+		public void ToggleMode() {
 			AdminUiBase.ToggleMode();
 		}
 

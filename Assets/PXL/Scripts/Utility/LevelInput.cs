@@ -2,11 +2,15 @@
 using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 using System;
+using System.Collections;
+using System.IO;
+using System.Linq;
+using UnityEditor;
 
 namespace PXL.Utility {
 
 	public class LevelInput : MonoBehaviour {
-	
+
 		[Serializable]
 		public class SceneInfo {
 			public string SceneName;
@@ -35,9 +39,28 @@ namespace PXL.Utility {
 			new SceneInfo("dev", KeyCode.F1),
 			new SceneInfo("hanoi", KeyCode.F2)
 		};
-		
+
+		private static int _currentLevel;
+
+		private bool isLoading;
+
 		private void Update() {
-			SceneInfos.ForEach(CheckSceneInput);
+			if (SceneManager.GetActiveScene().buildIndex != _currentLevel) {
+				isLoading = false;
+				_currentLevel = SceneManager.GetActiveScene().buildIndex;
+			}
+
+			if (isLoading)
+				return;
+
+			foreach (var item in SceneInfos.Select((value, i) => new { i, value })) {
+				if (!Input.GetKeyDown(item.value.LoadKey)) 
+					continue;
+
+				_currentLevel = SceneManager.GetActiveScene().buildIndex;
+				isLoading = true;
+				StartCoroutine(CallLoad(item.i));
+			}
 
 			if (Input.GetKeyDown(RestartKey)) {
 				var scene = SceneManager.GetActiveScene();
@@ -49,11 +72,11 @@ namespace PXL.Utility {
 			}
 		}
 
-		private void CheckSceneInput(SceneInfo sceneInfo) {
-			if (Input.GetKeyDown(sceneInfo.LoadKey)) {
-				SceneManager.LoadScene(sceneInfo.SceneName);
-			}
+		private static IEnumerator CallLoad(int loadLevel) {
+			var async = SceneManager.LoadSceneAsync(loadLevel);
+			yield return async;
 		}
+
 	}
 
 }
