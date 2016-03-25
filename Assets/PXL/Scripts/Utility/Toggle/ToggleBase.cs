@@ -1,4 +1,4 @@
-﻿using PXL.UI;
+﻿using PXL.UI.Admin;
 using UnityEngine;
 
 namespace PXL.Utility.Toggle {

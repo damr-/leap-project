@@ -67,14 +67,14 @@ namespace PXL.Objects.Areas {
 
 			InteractiveObject wrongObject;
 			if (!StackedCorrecly(out wrongObject)) {
-				if (canInvokeIncorrectObservable) {
-					stackedIncorrectlySubject.OnNext(wrongObject);
-					canInvokeIncorrectObservable = false;
-					refreshSubscription.Dispose();
-					refreshSubscription = Observable.Timer(TimeSpan.FromSeconds(0.5f)).Subscribe(_ => {
-						canInvokeIncorrectObservable = true;
-					});
-				}
+				if (!canInvokeIncorrectObservable) 
+					return;
+				stackedIncorrectlySubject.OnNext(wrongObject);
+				canInvokeIncorrectObservable = false;
+				refreshSubscription.Dispose();
+				refreshSubscription = Observable.Timer(TimeSpan.FromSeconds(0.5f)).Subscribe(_ => {
+					canInvokeIncorrectObservable = true;
+				});
 				return;
 			}
 			if (Objects.Count != RequiredObjectsAmount) {
@@ -94,10 +94,11 @@ namespace PXL.Objects.Areas {
 				var o = SortedObjects.ElementAt(i);
 				var next = SortedObjects.ElementAt(i + 1);
 
-				if (o.Scale <= next.Scale) {
-					wrongObject = next;
-					return false;
-				}
+				if (!(o.Scale <= next.Scale)) 
+					continue;
+
+				wrongObject = next;
+				return false;
 			}
 			return true;
 		}

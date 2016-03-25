@@ -60,7 +60,7 @@ namespace PXL.Gamemodes {
 		public static void AddPoints(int points) {
 			CurrentPoints += points;
 
-			if (CurrentPoints >= WinPoints) {
+			if (WinPoints >= 0 && CurrentPoints >= WinPoints) {
 				SetGameWon(true);
 			}
 		}

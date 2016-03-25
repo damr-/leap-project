@@ -2,6 +2,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using PXL.UI;
+using PXL.UI.Admin;
 using UniRx;
 using PXL.Utility;
 

@@ -1,4 +1,5 @@
-﻿using PXL.Utility;
+﻿using PXL.UI.Admin;
+using PXL.Utility;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -22,10 +23,11 @@ namespace PXL.UI {
 		}
 
 		protected virtual void Update() {
-			if (Input.GetKeyDown(SwitchModeKey)) {
-				button.onClick.Invoke();
-				AdminUiBase.ToggleMode();
-			}
+			if (!Input.GetKeyDown(SwitchModeKey)) 
+				return;
+
+			button.onClick.Invoke();
+			AdminUiBase.ToggleMode();
 		}
 
 	}
