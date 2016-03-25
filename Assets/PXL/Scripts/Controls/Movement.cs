@@ -4,13 +4,13 @@ namespace PXL.Controls {
 
 	public class Movement : MonoBehaviour {
 
-		public KeyCode ForwardKey = KeyCode.UpArrow;
+		public KeyCode ForwardKey = KeyCode.W;
 
-		public KeyCode BackwardKey = KeyCode.DownArrow;
+		public KeyCode BackwardKey = KeyCode.S;
 
-		public KeyCode LeftKey = KeyCode.LeftArrow;
+		public KeyCode LeftKey = KeyCode.A;
 
-		public KeyCode RightKey = KeyCode.RightArrow;
+		public KeyCode RightKey = KeyCode.D;
 
 		public float Speed = 0.05f;
 

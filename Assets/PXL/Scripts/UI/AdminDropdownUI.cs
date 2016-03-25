@@ -1,4 +1,6 @@
-﻿using UnityEngine.UI;
+﻿using PXL.Utility;
+using UnityEngine;
+using UnityEngine.UI;
 
 namespace PXL.UI {
 
@@ -9,6 +11,21 @@ namespace PXL.UI {
 		/// </summary>
 		protected Dropdown Dropdown;
 
+		/// <summary>
+		/// The current Index in the dropdown menu
+		/// </summary>
+		protected int CurrentIndex;
+
+		/// <summary>
+		/// The key used to increase <see cref="CurrentIndex"/>
+		/// </summary>
+		public KeyCode IncreaseKey = KeyCode.W;
+
+		/// <summary>
+		/// The key used to decrease <see cref="CurrentIndex"/>
+		/// </summary>
+		public KeyCode DecreaseKey = KeyCode.S;
+
 		protected override void Start() {
 			base.Start();
 
@@ -18,6 +35,7 @@ namespace PXL.UI {
 			AddDropdownEntries();
 
 			Dropdown.value = 1;
+			CurrentIndex = 1;
 		}
 
 		protected abstract void AddDropdownEntries();
