@@ -44,12 +44,12 @@ namespace PXL.UI.Admin {
 		/// <summary>
 		/// Color for the <see cref="BackgroundImage"/> when this PropertyChanger is selected
 		/// </summary>
-		public Color SelectedColor = new Color(255/255f, 201/255f, 133/255f, 197/255f);
+		public Color SelectedColor = new Color(255 / 255f, 201 / 255f, 133 / 255f, 197 / 255f);
 
 		/// <summary>
 		/// The default background color of <see cref="BackgroundImage"/>
 		/// </summary>
-		private readonly Color defaultColor = new Color(1f, 1f, 1f, 100/255f);
+		private readonly Color defaultColor = new Color(1f, 1f, 1f, 100 / 255f);
 
 		/// <summary>
 		/// Whether this PropertyChanger is currently selected
@@ -72,18 +72,22 @@ namespace PXL.UI.Admin {
 		/// Checks for active admin mode and key strokes
 		/// </summary>
 		protected virtual void Update() {
-			if (!IsAdmin || !IsSelected)
+			if (!IsAdmin || !IsSelected) {
 				return;
+			}
 
-			if ((IncreaseKey == KeyCode.Plus && IsPlusKeyDown()) || Input.GetKeyDown(IncreaseKey)) {
+			if (Input.GetKeyDown(IncreaseKey)) {
 				IncreaseButton.onClick.Invoke();
 			}
 
-			if (DecreaseKey == KeyCode.Plus && IsPlusKeyDown() || Input.GetKeyDown(DecreaseKey)) {
+			if (Input.GetKeyDown(DecreaseKey)) {
 				DecreaseButton.onClick.Invoke();
 			}
 		}
 
+		/// <summary>
+		/// Asserts that all necessary references are set up and throws exceptions if not
+		/// </summary>
 		protected virtual void AssertReferences() {
 			DecreaseButton.AssertNotNull("Decrease button missing");
 			IncreaseButton.AssertNotNull("Increase button missing");

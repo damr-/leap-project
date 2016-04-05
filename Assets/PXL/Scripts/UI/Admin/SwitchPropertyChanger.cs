@@ -6,14 +6,29 @@ namespace PXL.UI.Admin {
 
 	public class SwitchPropertyChanger : MonoBehaviour {
 
+		/// <summary>
+		/// The key used to select the next property changer
+		/// </summary>
 		protected readonly KeyCode NextPropertyChangerKey = KeyCode.DownArrow;
 
+		/// <summary>
+		/// The key used to select the previous property changer
+		/// </summary>
 		protected readonly KeyCode PreviousPropertyChangerKey = KeyCode.UpArrow;
 
+		/// <summary>
+		/// All known property changers
+		/// </summary>
 		private List<PropertyChanger> propertyChangers = new List<PropertyChanger>();
 
+		/// <summary>
+		/// The currently selected property changer
+		/// </summary>
 		private PropertyChanger currentPropertyChanger;
 
+		/// <summary>
+		/// The index of the currently selected property changer
+		/// </summary>
 		private int currentIndex;
 
 		private void Start() {

@@ -14,7 +14,8 @@ namespace PXL.Objects.Areas {
 		/// <summary>
 		/// The light of the area
 		/// </summary>
-		public Light AreaLight;
+		[SerializeField]
+		private Light areaLight;
 
 		/// <summary>
 		/// Number of required objects to be stacked upon each other
@@ -22,15 +23,16 @@ namespace PXL.Objects.Areas {
 		public int RequiredObjectsAmount = 3;
 
 		/// <summary>
+		/// The maximum velocity magnitude a rigidbody can have to be called stationary
+		/// </summary>
+		[SerializeField] 
+		private float stationaryEpsilon = 0.05f;
+
+		/// <summary>
 		/// List of sorted objects, by scale
 		/// </summary>
 		protected List<InteractiveObject> SortedObjects = new List<InteractiveObject>();
-
-		/// <summary>
-		/// The maximum velocity magnitude a rigidbody can have to be called stationary
-		/// </summary>
-		public float StationaryEpsilon = 0.05f;
-
+		
 		public IObservable<Unit> StackedCorrectly { get { return stackedCorrectlySubject; } }
 		private readonly ISubject<Unit> stackedCorrectlySubject = new Subject<Unit>();
 
@@ -48,7 +50,7 @@ namespace PXL.Objects.Areas {
 		private IDisposable refreshSubscription = Disposable.Empty;
 
 		protected virtual void Start() {
-			AreaLight.AssertNotNull("The area light is missing");
+			areaLight.AssertNotNull("The area light is missing");
 		}
 
 		protected override void Update() {
@@ -89,17 +91,17 @@ namespace PXL.Objects.Areas {
 		/// Returns whether all objects are stacked correctly
 		/// </summary>
 		protected virtual bool StackedCorrecly(out InteractiveObject wrongObject) {
-			wrongObject = null;
 			for (var i = 0; i < SortedObjects.Count - 1; i++) {
-				var o = SortedObjects.ElementAt(i);
-				var next = SortedObjects.ElementAt(i + 1);
+				var currentObject = SortedObjects.ElementAt(i);
+				var nextObject = SortedObjects.ElementAt(i + 1);
 
-				if (!(o.Scale <= next.Scale)) 
+				if (!(currentObject.Scale <= nextObject.Scale)) 
 					continue;
 
-				wrongObject = next;
+				wrongObject = nextObject;
 				return false;
 			}
+			wrongObject = null;
 			return true;
 		}
 
@@ -128,17 +130,17 @@ namespace PXL.Objects.Areas {
 		/// </summary>
 		/// <returns>True if no objects is still grabbed, false if otherwise</returns>
 		protected virtual bool AllObjectsDropped() {
-			return SortedObjects.Select(o => o.GetComponent<Grabbable>()).All(grabbable => grabbable.IsStationary(StationaryEpsilon));
+			return SortedObjects.Select(o => o.GetComponent<Grabbable>()).All(grabbable => grabbable.IsStationary(stationaryEpsilon));
 		}
 
 		/// <summary>
-		/// Adds the new object to <see cref="SortedObjects" />
+		/// <see cref="StackArea" /> doesn't handle valid object types directly on trigger enter
 		/// </summary>
 		protected override void HandleValidObjectType(InteractiveObject interactiveObject) {
 		}
 
 		/// <summary>
-		/// <see cref="StackArea" /> doesn't worry about invalid object types
+		/// <see cref="StackArea" /> doesn't handle invalid object types
 		/// </summary>
 		protected override void HandleInvalidObjectType(InteractiveObject interactiveObject) {
 		}

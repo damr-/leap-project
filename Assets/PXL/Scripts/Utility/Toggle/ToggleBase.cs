@@ -15,22 +15,39 @@ namespace PXL.Utility.Toggle {
 		/// </summary>
 		public bool OnlyAdmin = true;
 
+		/// <summary>
+		/// Whether the toggle is currently ON
+		/// </summary>
+		public ObservableProperty<bool> IsToggled = new ObservableProperty<bool>();
+
+		/// <summary>
+		/// Checks for keyboard input
+		/// </summary>
 		private void Update() {
 			if (!Input.GetKeyDown(ToggleKey))
 				return;
 
-			if (!OnlyAdmin) {
-				HandleKeyDown();
-			}
-			else if (AdminUiBase.IsAdmin) {
-				HandleKeyDown();
-			}
+			TryToggle();
+		}
+
+		/// <summary>
+		/// Checks whether admin is required and the admin mode is active and calles <see cref="HandleKeyDown"/>
+		/// </summary>
+		private void TryToggle() {
+			if (OnlyAdmin && !AdminUiBase.IsAdmin)
+				return;
+
+			IsToggled.Value = !IsToggled.Value;
+			HandleKeyDown();
 		}
 
 		protected abstract void HandleKeyDown();
 
+		/// <summary>
+		/// Simulates pressing the toggle key
+		/// </summary>
 		public void Toggle() {
-			HandleKeyDown();
+			TryToggle();
 		}
 
 	}

@@ -69,12 +69,7 @@ namespace PXL.Interaction {
 		/// Returns whether this <see cref="Grabbable" /> is currently stationary and not grabbed
 		/// </summary>
 		public bool IsStationary(float epsilon = 0.001f) {
-			//Debug.DrawRay(transform.position, Vector3.down * InteractiveObject.Scale / 2f, Color.green, Time.deltaTime, false);
-
-			var hit = Physics.Raycast(transform.position, Vector3.down, InteractiveObject.Scale / 2f);
-			//Debug.Log(hit);
-
-			return !IsGrabbed && Touchable.Rigidbody.velocity.Equal(Vector3.zero, epsilon) && hit;
+			return !IsGrabbed && Touchable.Rigidbody.velocity.Equal(Vector3.zero, epsilon);
 		}
 
 		/// <summary>
