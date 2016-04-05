@@ -1,10 +1,9 @@
 ﻿using PXL.Objects.Spawner;
-using UnityEngine;
 using UnityEngine.UI;
 
 namespace PXL.UI.Admin {
 
-	public class SpawnerButton : MonoBehaviour {
+	public class SpawnerElementExpanded : MenuElement {
 
 		public Text SpawnerNameText;
 

@@ -27,7 +27,7 @@ namespace PXL.UI.Admin {
 
 		protected override void Start() {
 			base.Start();
-			ObjectSpawners.ForEach(o => o.SpawnInitiated.Subscribe(_ => RandomiseIfNeeded()));
+			ObjectSpawner.SpawnInitiated.Subscribe(_ => RandomiseIfNeeded());
 		}
 
 		protected override void ChangeProperty(int index) {
@@ -36,7 +36,7 @@ namespace PXL.UI.Admin {
 
 			var newShape = AvailableObjects.ElementAt(index);
 
-			ObjectSpawners.ForEach(o => o.SetObjectPrefab(newShape.Obj));
+			ObjectSpawner.SetObjectPrefab(newShape.Obj);
 			Preview.overrideSprite = newShape.Texture;
 			PropertyText.text = newShape.Name;
 
@@ -53,7 +53,7 @@ namespace PXL.UI.Admin {
 		/// </summary>
 		protected virtual void RandomiseIfNeeded() {
 			if (ChooseRandomShape)
-				ObjectSpawners.ForEach(o => o.SetObjectPrefab(GetRandomShape()));
+				ObjectSpawner.SetObjectPrefab(GetRandomShape());
 		}
 
 		/// <summary>
