@@ -38,17 +38,6 @@ namespace PXL.Objects.Spawner.Editor {
 							"The preview used for showing a spot in the preview which might be added due to the random column and row count"),
 						visualizer.PossiblyRandomPreviewGameObject, typeof(GameObject), false);
 
-			EditorGUILayout.BeginHorizontal();
-			EditorGUILayout.LabelField(new GUIContent("Preview Objects Container",
-				"Parent for spawned preview objects, created by the Visualizer itself"), GUILayout.MaxWidth(160));
-			EditorGUI.BeginDisabledGroup(true);
-			EditorGUILayout.ObjectField("", visualizer.PreviewContainer, typeof(Transform), false, GUILayout.MaxWidth(150));
-			EditorGUI.EndDisabledGroup();
-			if (GUILayout.Button(new GUIContent("Recreate", "Recreate the container for the preview objects if it's missing or broken"))) {
-				visualizer.TryCreatePreviewContainer();
-			}
-			EditorGUILayout.EndHorizontal();
-
 			showPreviewObjects = EditorGUILayout.Foldout(showPreviewObjects, "Preview Objects");
 			if (showPreviewObjects) {
 				EditorGUILayout.BeginVertical();

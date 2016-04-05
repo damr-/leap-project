@@ -20,7 +20,7 @@ namespace PXL.Utility {
 		/// </summary>
 		public static T TryGetComponent<T>(this Component component) where T : Component {
 			var tryComponent = component.GetComponent<T>();
-			if (tryComponent != null) 
+			if (tryComponent != null)
 				return tryComponent;
 
 			var errorMessage = new StringBuilder();
@@ -110,7 +110,7 @@ namespace PXL.Utility {
 		/// Returns the cleared list by removing all null entries and inactive scene objects. Also removes duplicates
 		/// </summary>
 		public static void PurgeIfNecessary<T>(ref List<T> list) where T : Component {
-			if(list.PurgeNeeded())
+			if (list.PurgeNeeded())
 				list = list.Where(c => c != null && c.gameObject != null && c.gameObject.activeInHierarchy).Distinct().ToList();
 		}
 
@@ -122,6 +122,19 @@ namespace PXL.Utility {
 		}
 
 		/// <summary>
+		/// Removes the element with the given index from the list and destroys it's GameObject
+		/// </summary>
+		public static void DestroyElement<T>(this List<T> list, int index) where T : Component {
+			if (index >= list.Count || index < 0)
+				return;
+
+			var o = list[index];
+			list.RemoveAt(index);
+			if (o != null)
+				Object.DestroyImmediate(o.gameObject);
+		}
+
+		/// <summary>
 		/// Tries to get the <see cref="Health.Health"/> Component of the given component and kill it
 		/// </summary>
 		public static void Kill<T>(this T component) where T : Component {
@@ -130,6 +143,17 @@ namespace PXL.Utility {
 				health.Kill();
 			else
 				Debug.LogWarning(component.gameObject.name + " has no Health Component!");
+		}
+
+		/// <summary>
+		/// Removes all children transforms of this transform
+		/// </summary>
+		public static void RemoveAllChildTransforms<T>(this T transform) where T : Transform {
+			while (transform.childCount > 0) {
+				foreach (Transform o in transform) {
+					Object.DestroyImmediate(o.gameObject);
+				}
+			}
 		}
 
 	}
