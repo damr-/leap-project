@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 using System.Collections.Generic;
-using PXL.UI;
+using System.Linq;
 using PXL.UI.Admin;
 using UniRx;
 using PXL.Utility;
@@ -90,17 +90,12 @@ namespace PXL.Objects.Spawner {
 		/// <summary>
 		/// The current set scale for objects
 		/// </summary>
-		protected float CurrentScaleFactor;
+		public ObservableProperty<float> CurrentScaleFactor = new ObservableProperty<float>();
 
 		/// <summary>
 		/// All the objects spawned by this ObjectManager
 		/// </summary>
 		protected readonly List<InteractiveObject> SpawnedObjects = new List<InteractiveObject>();
-
-		/// <summary>
-		/// The currently active prefab which will be spawned
-		/// </summary>
-		protected GameObject CurrentObjectPrefab;
 
 		/// <summary>
 		/// The total count of all objects spawned by this spawner
@@ -161,6 +156,11 @@ namespace PXL.Objects.Spawner {
 		public Vector3 ObjectRotation;
 
 		/// <summary>
+		/// The currently used GameObject for newly spawned objects
+		/// </summary>
+		public GameObject CurrentObjectPrefab { get; private set; }
+
+		/// <summary>
 		/// Subscription for spawning new objects when all got removed
 		/// </summary>
 		private IDisposable removeAllSubscription = Disposable.Empty;
@@ -170,13 +170,15 @@ namespace PXL.Objects.Spawner {
 		/// </summary>
 		protected virtual void Start() {
 			DefaultObjectPrefab.AssertNotNull();
-			ObjectFactory.Prefab = DefaultObjectPrefab;
-			ObjectFactory.Position = transform.position;
-			if (SetObjectRotation)
-				ObjectFactory.Rotation = ObjectRotation;
 
 			CurrentObjectPrefab = DefaultObjectPrefab;
 			SetObjectScale(DefaultScaleFactor);
+
+			ObjectFactory.Prefab = DefaultObjectPrefab;
+			ObjectFactory.Position = transform.position;
+
+			if (SetObjectRotation)
+				ObjectFactory.Rotation = ObjectRotation;
 
 			InitiateInitialSpawns();
 		}
@@ -206,7 +208,6 @@ namespace PXL.Objects.Spawner {
 			if (Input.GetKeyDown(RemoveAllKey))
 				RemoveAllObjects();
 		}
-
 
 		/// <summary>
 		/// Returns whether this spawner can spawn an object
@@ -319,6 +320,7 @@ namespace PXL.Objects.Spawner {
 			objectSpawnedSubject.OnNext(interactiveObject);
 		}
 
+
 		/// <summary>
 		/// Increases the object scale of future objects by <see cref="ScaleChangeAmount"/>
 		/// </summary>
@@ -334,19 +336,12 @@ namespace PXL.Objects.Spawner {
 		}
 
 		/// <summary>
-		/// Resets the scale factor for objects to the default value
-		/// </summary>
-		public void ResetObjectScale() {
-			SetObjectScale(DefaultScaleFactor);
-		}
-
-		/// <summary>
 		/// Changes the object scale depending on the given bool and updates the variables
 		/// </summary>
 		private void SetObjectScale(float newScale) {
 			if (newScale < MinScaleFactor || newScale > MaxScaleFactor)
 				return;
-			CurrentScaleFactor = newScale;
+			CurrentScaleFactor.Value = newScale;
 			ObjectScale.Value = newScale;
 			ObjectFactory.Scale = newScale;
 		}
@@ -368,6 +363,7 @@ namespace PXL.Objects.Spawner {
 				entry.Value.Dispose();
 			}
 		}
+
 	}
 
 }

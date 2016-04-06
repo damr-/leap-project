@@ -1,67 +1,53 @@
-﻿using UnityEngine;
-using System.Linq;
-using System;
-using UniRx;
+﻿using System.Linq;
+using PXL.Objects.Spawner;
 using PXL.Utility;
+using UnityEngine;
 
 namespace PXL.UI.Admin {
 
 	public class ObjectShapeChanger : IndexedPropertyChanger {
+	
+		public ObjectShapePreview ObjectShapePreview;
 
-		[Serializable]
-		public struct ObjectShape {
-			public GameObject Obj;
-			public string Name;
-			public Sprite Texture;
+		private SetObjectShapeOnSpawn SetObjectShapeOnSpawn {
+			get {
+				if (mSetObjectShapeOnSpawn != null)
+					return mSetObjectShapeOnSpawn;
+
+				mSetObjectShapeOnSpawn = ObjectSpawner.GetComponent<SetObjectShapeOnSpawn>();
+				if (mSetObjectShapeOnSpawn == null)
+					throw new MissingReferenceException(ObjectSpawner.gameObject.name + " is missing a SetObjectShapeOnSpawn component!");
+
+				return mSetObjectShapeOnSpawn;
+			}
 		}
-
-		/// <summary>
-		/// All selectable objects
-		/// </summary>
-		public ObjectShape[] AvailableObjects;
-
-		/// <summary>
-		/// Whether a random shape has to be chosen every time an object is spawned
-		/// </summary>
-		protected bool ChooseRandomShape;
+		private SetObjectShapeOnSpawn mSetObjectShapeOnSpawn;
 
 		protected override void Start() {
 			base.Start();
-			ObjectSpawner.SpawnInitiated.Subscribe(_ => RandomiseIfNeeded());
+			ObjectShapePreview.AssertNotNull("Object Shape Preview missing!");
+			ObjectShapePreview.Setup(ObjectSpawner);
+			ChangeProperty(SetObjectShapeOnSpawn.AvailableShapes.IndexOf(SetObjectShapeOnSpawn.CurrentObjectShape));
 		}
 
+		/// <summary>
+		/// Changes the current property to the one with the given index
+		/// </summary>
 		protected override void ChangeProperty(int index) {
 			if (!IsValidIndex(index))
 				return;
 
-			var newShape = AvailableObjects.ElementAt(index);
+			var newShape = SetObjectShapeOnSpawn.AvailableShapes.ElementAt(index);
 
-			ObjectSpawner.SetObjectPrefab(newShape.Obj);
-			Preview.overrideSprite = newShape.Texture;
+			SetObjectShapeOnSpawn.SetObjectShape(newShape);
 			PropertyText.text = newShape.Name;
-
-			ChooseRandomShape = index == 0;
 			CurrentPropertyIndex = index;
 		}
 
 		protected override bool IsValidIndex(int index) {
-			return index >= 0 && index < AvailableObjects.Length;
+			return index >= 0 && index < SetObjectShapeOnSpawn.AvailableShapes.Count;
 		}
 
-		/// <summary>
-		/// Change the currently used shape to a random one if necessary
-		/// </summary>
-		protected virtual void RandomiseIfNeeded() {
-			if (ChooseRandomShape)
-				ObjectSpawner.SetObjectPrefab(GetRandomShape());
-		}
-
-		/// <summary>
-		/// Returns a random shape
-		/// </summary>
-		public GameObject GetRandomShape() {
-			return AvailableObjects.GetRandomElement(1).Obj;
-		}
 	}
 
 }
