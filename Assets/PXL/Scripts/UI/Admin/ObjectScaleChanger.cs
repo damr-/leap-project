@@ -6,28 +6,16 @@ namespace PXL.UI.Admin {
 
 		protected override void Start() {
 			base.Start();
-			ObjectSpawners.ForEach(o => o.ObjectScale.Subscribe(SetText));
-			ResetValue();
+			ObjectSpawner.ObjectScale.Subscribe(SetText);
+			SetText(ObjectSpawner.ObjectScale.Value);
 		}
 
 		public override void NextValue() {
-			ObjectSpawners.ForEach(os => {
-				os.IncreaseObjectScale();
-			});
-
+			ObjectSpawner.IncreaseObjectScale();
 		}
 
 		public override void PreviousValue() {
-			ObjectSpawners.ForEach(os => {
-				os.DecreaseObjectScale();
-			});
-
-		}
-
-		public void ResetValue() {
-			ObjectSpawners.ForEach(os => {
-				os.ResetObjectScale();
-			});
+			ObjectSpawner.DecreaseObjectScale();
 		}
 		
 		/// <summary>
@@ -35,7 +23,7 @@ namespace PXL.UI.Admin {
 		/// </summary>
 		/// <param name="objectScale">The currently selected scale for objects</param>
 		private void SetText(float objectScale) {
-			PropertyText.text = objectScale.ToString("0.0");
+			PropertyText.text = objectScale.ToString("0.00");
 		}
 	}
 

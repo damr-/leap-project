@@ -1,22 +1,34 @@
 ﻿using PXL.Objects.Spawner;
+using UniRx;
 using UnityEngine.UI;
 
 namespace PXL.UI.Admin {
 
 	public class SpawnerElementCompact : MenuElement {
-	
+
 		public Text SpawnerNameText;
 
-		public Image ShapePreview;
+		public ObjectShapePreview ShapePreview;
 
-		public Image ColorPreview;
+		public ObjectColorPreview ColorPreview;
 
 		public Text ScaleText;
 
+		protected ObjectSpawner ObjectSpawner;
+
 		public void SetSpawner(ObjectSpawner objectSpawner) {
-			SpawnerNameText.text = objectSpawner.gameObject.name;
-			
-			ScaleText.text = objectSpawner.ObjectScale.Value.ToString("0.0");
+			ObjectSpawner = objectSpawner;
+			SpawnerNameText.text = ObjectSpawner.gameObject.name;
+
+			ColorPreview.Setup(ObjectSpawner);
+			ShapePreview.Setup(ObjectSpawner);
+
+			ObjectSpawner.CurrentScaleFactor.Subscribe(UpdateScaleDisplay);
+			UpdateScaleDisplay(ObjectSpawner.CurrentScaleFactor.Value);
+		}
+
+		public void UpdateScaleDisplay(float newScale) {
+			ScaleText.text = newScale.ToString("0.00");
 		}
 
 	}

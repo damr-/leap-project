@@ -35,7 +35,7 @@ namespace PXL.UI.Admin {
 		/// <summary>
 		/// The target <see cref="ObjectSpawner"/>, whose properties this script changes
 		/// </summary>
-		public ObjectSpawner ObjectSpawner;
+		public ObjectSpawner ObjectSpawner { get; set; }
 
 		/// <summary>
 		/// Checks for active admin mode and key strokes
@@ -65,6 +65,9 @@ namespace PXL.UI.Admin {
 
 		public abstract void PreviousValue();
 
+		/// <summary>
+		/// Returns whether the plus ('+') key was just pressed down
+		/// </summary>
 		protected bool IsPlusKeyDown() {
 			if (!Input.anyKeyDown)
 				return false;
