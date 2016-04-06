@@ -1,26 +1,18 @@
-﻿using UnityEngine;
-using UnityEngine.SceneManagement;
-using System.Collections.Generic;
-using System;
+﻿using System;
 using System.Collections;
-using System.IO;
+using System.Collections.Generic;
 using System.Linq;
-using UnityEditor;
+using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace PXL.Utility {
 
 	public class LevelInput : MonoBehaviour {
 
-		[Serializable]
-		public class SceneInfo {
-			public string SceneName;
-			public KeyCode LoadKey;
-
-			public SceneInfo(string sceneName, KeyCode loadKey) {
-				SceneName = sceneName;
-				LoadKey = loadKey;
-			}
-		}
+		/// <summary>
+		/// Whether a level is currently loading
+		/// </summary>
+		private bool isLoading;
 
 		/// <summary>
 		/// The key used for quitting the application
@@ -40,31 +32,20 @@ namespace PXL.Utility {
 			new SceneInfo("hanoi", KeyCode.F2)
 		};
 
-		private static int _currentLevel;
-
-		private bool isLoading;
-
 		private void Update() {
-			if (SceneManager.GetActiveScene().buildIndex != _currentLevel) {
-				isLoading = false;
-				_currentLevel = SceneManager.GetActiveScene().buildIndex;
-			}
-
 			if (isLoading)
 				return;
 
 			foreach (var item in SceneInfos.Select((value, i) => new { i, value })) {
-				if (!Input.GetKeyDown(item.value.LoadKey)) 
+				if (!Input.GetKeyDown(item.value.LoadKey))
 					continue;
 
-				_currentLevel = SceneManager.GetActiveScene().buildIndex;
-				isLoading = true;
 				StartCoroutine(CallLoad(item.i));
 			}
 
 			if (Input.GetKeyDown(RestartKey)) {
-				var scene = SceneManager.GetActiveScene();
-				SceneManager.LoadScene(scene.name);
+				var currentLevel = SceneManager.GetActiveScene().buildIndex;
+				StartCoroutine(CallLoad(currentLevel));
 			}
 
 			if (Input.GetKeyDown(QuitKey)) {
@@ -72,9 +53,24 @@ namespace PXL.Utility {
 			}
 		}
 
-		private static IEnumerator CallLoad(int loadLevel) {
+		/// <summary>
+		/// Starts to asynchronously load the level with the given index
+		/// </summary>
+		private IEnumerator CallLoad(int loadLevel) {
+			isLoading = true;
 			var async = SceneManager.LoadSceneAsync(loadLevel);
 			yield return async;
+		}
+
+		[Serializable]
+		public class SceneInfo {
+			public KeyCode LoadKey;
+			public string SceneName;
+
+			public SceneInfo(string sceneName, KeyCode loadKey) {
+				SceneName = sceneName;
+				LoadKey = loadKey;
+			}
 		}
 
 	}

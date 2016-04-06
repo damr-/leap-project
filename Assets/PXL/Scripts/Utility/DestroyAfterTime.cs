@@ -15,14 +15,23 @@ namespace PXL.Utility {
 		/// Whether this object should be despawned or destroyed
 		/// </summary>
 		public bool Despawn = true;
+
+		/// <summary>
+		/// Disposable for the life time subscription
+		/// </summary>
+		private IDisposable subscription = Disposable.Empty;
 		
 		private void OnEnable() {
-			Observable.Timer(TimeSpan.FromSeconds(LifeTime)).Subscribe(_ => { 
+			subscription = Observable.Timer(TimeSpan.FromSeconds(LifeTime)).Subscribe(_ => {
 				if(Despawn)
 					SimplePool.Despawn(gameObject);
 				else
 					Destroy(gameObject);
 			});
+		}
+
+		private void OnDisable() {
+			subscription.Dispose();
 		}
 
 	}

@@ -1,22 +1,23 @@
 ﻿using System.Collections.Generic;
 using Leap.Unity;
+using UnityEngine;
 
 namespace PXL.Interaction {
 
-	public static class GrabbingHandsManager {
+	public class GrabbingHandsManager : MonoBehaviour {
 
 		/// <summary>
 		/// All the hands currently grabbing an object
 		/// </summary>
-		private static readonly HashSet<HandModel> GrabbingHands = new HashSet<HandModel>();
-
+		private static HashSet<HandModel> _grabbingHands;
+		
 		/// <summary>
 		/// Returns whether the given hand is currently grabbing an object
 		/// </summary>
 		/// <param name="hand">The hand to check for</param>
 		/// <returns>True if the given hand is not in the set</returns>
 		public static bool CanHandGrab(HandModel hand) {
-			return !GrabbingHands.Contains(hand);
+			return !_grabbingHands.Contains(hand);
 		}
 
 		/// <summary>
@@ -25,7 +26,7 @@ namespace PXL.Interaction {
 		/// <param name="hand">The hand which will be set to grabbing</param>
 		/// <returns>True if the operation was successful</returns>
 		public static bool AddHand(HandModel hand) {
-			return GrabbingHands.Add(hand);
+			return _grabbingHands.Add(hand);
 		}
 
 		/// <summary>
@@ -34,14 +35,18 @@ namespace PXL.Interaction {
 		/// <param name="hand">The hand which doesn't grab anything anymore</param>
 		/// <returns>True if the operation was successful</returns>
 		public static bool RemoveHand(HandModel hand) {
-			return GrabbingHands.Remove(hand);
+			return _grabbingHands.Remove(hand);
 		}
 
 		/// <summary>
 		/// Returns the grabbing hands
 		/// </summary>
 		public static HashSet<HandModel> GetGrabbingHands() {
-			return GrabbingHands;
+			return _grabbingHands;
+		}
+		
+		private void Awake() {
+			_grabbingHands = new HashSet<HandModel>();
 		}
 
 	}
