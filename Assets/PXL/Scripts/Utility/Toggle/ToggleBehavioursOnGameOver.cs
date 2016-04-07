@@ -46,23 +46,23 @@ namespace PXL.Utility.Toggle {
 		/// Called when the GameWon state changes
 		/// </summary>
 		private void ToggleBehaviours(bool won) {
-
-			foreach (var b in BehavioursToEnableOnWin) {
-				b.enabled = won;
+			if (won) {
+				foreach (var b in BehavioursToEnableOnWin) {
+					b.enabled = true;
+				}
+				foreach (var b in BehavioursToDisableOnWin) {
+					b.enabled = false;
+				}
 			}
+			else {
+				foreach (var b in BehavioursToEnableOnLose) {
+					b.enabled = true;
+				}
 
-			foreach (var b in BehavioursToDisableOnWin) {
-				b.enabled = !won;
+				foreach (var b in BehavioursToDisableOnLose) {
+					b.enabled = false;
+				}
 			}
-
-			foreach (var b in BehavioursToEnableOnLose) {
-				b.enabled = !won;
-			}
-
-			foreach (var b in BehavioursToDisableOnLose) {
-				b.enabled = won;
-			}
-
 		}
 
 		/// <summary>

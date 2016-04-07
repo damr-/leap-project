@@ -25,14 +25,14 @@ namespace PXL.Objects.Areas {
 		/// <summary>
 		/// The maximum velocity magnitude a rigidbody can have to be called stationary
 		/// </summary>
-		[SerializeField] 
+		[SerializeField]
 		private float stationaryEpsilon = 0.05f;
 
 		/// <summary>
 		/// List of sorted objects, by scale
 		/// </summary>
 		protected List<InteractiveObject> SortedObjects = new List<InteractiveObject>();
-		
+
 		public IObservable<Unit> StackedCorrectly { get { return stackedCorrectlySubject; } }
 		private readonly ISubject<Unit> stackedCorrectlySubject = new Subject<Unit>();
 
@@ -69,7 +69,7 @@ namespace PXL.Objects.Areas {
 
 			InteractiveObject wrongObject;
 			if (!StackedCorrecly(out wrongObject)) {
-				if (!canInvokeIncorrectObservable) 
+				if (!canInvokeIncorrectObservable)
 					return;
 				stackedIncorrectlySubject.OnNext(wrongObject);
 				canInvokeIncorrectObservable = false;
@@ -95,7 +95,7 @@ namespace PXL.Objects.Areas {
 				var currentObject = SortedObjects.ElementAt(i);
 				var nextObject = SortedObjects.ElementAt(i + 1);
 
-				if (!(currentObject.Scale <= nextObject.Scale)) 
+				if (!(currentObject.Scale <= nextObject.Scale))
 					continue;
 
 				wrongObject = nextObject;
@@ -140,7 +140,7 @@ namespace PXL.Objects.Areas {
 		}
 
 		/// <summary>
-		/// <see cref="StackArea" /> doesn't handle invalid object types
+		/// <see cref="StackArea" /> doesn't handle invalid object types directly
 		/// </summary>
 		protected override void HandleInvalidObjectType(InteractiveObject interactiveObject) {
 		}

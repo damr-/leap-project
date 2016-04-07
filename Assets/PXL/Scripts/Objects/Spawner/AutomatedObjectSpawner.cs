@@ -1,4 +1,5 @@
-﻿using Random = UnityEngine.Random;
+﻿using System.Diagnostics;
+using Random = UnityEngine.Random;
 
 namespace PXL.Objects.Spawner {
 
@@ -43,7 +44,7 @@ namespace PXL.Objects.Spawner {
 		protected override void Update() {
 			base.Update();
 
-			if (!(UnityEngine.Time.time - lastSpawnTime > 1 / CurrentSpawnFrequency))
+			if (UnityEngine.Time.time - lastSpawnTime <= 1 / CurrentSpawnFrequency)
 				return;
 
 			SpawnObject();

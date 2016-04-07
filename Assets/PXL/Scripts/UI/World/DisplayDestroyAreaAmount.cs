@@ -36,12 +36,20 @@ namespace PXL.UI.World {
 			DestroyArea.CurrentDestroyAmount.Subscribe(CurrentDestroyAmountChanged);
 			DestroyArea.GoalReached.Subscribe(_ => HandleGoalReached());
 			Text.color = DefaultColor;
+			CurrentDestroyAmountChanged(0);
 		}
 
+		/// <summary>
+		/// Called when the amount of objects destroyed changed
+		/// </summary>
+		/// <param name="newAmount">The new amount of destroyed objects in total</param>
 		private void CurrentDestroyAmountChanged(int newAmount) {
 			Text.text = newAmount + "/" + DestroyArea.WinDestroyAmount;
 		}
 
+		/// <summary>
+		/// Called when the necessary amount of objects have been destroyed
+		/// </summary>
 		private void HandleGoalReached() {
 			Text.color = EnoughColor;
 		}

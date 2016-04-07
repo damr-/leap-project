@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using PXL.Objects.Spawner;
+using UnityEngine;
 using UnityEditor;
 
 namespace PXL.Objects.Editor {

@@ -40,6 +40,11 @@ namespace PXL.UI.Admin {
 		private SpawnerElement currentElement;
 
 		/// <summary>
+		/// The Rect Transform of the admin panel
+		/// </summary>
+		public RectTransform AdminPanelTransform;
+
+		/// <summary>
 		/// The index of the currently selected element
 		/// </summary>
 		private int currentElementIndex;
@@ -53,9 +58,10 @@ namespace PXL.UI.Admin {
 
 		private void Start() {
 			SetupSpawnerElements.AssertNotNull("Missing SetupSpawnerElements reference!");
+			AdminPanelTransform.AssertNotNull("Missing Admin Panel RectTransform");
 
 			subscription = Observable.Timer(TimeSpan.FromSeconds(0.1f)).Subscribe(_ => {
-				Debug.Log("Seems like elements have already been spawned. Manually retreiving elements.");
+				//Debug.Log("Seems like elements have already been spawned. Manually retreiving elements.");
 				elements = GetComponentsInChildren<SpawnerElement>().ToList();
 				SetCurrentElement(0);
 			});
@@ -74,7 +80,7 @@ namespace PXL.UI.Admin {
 					if (currentElement.SpawnerElementExpanded.TrySelectNextEntry())
 						return;
 					if (currentElementIndex < elements.Count - 1)
-						currentElement.Collapse();
+						CollapseElement(currentElement);
 				}
 				SetCurrentElement(currentElementIndex + 1);
 			}
@@ -83,21 +89,41 @@ namespace PXL.UI.Admin {
 					if (currentElement.SpawnerElementExpanded.TrySelectPreviousEntry())
 						return;
 					if (currentElementIndex > 0)
-						currentElement.Collapse();
+						CollapseElement(currentElement);
 				}
 				SetCurrentElement(currentElementIndex - 1);
 			}
 			if (Input.GetKeyDown(ToggleExpandElementKey)) {
 				if (currentElement.Expanded)
-					currentElement.Collapse();
+					CollapseElement(currentElement);
 				else
-					currentElement.Expand();
+					ExpandElement(currentElement);
 			}
 			if (Input.GetKeyDown(CollapseElementKey)) {
-				currentElement.Collapse();
+				if (currentElement.Expanded)
+					CollapseElement(currentElement);
 			}
 		}
 
+		/// <summary>
+		/// Collapses the given element and reduces the size of the background
+		/// </summary>
+		private void CollapseElement(SpawnerElement element) {
+			var r = AdminPanelTransform.sizeDelta;
+			AdminPanelTransform.sizeDelta = new Vector2(r.x, r.y - 50);
+			element.Collapse();
+		}
+
+		/// <summary>
+		/// Expandes the given element and increases the size of the background
+		/// </summary>
+		/// <param name="element"></param>
+		private void ExpandElement(SpawnerElement element) {
+			var r = AdminPanelTransform.sizeDelta;
+			AdminPanelTransform.sizeDelta = new Vector2(r.x, r.y + 50);
+			element.Expand();
+		}
+		
 		/// <summary>
 		/// Sets the element with the given index as the currently selected one
 		/// </summary>
@@ -110,10 +136,10 @@ namespace PXL.UI.Admin {
 		/// <summary>
 		/// Collapses the currently selected elemet, selects the given element expands it.
 		/// </summary>
-		public void ExpandElement(SpawnerElement element) {
-			currentElement.Collapse();
+		public void ExpandOtherElement(SpawnerElement element) {
+			CollapseElement(currentElement);
 			SetCurrentElement(element);
-			currentElement.Expand();
+			ExpandElement(currentElement);
 		}
 
 		/// <summary>

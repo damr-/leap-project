@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using PXL.Gamemodes;
 using PXL.Interaction;
 using PXL.Utility;
 using UnityEngine.UI;
@@ -44,15 +45,22 @@ namespace PXL.UI.World {
 		}
 
 		protected override void HandleGrabbed(Grabbable grabbable) {
+			if (GameMode.GameOver)
+				return;
 			IncrementTextValue(grabbable, PicksTexts);
 			DisplayTime.TryStartTimer();
 		}
 
 		protected override void HandleDropped(Grabbable grabbable) {
+			if (GameMode.GameOver)
+				return;
 			IncrementTextValue(grabbable, DropsTexts);
 		}
 
 		protected override void HandleMoved(MovementInfo movementInfo) {
+			if (GameMode.GameOver)
+				return;
+
 			var side = GetHandSideIfValid(movementInfo.Moveable.Grabbable);
 			if (side == HandSide.None)
 				return;

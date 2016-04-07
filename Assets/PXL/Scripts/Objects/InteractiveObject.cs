@@ -10,6 +10,7 @@ namespace PXL.Objects {
 		Capsule = 4,
 		Pyramid = 5,
 		Ring = 6,
+		Cup = 7,
 	}
 	
 	public class InteractiveObject : MonoBehaviour {

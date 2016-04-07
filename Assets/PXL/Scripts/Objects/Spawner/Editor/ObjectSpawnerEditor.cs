@@ -64,6 +64,12 @@ namespace PXL.Objects.Spawner.Editor {
 						spawner.StartSpawnDelay), 0, 1000);
 			EditorGUI.EndDisabledGroup();
 
+			spawner.StartSpawnFrequency =
+				Mathf.Clamp(
+					EditorGUILayout.FloatField(
+						new GUIContent("Start Spawn Frequency", "The frequency which Initial Object Amount objects will be spawned with (after the Initial Spawn Delay)"),
+						spawner.StartSpawnFrequency), 0.1f, 10f);
+
 			spawner.RespawnOnDepleted =
 				EditorGUILayout.Toggle(
 					new GUIContent("Respawn On Depleted", "Whether to respawn the objects when all have been destroyed"),
@@ -76,6 +82,12 @@ namespace PXL.Objects.Spawner.Editor {
 						new GUIContent("Respawn Delay",
 							"How many seconds to wait before spawning a new object after all current ones are gone"), spawner.RespawnDelay),
 					0, 1000);
+
+			spawner.MinObjectAmount =
+				Mathf.Clamp(
+					EditorGUILayout.IntField(
+						new GUIContent("Minimum Object Amount", "The minimum number of objects that should exist at all times (needs RespawnOnDepleted to be TRUE)"),
+						spawner.MinObjectAmount), 0, 500);
 			EditorGUI.EndDisabledGroup();
 
 			spawner.TotalSpawnLimit =

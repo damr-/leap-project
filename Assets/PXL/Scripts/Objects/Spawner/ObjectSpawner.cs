@@ -46,6 +46,11 @@ namespace PXL.Objects.Spawner {
 		public int StartSpawnDelay = 0;
 
 		/// <summary>
+		/// At what frequency the <see cref="StartAmount"/> number of objects will be spawned after the <see cref="StartSpawnDelay"/>
+		/// </summary>
+		public float StartSpawnFrequency = 10f;
+
+		/// <summary>
 		/// Whether the spawner should call <see cref="SpawnObject()"/> when all it's spawned objects have been destroyed
 		/// </summary>
 		public bool RespawnOnDepleted = true;
@@ -54,6 +59,11 @@ namespace PXL.Objects.Spawner {
 		/// How many seconds to wait before a new object is spawned after the spawner's spawned objects have been destroyed
 		/// </summary>
 		public int RespawnDelay = 0;
+
+		/// <summary>
+		/// The minimum objects spawned by this spawner that should exist at all times
+		/// </summary>
+		public int MinObjectAmount = 0;
 
 		/// <summary>
 		/// The maximum amount of objects this spawner can spawn in total.
@@ -191,8 +201,17 @@ namespace PXL.Objects.Spawner {
 
 			Observable.Timer(TimeSpan.FromSeconds(StartSpawnDelay)).Subscribe(_ => {
 				IsSpawningEnabled = true;
-				for (var i = 0; i < StartAmount; i++)
+				SpawnObject();
+
+				var counter = 0;
+				var subscription = Disposable.Empty;
+				subscription = Observable.Interval(TimeSpan.FromSeconds(1f / StartSpawnFrequency)).Subscribe(__ => {
+					if (++counter >= StartAmount) {
+						subscription.Dispose();
+						return;
+					}
 					SpawnObject();
+				});
 			});
 		}
 
@@ -232,13 +251,26 @@ namespace PXL.Objects.Spawner {
 			objectDespawnedSubject.OnNext(interactiveObject);
 			TotalDespawnCount.Value++;
 
-			if (!RespawnOnDepleted || SpawnedObjects.Count != 0 || !IsSpawningEnabled)
+			if (!RespawnOnDepleted || SpawnedObjects.Count >= MinObjectAmount || !IsSpawningEnabled)
 				return;
 
 			IsSpawningEnabled = false;
 			Observable.Timer(TimeSpan.FromSeconds(RespawnDelay)).Subscribe(_ => {
 				IsSpawningEnabled = true;
+				RespawnWhileTooFew();
+			});
+		}
+
+		/// <summary>
+		/// Spawns new objects as long as the amount of <see cref="SpawnedObjects"/> is less than <see cref="MinObjectAmount"/>
+		/// </summary>
+		private void RespawnWhileTooFew() {
+			var subscription = Disposable.Empty;
+			subscription = Observable.Interval(TimeSpan.FromSeconds(0.1f)).Subscribe(__ => {
 				SpawnObject();
+				if (SpawnedObjects.Count >= MinObjectAmount) {
+					subscription.Dispose();
+				}
 			});
 		}
 
@@ -253,13 +285,14 @@ namespace PXL.Objects.Spawner {
 				SpawnedObjects[0].Kill();
 			}
 
-			if (!RespawnOnDepleted)
+			if (!RespawnOnDepleted) {
 				return;
+			}
 
 			removeAllSubscription.Dispose();
 			removeAllSubscription = Observable.Timer(TimeSpan.FromSeconds(RemoveAllSpawnDelay)).Subscribe(_ => {
 				IsSpawningEnabled = true;
-				SpawnObject();
+				RespawnWhileTooFew();
 			});
 		}
 
@@ -274,8 +307,9 @@ namespace PXL.Objects.Spawner {
 		/// Initiate the spawning of a new object with the given offset
 		/// </summary>
 		public void SpawnObject(Vector3 offset) {
-			if (!CanSpawn())
+			if (!CanSpawn()) {
 				return;
+			}
 
 			spawnInitiatedSubject.OnNext(Unit.Default);
 
@@ -314,8 +348,9 @@ namespace PXL.Objects.Spawner {
 
 			SpawnedObjects.Add(interactiveObject);
 
-			if (SpawnedObjectsContainer != null)
+			if (SpawnedObjectsContainer != null) {
 				newObject.transform.SetParent(SpawnedObjectsContainer, true);
+			}
 
 			objectSpawnedSubject.OnNext(interactiveObject);
 		}

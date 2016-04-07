@@ -81,7 +81,7 @@ namespace PXL.UI.Admin {
 		}
 
 		public void MouseExpand() {
-			GetComponentInParent<NavigateSpawnerElements>().ExpandElement(this);
+			GetComponentInParent<NavigateSpawnerElements>().ExpandOtherElement(this);
         }
 
 	}
