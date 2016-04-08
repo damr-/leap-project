@@ -38,9 +38,9 @@ namespace PXL.Objects.Cup {
 		private Grabbable mGrabbable;
 
 		/// <summary>
-		/// Whether the cup can hold objects and reacts to trigger events
+		/// Whether the cup is rotated valid so it can pick up items
 		/// </summary>
-		private bool canHoldObjects = true;
+		private bool validRotation = true;
 
 		/// <summary>
 		/// Sets up the subscription to release all objects as soon as the cup is dropped
@@ -61,16 +61,11 @@ namespace PXL.Objects.Cup {
 
 			var rotX = transform.rotation.eulerAngles.x;
 			var rotZ = transform.rotation.eulerAngles.z;
+			validRotation = !(rotX > MaxTiltAngle && rotX < 360 - MaxTiltAngle) &&
+							!(rotZ > MaxTiltAngle && rotZ < 360 - MaxTiltAngle);
 
-			if ((rotX > MaxTiltAngle && rotX < 360 - MaxTiltAngle) || (rotZ > MaxTiltAngle && rotZ < 360 - MaxTiltAngle)) {
-				if (!canHoldObjects)
-					return;
+			if (!validRotation)
 				ReleaseObjects();
-				canHoldObjects = false;
-			}
-			else if (!canHoldObjects) {
-				canHoldObjects = true;
-			}
 		}
 
 		/// <summary>
@@ -144,7 +139,7 @@ namespace PXL.Objects.Cup {
 		/// Called when the <see cref="Collider"/> 'other' enters thie object's Trigger
 		/// </summary>
 		private void OnTriggerEnter(Collider other) {
-			if (!canHoldObjects || objects.Count > MaxHoldAmount)
+			if (!validRotation || objects.Count > MaxHoldAmount)
 				return;
 
 			var interactiveObject = other.GetComponent<InteractiveObject>();

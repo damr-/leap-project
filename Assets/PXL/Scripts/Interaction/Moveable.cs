@@ -149,7 +149,7 @@ namespace PXL.Interaction {
 		private void UpdateRotation() {
 			var oldRotation = transform.rotation.eulerAngles;
 			var newRotation = (trackedTarget.rotation * rotOffset).eulerAngles;
-
+			
 			for (var i = 0; i < 3; i++) {
 				var defaultRotationValue = OverwriteRotation[i] ? OverwriteRotationValues[i] : oldRotation[i];
 				newRotation[i] = FreezeRotation[i] > 0 ? defaultRotationValue : newRotation[i];
