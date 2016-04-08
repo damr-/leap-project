@@ -18,7 +18,7 @@ namespace PXL.Objects.Cup {
 		/// Maximum number of objects allowed snapped inside the cup
 		/// </summary>
 		public int MaxHoldAmount = 100;
-		
+
 		/// <summary>
 		/// The maximum angle allowed before releasing all objects inside the cup
 		/// </summary>

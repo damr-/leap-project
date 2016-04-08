@@ -24,7 +24,7 @@ namespace PXL.Objects.Spawner {
 		/// <summary>
 		/// The default color of the spawner's spawned objects
 		/// </summary>
-		public ObjectColor DefaultColor;
+		public ObjectColor DefaultColor = new ObjectColor(Color.black, "");
 
 		/// <summary>
 		/// All the available colors
