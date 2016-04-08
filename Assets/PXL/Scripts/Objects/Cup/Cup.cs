@@ -17,7 +17,12 @@ namespace PXL.Objects.Cup {
 		/// <summary>
 		/// Maximum number of objects allowed snapped inside the cup
 		/// </summary>
-		public int MaxHoldAmount = 20;
+		public int MaxHoldAmount = 100;
+		
+		/// <summary>
+		/// The maximum angle allowed before releasing all objects inside the cup
+		/// </summary>
+		public int MaxTiltAngle = 100;
 
 		/// <summary>
 		/// All interactive objects inside the cup's trigger, being carried around
@@ -37,6 +42,9 @@ namespace PXL.Objects.Cup {
 		/// </summary>
 		private bool canHoldObjects = true;
 
+		/// <summary>
+		/// Sets up the subscription to release all objects as soon as the cup is dropped
+		/// </summary>
 		private void Start() {
 			Grabbable.IsGrabbed.Subscribe(grabbed => {
 				if (grabbed)
@@ -45,43 +53,96 @@ namespace PXL.Objects.Cup {
 			});
 		}
 
+		/// <summary>
+		/// Checks if the cup is tilted too much so that the objects should be released
+		/// </summary>
 		private void Update() {
 			Extensions.PurgeIfNecessary(ref objects);
 
 			var rotX = transform.rotation.eulerAngles.x;
 			var rotZ = transform.rotation.eulerAngles.z;
 
-			if ((rotX > 90 && rotX < 270) || (rotZ > 90 && rotZ < 270)) {
+			if ((rotX > MaxTiltAngle && rotX < 360 - MaxTiltAngle) || (rotZ > MaxTiltAngle && rotZ < 360 - MaxTiltAngle)) {
 				if (!canHoldObjects)
 					return;
-				//Debug.LogWarning("Too steep! Releasing objects!");
 				ReleaseObjects();
 				canHoldObjects = false;
-				Debug.DrawLine(Vector3.zero, Vector3.forward + new Vector3(0.05f, 0f, 0f), Color.red, 5f);
 			}
 			else if (!canHoldObjects) {
-				//Debug.LogWarning("I can pickup objects again!");
-				Debug.DrawLine(Vector3.zero, Vector3.forward, Color.green, 5f);
 				canHoldObjects = true;
 			}
 		}
 
+		/// <summary>
+		/// Releases all objects currently held by the cup
+		/// </summary>
 		private void ReleaseObjects() {
 			foreach (var interactiveObject in objects) {
-				ReleaseObject(interactiveObject);
+				SetObjectPickupState(interactiveObject, false);
 			}
 			objects = new List<InteractiveObject>();
 		}
 
-		private void ReleaseObject(InteractiveObject interactiveObject) {
-			interactiveObject.transform.parent = null;
-			var objectRigidbody = interactiveObject.GetComponent<Rigidbody>();
-			objectRigidbody.useGravity = true;
-			objectRigidbody.isKinematic = false;
-			objectRigidbody.constraints = RigidbodyConstraints.None;
-			interactiveObject.GetComponents<Collider>().Where(c => !c.isTrigger).ToList().ForEach(c => c.enabled = true);
+		/// <summary>
+		/// Returns the position for the next object which will be added to the grid
+		/// </summary>
+		private Vector3 GetObjectPosition() {
+			var index = objects.Count;
+			var y = -0.4f + 0.1f * (index / 13);
+
+			switch (index % 13) {
+				case 0:
+					return new Vector3(0.1f, y, 0.1f);
+				case 1:
+					return new Vector3(0f, y, 0.1f);
+				case 2:
+					return new Vector3(-0.1f, y, 0.1f);
+				case 3:
+					return new Vector3(0.1f, y, 0f);
+				case 4:
+					return new Vector3(0f, y, 0f);
+				case 5:
+					return new Vector3(-0.1f, y, 0f);
+				case 6:
+					return new Vector3(0.1f, y, -0.1f);
+				case 7:
+					return new Vector3(0f, y, -0.1f);
+				case 8:
+					return new Vector3(-0.1f, y, -0.1f);
+				case 9:
+					return new Vector3(0.2f, y, 0f);
+				case 10:
+					return new Vector3(-0.2f, y, 0f);
+				case 11:
+					return new Vector3(0f, y, 0.2f);
+				default:
+					return new Vector3(0f, y, -0.2f);
+			}
 		}
 
+		/// <summary>
+		/// Sets properties of the given <see cref="InteractiveObject"/> to be either pickedup by the cup or not
+		/// </summary>
+		private void SetObjectPickupState(InteractiveObject interactiveObject, bool pickedUp) {
+			interactiveObject.transform.SetParent(pickedUp ? transform : null, true);
+			interactiveObject.transform.rotation = Quaternion.identity;
+
+			interactiveObject.GetComponents<Collider>().Where(c => !c.isTrigger).ToList().ForEach(c => c.enabled = !pickedUp);
+
+			var objectRigidbody = interactiveObject.GetComponent<Rigidbody>();
+
+			if (objectRigidbody == null)
+				return;
+
+			objectRigidbody.useGravity = !pickedUp;
+			objectRigidbody.isKinematic = pickedUp;
+			objectRigidbody.constraints = pickedUp ? RigidbodyConstraints.FreezeAll : RigidbodyConstraints.None;
+			objectRigidbody.velocity = Vector3.zero;
+		}
+
+		/// <summary>
+		/// Called when the <see cref="Collider"/> 'other' enters thie object's Trigger
+		/// </summary>
 		private void OnTriggerEnter(Collider other) {
 			if (!canHoldObjects || objects.Count > MaxHoldAmount)
 				return;
@@ -91,45 +152,17 @@ namespace PXL.Objects.Cup {
 			if (interactiveObject == null || (ObjectType != ObjectType.All && interactiveObject.ObjectType != ObjectType) || objects.Contains(interactiveObject))
 				return;
 
-			interactiveObject.transform.SetParent(transform, true);
-			var objectRigidbody = interactiveObject.GetComponent<Rigidbody>();
-			objectRigidbody.useGravity = false;
-			objectRigidbody.isKinematic = true;
-			objectRigidbody.velocity = Vector3.zero;
-			objectRigidbody.constraints = RigidbodyConstraints.FreezeAll;
-			interactiveObject.GetComponents<Collider>().Where(c => !c.isTrigger).ToList().ForEach(c => c.enabled = false);
-			interactiveObject.transform.rotation = Quaternion.identity;
+			SetObjectPickupState(interactiveObject, true);
 
-			var index = objects.Count;
-			var y = -0.4f + 0.2f * (index / 4);
-
-			var x = 0f;
-			var z = 0f;
-
-			switch (index % 4) {
-				case 0:
-					x = 0.1f;
-					z = 0.1f;
-					break;
-				case 1:
-					x = -0.1f;
-					z = 0.1f;
-					break;
-				case 2:
-					x = 0.1f;
-					z = -0.1f;
-					break;
-				case 3:
-					x = -0.1f;
-					z = -0.1f;
-					break;
-			}
-
-			interactiveObject.transform.localPosition = new Vector3(x, y, z);
+			var pos = GetObjectPosition();
+			interactiveObject.transform.localPosition = new Vector3(pos.x, pos.y, pos.z);
 
 			objects.Add(interactiveObject);
 		}
-		
+
+		/// <summary>
+		/// Called when the <see cref="Collider"/> 'other' leaves thie object's Trigger
+		/// </summary>
 		private void OnTriggerExit(Collider other) {
 			var interactiveObject = other.GetComponent<InteractiveObject>();
 
@@ -139,7 +172,7 @@ namespace PXL.Objects.Cup {
 			if (!objects.Contains(interactiveObject))
 				return;
 
-			ReleaseObject(interactiveObject);
+			SetObjectPickupState(interactiveObject, false);
 		}
 
 	}

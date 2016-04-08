@@ -50,7 +50,16 @@ namespace PXL.Objects.Spawner {
 			if (AvailableShapes.Count == 0)
 				throw new MissingReferenceException("No shapes added to the spawner!");
 
-			CurrentObjectShape.Value = AvailableShapes.First(s => s.Object == ObjectSpawner.DefaultObjectPrefab);
+			var defaultShape = AvailableShapes.FirstOrDefault(s => s.Object == ObjectSpawner.DefaultObjectPrefab);
+
+			if (defaultShape.Object == null) {
+				Debug.LogWarning("The Default object prefab of " + ObjectSpawner.name + " is not included in the AvailableShapes!");
+				CurrentObjectShape.Value = AvailableShapes[0];
+			}
+			else {
+				CurrentObjectShape.Value = defaultShape;
+			}
+
 			ObjectSpawner.SpawnInitiated.Subscribe(_ => RandomiseIfNeeded());
 		}
 
@@ -58,7 +67,7 @@ namespace PXL.Objects.Spawner {
 		/// Returns a random shape
 		/// </summary>
 		public ObjectShape GetRandomShape() {
-			return AvailableShapes.ToArray().GetRandomElement(1);
+			return AvailableShapes.GetRandomElement(1);
 		}
 
 		/// <summary>

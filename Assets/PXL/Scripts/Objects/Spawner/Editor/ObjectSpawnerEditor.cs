@@ -27,14 +27,14 @@ namespace PXL.Objects.Spawner.Editor {
 		}
 
 		public override void OnInspectorGUI() {
-			var spawner = (ObjectSpawner)target;
+			var spawner = (ObjectSpawner) target;
 
 			Header("General Spawner Options");
-			spawner.SpawnKey = (KeyCode)EditorGUILayout.EnumPopup("Spawn object", spawner.SpawnKey);
-			spawner.RemoveAllKey = (KeyCode)EditorGUILayout.EnumPopup("Remove all objects", spawner.RemoveAllKey);
+			spawner.SpawnKey = (KeyCode) EditorGUILayout.EnumPopup("Spawn object", spawner.SpawnKey);
+			spawner.RemoveAllKey = (KeyCode) EditorGUILayout.EnumPopup("Remove all objects", spawner.RemoveAllKey);
 
 			spawner.DefaultObjectPrefab =
-				(GameObject)EditorGUILayout.ObjectField("Object Prefab", spawner.DefaultObjectPrefab, typeof(GameObject), false);
+				(GameObject) EditorGUILayout.ObjectField("Object Prefab", spawner.DefaultObjectPrefab, typeof(GameObject), false);
 			if (spawner.DefaultObjectPrefab == null) {
 				EditorGUILayout.HelpBox("Missing prefab!", MessageType.Warning);
 			}
@@ -67,27 +67,31 @@ namespace PXL.Objects.Spawner.Editor {
 			spawner.StartSpawnFrequency =
 				Mathf.Clamp(
 					EditorGUILayout.FloatField(
-						new GUIContent("Start Spawn Frequency", "The frequency which Initial Object Amount objects will be spawned with (after the Initial Spawn Delay)"),
+						new GUIContent("Start Spawn Frequency",
+							"The frequency which Initial Object Amount objects will be spawned with (after the Initial Spawn Delay)"),
 						spawner.StartSpawnFrequency), 0.1f, 10f);
 
 			spawner.RespawnOnDepleted =
 				EditorGUILayout.Toggle(
-					new GUIContent("Respawn On Depleted", "Whether to respawn the objects when all have been destroyed"),
+					new GUIContent("Respawn On Depleted", "Whether to respawn the objects when all have been destroyed" +
+					                                      " or when the amount of objects is less than Minimum Object Amount"),
 					spawner.RespawnOnDepleted);
 
 			EditorGUI.BeginDisabledGroup(!spawner.RespawnOnDepleted);
 			spawner.RespawnDelay =
 				Mathf.Clamp(
-					EditorGUILayout.IntField(
+					EditorGUILayout.FloatField(
 						new GUIContent("Respawn Delay",
 							"How many seconds to wait before spawning a new object after all current ones are gone"), spawner.RespawnDelay),
-					0, 1000);
+					0, 100);
 
 			spawner.MinObjectAmount =
 				Mathf.Clamp(
 					EditorGUILayout.IntField(
-						new GUIContent("Minimum Object Amount", "The minimum number of objects that should exist at all times (needs RespawnOnDepleted to be TRUE)"),
-						spawner.MinObjectAmount), 0, 500);
+						new GUIContent("Minimum Object Amount",
+							"The minimum number of objects that should exist at all times. " +
+							"If there's too few, the necessary amount will be spawned (needs RespawnOnDepleted to be TRUE)"),
+						spawner.MinObjectAmount), 1, int.MaxValue);
 			EditorGUI.EndDisabledGroup();
 
 			spawner.TotalSpawnLimit =
@@ -127,16 +131,18 @@ namespace PXL.Objects.Spawner.Editor {
 
 			GUILayout.BeginHorizontal();
 			if (GUILayout.Button(new GUIContent("Spawn", "Spawn an object")) && EditorApplication.isPlayingOrWillChangePlaymode &&
-				EditorApplication.isPlaying) {
+			    EditorApplication.isPlaying) {
 				spawner.SpawnObject();
 			}
 			if (GUILayout.Button(new GUIContent("Clear", "Remove all current objects")) &&
-				EditorApplication.isPlayingOrWillChangePlaymode && EditorApplication.isPlaying) {
+			    EditorApplication.isPlayingOrWillChangePlaymode && EditorApplication.isPlaying) {
 				spawner.RemoveAllObjects();
 			}
 			GUILayout.EndHorizontal();
 
 			EditorGUILayout.Space();
 		}
+
 	}
+
 }

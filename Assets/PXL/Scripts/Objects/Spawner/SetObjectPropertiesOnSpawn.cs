@@ -109,7 +109,7 @@ namespace PXL.Objects.Spawner {
 
 		public bool IsAddingComponents;
 
-		public string newComponentName;
+		public string NewComponentName;
 
 		private void Start() {
 			assemblyName = Assembly.GetExecutingAssembly().FullName;
@@ -174,14 +174,14 @@ namespace PXL.Objects.Spawner {
 		}
 
 		/// <summary>
-		/// Adds the content of <see cref="newComponentName"/> to <see cref="Components"/> if it's not already in the list and valid
+		/// Adds the content of <see cref="NewComponentName"/> to <see cref="Components"/> if it's not already in the list and valid
 		/// </summary>
 		public void AddNewComponentToList() {
-			var componentName = newComponentName.Trim();
+			var componentName = NewComponentName.Trim();
 			if (componentName.Length == 0 || Components.Contains(componentName))
 				return;
 
-			Components.Add(newComponentName);
+			Components.Add(NewComponentName);
 		}
 	}
 

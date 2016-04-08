@@ -33,14 +33,13 @@ namespace PXL.Utility {
 		}
 
 		/// <summary>
-		/// Returns a random item from the given array with optional minimum index.
-		/// Maximum index is always the last element in the array.
+		/// Returns a random item from the given list with optional minimum index.
+		/// Maximum index is always the last element in the list.
 		/// </summary>
 		/// <param name="items">The array with all items</param>
 		/// <param name="minIndex">The minimum possible index</param>
-		public static T GetRandomElement<T>(this T[] items, int minIndex = 0) where T : struct {
-			var index = Random.Range(minIndex, items.Length);
-			return items.ElementAt(index);
+		public static T GetRandomElement<T>(this List<T> items, int minIndex = 0) where T : struct {
+			return items.ElementAt(Random.Range(minIndex, items.Count));
 		}
 
 		/// <summary>

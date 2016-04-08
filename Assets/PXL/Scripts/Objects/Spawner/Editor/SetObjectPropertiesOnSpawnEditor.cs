@@ -1,8 +1,7 @@
-﻿using PXL.Objects.Spawner;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEditor;
 
-namespace PXL.Objects.Editor {
+namespace PXL.Objects.Spawner.Editor {
 
 	[CustomEditor(typeof(SetObjectPropertiesOnSpawn))]
 	public class SetObjectPropertiesOnSpawnEditor : UnityEditor.Editor {
@@ -112,10 +111,10 @@ namespace PXL.Objects.Editor {
 			}
 
 			EditorGUILayout.BeginHorizontal();
-			c.newComponentName = EditorGUILayout.TextField("Component Namespace:", c.newComponentName);
+			c.NewComponentName = EditorGUILayout.TextField("Component Namespace:", c.NewComponentName);
 			if (GUILayout.Button(new GUIContent("Add", "Adds the given component namespace to the list"))) {
 				c.AddNewComponentToList();
-				c.newComponentName = "";
+				c.NewComponentName = "";
 				showComponentList = true;
 			}
 			EditorGUILayout.EndHorizontal();

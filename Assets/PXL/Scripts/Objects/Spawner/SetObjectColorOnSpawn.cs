@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using UniRx;
 using PXL.Utility;
@@ -8,15 +9,7 @@ namespace PXL.Objects.Spawner {
 
 	[RequireComponent(typeof(ObjectSpawner))]
 	public class SetObjectColorOnSpawn : MonoBehaviour {
-
-		/// <summary>
-		/// The ObjectSpawner of this object
-		/// </summary>
-		private ObjectSpawner ObjectSpawner {
-			get { return mObjectSpawner ?? (mObjectSpawner = this.TryGetComponent<ObjectSpawner>()); }
-		}
-		private ObjectSpawner mObjectSpawner;
-
+	
 		[Serializable]
 		public struct ObjectColor {
 			public Color Color;
@@ -29,9 +22,14 @@ namespace PXL.Objects.Spawner {
 		}
 
 		/// <summary>
+		/// The default color of the spawner's spawned objects
+		/// </summary>
+		public ObjectColor DefaultColor;
+
+		/// <summary>
 		/// All the available colors
 		/// </summary>
-		public ObjectColor[] AvailableColors = {
+		public List<ObjectColor> AvailableColors = new List<ObjectColor>() {
 			new ObjectColor(Color.white, "Random"),
 			new ObjectColor(new Color(200 / 255f, 50 / 255f, 50 / 255f, 1f), "Red"),
 			new ObjectColor(new Color(50 / 255f, 200 / 255f, 50 / 255f, 1f), "Green"),
@@ -48,8 +46,34 @@ namespace PXL.Objects.Spawner {
 		/// </summary>
 		public ObservableProperty<Color> CurrentColor = new ObservableProperty<Color>();
 
+		/// <summary>
+		/// The ObjectSpawner of this object
+		/// </summary>
+		private ObjectSpawner ObjectSpawner {
+			get { return mObjectSpawner ?? (mObjectSpawner = this.TryGetComponent<ObjectSpawner>()); }
+		}
+		private ObjectSpawner mObjectSpawner;
+
+		/// <summary>
+		/// The color which will be added to the list
+		/// </summary>
+		public ObjectColor NewColor;
+
+		/// <summary>
+		/// Adds <see cref="NewColor"/> to the list of <see cref="AvailableColors"/>, if the name is not already taken
+		/// </summary>
+		public void AddColor() {
+			var componentName = NewColor.Name.Trim();
+			if (componentName.Length == 0 || AvailableColors.Any(c => c.Name == NewColor.Name))
+				return;
+			AvailableColors.Add(NewColor);
+		}
+
+		/// <summary>
+		/// Sets the default color as the current one and sets up the spawnsubsription
+		/// </summary>
 		private void Start() {
-			CurrentColor.Value = AvailableColors.ElementAt(1 % AvailableColors.Length).Color;
+            CurrentColor.Value = DefaultColor.Color;
 			ObjectSpawner.ObjectSpawned.Subscribe(SetObjectColor);
         }
 

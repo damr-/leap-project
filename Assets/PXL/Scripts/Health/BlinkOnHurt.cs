@@ -45,6 +45,11 @@ namespace PXL.Health {
 		/// The default material of this object, stored every time before blinkng
 		/// </summary>
 		private Material defaultMaterial;
+
+		/// <summary>
+		/// The subscription for the blink timer
+		/// </summary>
+		private IDisposable blinkSubscription = Disposable.Empty;
 		
 		/// <summary>
 		/// Sets up the Health subscription
@@ -62,11 +67,16 @@ namespace PXL.Health {
 				defaultMaterial = MeshRenderer.material;
             MeshRenderer.material = HurtMaterial;
 			isBlinking = true;
-			Observable.Timer(TimeSpan.FromSeconds(BlinkDuration)).Subscribe(_ => {
+
+			blinkSubscription = Observable.Timer(TimeSpan.FromSeconds(BlinkDuration)).Subscribe(_ => {
 				MeshRenderer.material = defaultMaterial;
 				isBlinking = false;
 			});
 		}
+
+		private void OnDisable() {
+			blinkSubscription.Dispose();
+        }
 
 	}
 

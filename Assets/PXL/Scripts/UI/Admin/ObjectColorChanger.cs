@@ -27,7 +27,7 @@ namespace PXL.UI.Admin {
 			base.Start();
 			ObjectColorPreview.AssertNotNull("Object Color Preview missing!");
 			ObjectColorPreview.Setup(ObjectSpawner);
-			ChangeProperty(1);
+			ChangeProperty(SetObjectColorOnSpawn.AvailableColors.IndexOf(SetObjectColorOnSpawn.DefaultColor));
 		}
 
 		/// <summary>
@@ -45,7 +45,7 @@ namespace PXL.UI.Admin {
 		}
 
 		protected override bool IsValidIndex(int index) {
-			return index >= 0 && index < SetObjectColorOnSpawn.AvailableColors.Length;
+			return index >= 0 && index < SetObjectColorOnSpawn.AvailableColors.Count;
 		}
 	}
 
