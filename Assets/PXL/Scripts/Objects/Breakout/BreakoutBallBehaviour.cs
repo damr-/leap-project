@@ -9,7 +9,22 @@ namespace PXL.Objects.Breakout {
 		/// <summary>
 		/// Speed of the ball at the beginning
 		/// </summary>
-		public float Speed = 1f;
+		public static float Speed = 1f;
+
+		/// <summary>
+		/// The minimum possible speed of the ball
+		/// </summary>
+		public static float MinSpeed = 0.1f;
+
+		/// <summary>
+		/// The maximum possible speed of the ball
+		/// </summary>
+		public static float MaxSpeed = 2f;
+
+		/// <summary>
+		/// The default speed of the ball
+		/// </summary>
+		public static float DefaultSpeed = 1f;
 
 		/// <summary>
 		/// The axis in which the ball shouldn't travel for too long because it breaks the game or similar

@@ -17,6 +17,9 @@ namespace PXL.Objects.Areas {
 		}
 		private StackArea mStackArea;
 
+		/// <summary>
+		/// The light component which color will be changed
+		/// </summary>
 		public Light Light;
 
 		/// <summary>
@@ -27,8 +30,9 @@ namespace PXL.Objects.Areas {
 		private void Start() {
 			Light.AssertNotNull("Light reference missing!");
 
-			StackArea.StackedCorrectly.Subscribe(_ => {
-				Light.color = SuccessColor;
+			StackArea.AreaStatus.Subscribe(status => {
+				if(status == StackArea.Status.GameWon)
+					Light.color = SuccessColor;
 			});
 		}
 

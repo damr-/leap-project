@@ -21,6 +21,8 @@ namespace PXL.Interaction {
 		/// </summary>
 		public HandModel HandModel { get; private set; }
 
+		public Touchable Touchable;
+
 		/// <summary>
 		/// All known Colliders of grabbable Objects and their Grabbable component
 		/// </summary>
@@ -40,6 +42,7 @@ namespace PXL.Interaction {
 				return;
 			var touchable = Touchables.GetOrAdd(other);
 			touchable.AddFinger(this);
+			Touchable = touchable;
 		}
 
 		private void OnTriggerExit(Collider other) {
@@ -48,6 +51,14 @@ namespace PXL.Interaction {
 				return;
 			var touchable = Touchables.GetOrAdd(other);
 			touchable.RemoveFinger(this);
+			Touchable = null;
+		}
+
+		private void OnDisable() {
+			if (Touchable == null)
+				return;
+			Touchable.RemoveFinger(this);
+			Touchable = null;
 		}
 
 	}

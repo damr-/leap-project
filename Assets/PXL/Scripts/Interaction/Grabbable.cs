@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using Leap;
 using Leap.Unity;
-using LeapInternal;
-using PXL.Objects;
 using PXL.Utility;
 using UniRx;
 using UnityEngine;
@@ -17,6 +15,11 @@ namespace PXL.Interaction {
 		/// The position where the object was grabbed
 		/// </summary>
 		public Vector3 PickupPosition;
+
+		/// <summary>
+		/// The minimum fingers necessary to pick up the object
+		/// </summary>
+		public static int MinFingerCount = 3;
 
 		/// <summary>
 		/// How long to wait after changing hands before being able to change again
@@ -78,13 +81,21 @@ namespace PXL.Interaction {
 		private Touchable Touchable {
 			get { return mTouchable ?? (mTouchable = this.TryGetComponent<Touchable>()); }
 		}
+
 		/// <summary>
-		/// The Touchable component of this object
+		/// For how many seconds the grab strength has been 0 while the object is grabbed
 		/// </summary>
-		private InteractiveObject InteractiveObject {
-			get { return mInteractiveObject ?? (mInteractiveObject = this.TryGetComponent<InteractiveObject>()); }
-		}
-		private InteractiveObject mInteractiveObject;
+		private float noGrabTime;
+
+		/// <summary>
+		/// For how many seconds the grab strength can be 0 while grabbed before the object is dropped
+		/// </summary>
+		private const float MaxNoGrabTime = 0.1f;
+
+		/// <summary>
+		/// Subscription to setting the parent null interval
+		/// </summary>
+		private IDisposable unparentSubscription = Disposable.Empty;
 
 		/// <summary>
 		/// Sets up the subscriptions
@@ -98,13 +109,24 @@ namespace PXL.Interaction {
 		/// Updates the state of the object
 		/// </summary>
 		private void Update() {
-			if (!isGrabbed && GrabbingHandsManager.CanHandGrab(CurrentHand) && CanHoldObject() &&
-				Touchable.CanGrabObject(CurrentHand)) {
-				Grab();
+			if (!isGrabbed) {
+				if (CurrentHand.IsHandValid() && GrabbingHandsManager.CanHandGrab(CurrentHand) &&
+					Touchable.AreEnoughFingersAndIsThumbTouching(CurrentHand, MinFingerCount)) {
+					Grab();
+				}
+				return;
 			}
 
-			if (isGrabbed && !CanHoldObject()) {
+			if (!CurrentHand.IsHandValid()) {
 				Drop();
+			}
+			else if (!(CurrentHand.GetLeapHand().GrabStrength >/*=*/ 0f)) {// MinGrabStrength;)) {
+				noGrabTime += Time.deltaTime;
+
+				if (noGrabTime > MaxNoGrabTime) {
+					noGrabTime = 0f;
+					Drop();
+				}
 			}
 		}
 
@@ -150,13 +172,6 @@ namespace PXL.Interaction {
 		}
 
 		/// <summary>
-		/// Returns whether <see cref="CurrentHand" /> is valid and the grab strength is high enough
-		/// </summary>
-		private bool CanHoldObject() {
-			return CurrentHand.IsHandValid() && CurrentHand.GetLeapHand().GrabStrength >= MinGrabStrength;
-		}
-
-		/// <summary>
 		/// Sets up everything for the object to be grabbed and moved around
 		/// </summary>
 		private void Grab() {
@@ -181,6 +196,21 @@ namespace PXL.Interaction {
 			Touchable.Rigidbody.isKinematic = grabbed;
 			isGrabbed.Value = grabbed;
 
+			unparentSubscription.Dispose();
+
+			if (grabbed) {
+				transform.SetParent(CurrentHand.palm, true);
+			}
+			else {
+				unparentSubscription = Observable.Interval(TimeSpan.FromSeconds(0.01f)).Subscribe(_ => {
+					if (transform.parent == null) {
+						unparentSubscription.Dispose();
+						return;
+					}
+					transform.SetParent(null, true);
+				});
+			}
+
 			var grabbingHand = interactionHands.GetOrAdd(CurrentHand);
 			if (grabbed) {
 				grabbingHand.GrabObject(this);
@@ -204,10 +234,9 @@ namespace PXL.Interaction {
 		/// <summary>
 		/// Returns whether the object can change hands
 		/// </summary>
-		/// <returns></returns>
 		private bool CanChangeHands(HandModel newHand) {
 			return CurrentHand != newHand &&
-				   Touchable.HandFingers[newHand].Count > Touchable.MinFingerCount &&
+				   Touchable.HandFingers[newHand].Count > MinFingerCount &&
 				   Touchable.IsCertainFingerTouching(newHand, Finger.FingerType.TYPE_THUMB) &&
 				   canChangeHands;
 		}

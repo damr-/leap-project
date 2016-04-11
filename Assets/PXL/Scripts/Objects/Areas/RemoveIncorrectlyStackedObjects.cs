@@ -17,7 +17,11 @@ namespace PXL.Objects.Areas {
 		private StackArea mStackArea;
 
 		private void Start() {
-			StackArea.StackedIncorrectly.Subscribe(o => {
+			StackArea.AreaStatus.Subscribe(status => {
+				if (status != StackArea.Status.StackedIcorrectly)
+					return;
+
+				var o = StackArea.IncorrectObject;
 				//o.Kill();
 				//o.GetComponent<Rigidbody>().AddForce(Vector3.up * 50f, ForceMode.Impulse);
 				o.transform.position = o.GetComponent<Grabbable>().PickupPosition;

@@ -24,7 +24,7 @@ namespace PXL.Interaction {
 		/// <summary>
 		/// How far an object has to move to invoke an event
 		/// </summary>
-		private const float MoveThresHold = 0.05f;
+		private const float MoveThresHold = 0.01f;
 
 		/// <summary>
 		/// On which axis the object should not be able to move
@@ -69,17 +69,17 @@ namespace PXL.Interaction {
 		/// <summary>
 		/// The offset of the object's position when being picked up
 		/// </summary>
-		private Vector3 posOffset;
+		//private Vector3 posOffset;
 
 		/// <summary>
 		/// The offset of the object's rotation when begin picked up
 		/// </summary>
-		private Quaternion rotOffset;
+		//private Quaternion rotOffset;
 
 		/// <summary>
 		/// The Transform this object tracks when grabbed
 		/// </summary>
-		private Transform trackedTarget;
+		//private Transform trackedTarget;
 
 		/// <summary>
 		/// The Touchable component of this object
@@ -104,6 +104,16 @@ namespace PXL.Interaction {
 		/// The touchable component of this object
 		/// </summary>
 		private Touchable mTouchable;
+
+		/// <summary>
+		/// The position of the object in the previous frame
+		/// </summary>
+		private Vector3 oldPosition;
+
+		/// <summary>
+		/// The rotation of the object in the previous frame
+		/// </summary>
+		private Vector3 oldRotation;
 
 		/// <summary>
 		/// Sets up subscriptions
@@ -131,15 +141,17 @@ namespace PXL.Interaction {
 		/// frozen values
 		/// </summary>
 		private void UpdatePosition() {
-			var oldPosition = transform.position;
-			var newPosition = CalculateObjectPosition();
+			var newPosition = transform.position; //CalculateObjectPosition();
 
 			for (var i = 0; i < 3; i++) {
-				var defaultPositionValue = OverwritePosition[i] ? OverwritePositionValues[i] : oldPosition[i];
-				newPosition[i] = FreezePosition[i] > 0 ? defaultPositionValue : newPosition[i];
+				if (!(FreezePosition[i] > 0)) 
+					continue;
+				var positionValue = OverwritePosition[i] ? OverwritePositionValues[i] : oldPosition[i];
+				newPosition[i] = positionValue;
 			}
 
 			transform.position = newPosition;
+			oldPosition = transform.position;
 		}
 
 		/// <summary>
@@ -147,15 +159,17 @@ namespace PXL.Interaction {
 		/// frozen values
 		/// </summary>
 		private void UpdateRotation() {
-			var oldRotation = transform.rotation.eulerAngles;
-			var newRotation = (trackedTarget.rotation * rotOffset).eulerAngles;
+			var newRotation = transform.rotation.eulerAngles; //(trackedTarget.rotation * rotOffset).eulerAngles;
 			
 			for (var i = 0; i < 3; i++) {
-				var defaultRotationValue = OverwriteRotation[i] ? OverwriteRotationValues[i] : oldRotation[i];
-				newRotation[i] = FreezeRotation[i] > 0 ? defaultRotationValue : newRotation[i];
+				if (!(FreezeRotation[i] > 0))
+					continue;
+				var rotationValue = OverwriteRotation[i] ? OverwriteRotationValues[i] : oldRotation[i];
+				newRotation[i] = rotationValue;
 			}
 
 			transform.rotation = Quaternion.Euler(newRotation);
+			oldRotation = transform.rotation.eulerAngles;
 		}
 
 		/// <summary>
@@ -163,12 +177,12 @@ namespace PXL.Interaction {
 		/// </summary>
 		private void HandleGrabStateChange(bool grabbed) {
 			if (grabbed) {
-				trackedTarget = Grabbable.CurrentHand.palm;
-				posOffset = transform.position - Touchable.GetAverageFingerPosition(Grabbable.CurrentHand);
-				rotOffset = Quaternion.Inverse(trackedTarget.rotation) * transform.rotation;
+				//trackedTarget = Grabbable.CurrentHand.palm;
+				//posOffset = transform.position - Touchable.GetAverageFingerPosition(Grabbable.CurrentHand);
+				//rotOffset = Quaternion.Inverse(trackedTarget.rotation) * transform.rotation;
 			}
 			else {
-				trackedTarget = null;
+				//trackedTarget = null;
 			}
 		}
 
@@ -190,16 +204,16 @@ namespace PXL.Interaction {
 		/// <summary>
 		/// Returns the position of the object whilst being held
 		/// </summary>
-		private Vector3 CalculateObjectPosition() {
-			return Touchable.GetAverageFingerPosition(Grabbable.CurrentHand) -
-			       posOffset.magnitude * trackedTarget.up * OffsetPercent;
-		}
+		//private Vector3 CalculateObjectPosition() {
+		//	return Touchable.GetAverageFingerPosition(Grabbable.CurrentHand) -
+		//	       posOffset.magnitude * trackedTarget.up * OffsetPercent;
+		//}
 
 		/// <summary>
 		/// Remove the tracked target when the object is destroyed
 		/// </summary>
 		private void OnDisable() {
-			trackedTarget = null;
+			//trackedTarget = null;
 		}
 
 	}

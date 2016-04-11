@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using System.Collections.Generic;
 using UniRx;
 
@@ -46,7 +47,7 @@ namespace PXL.Interaction {
 		/// <summary>
 		/// How often per second the object's data is tracked
 		/// </summary>
-		private const float TrackFrequency = 10f;
+		private const float TrackFrequency = 30f;
 
 		/// <summary>
 		/// How much data is required to invoke the Observable.
@@ -58,6 +59,8 @@ namespace PXL.Interaction {
 		/// </summary>
 		private float lastTrackTime;
 
+		private IDisposable subscription = Disposable.Empty;
+
 		/// <summary>
 		/// Invoked when an object is dropped and the observing is finished
 		/// </summary>
@@ -65,23 +68,21 @@ namespace PXL.Interaction {
 		private readonly ISubject<TrackData> finishedObservingSubject = new Subject<TrackData>();
 		
 		private void Update() {
-			if (observedGrabbable == null)
-				return;
+			//if (observedGrabbable == null)
+			//	return;
 
-			if (Time.time - lastTrackTime < 1/TrackFrequency)
-				return;
+			//if (Time.time - lastTrackTime < 1/TrackFrequency)
+			//	return;
 			
-			var observedTime = Time.time - startTime;
+			//var observedTime = Time.time - startTime;
+			//timeData.Add(observedTime);
 
-			timeData.Add(observedTime);
+			//var deltaTime = Time.time - lastTrackTime;
+			//var deltaPos = observedGrabbable.transform.position - lastPosition;
+			//speedData.Add(deltaPos.magnitude / deltaTime);
 
-			var deltaTime = Time.time - lastTrackTime;
-			var deltaPos = observedGrabbable.transform.position - lastPosition;
-            
-			speedData.Add(deltaPos.magnitude / deltaTime);
-
-			lastPosition = observedGrabbable.transform.position;
-			lastTrackTime = Time.time;
+			//lastPosition = observedGrabbable.transform.position;
+			//lastTrackTime = Time.time;
 		}
 
 		protected override void HandleGrabbed(Grabbable grabbable) {
@@ -91,9 +92,28 @@ namespace PXL.Interaction {
 			lastPosition = observedGrabbable.transform.position;
 			startTime = Time.time;
 			lastTrackTime = 0f;
+
+			subscription = Observable.Interval(TimeSpan.FromSeconds(1 / TrackFrequency)).Subscribe(_ => {
+				if (observedGrabbable == null) {
+					subscription.Dispose();
+					return;
+				}
+
+				var observedTime = Time.time - startTime;
+				timeData.Add(observedTime);
+
+				var deltaTime = Time.time - lastTrackTime;
+				var deltaPos = observedGrabbable.transform.position - lastPosition;
+				speedData.Add(deltaPos.magnitude / deltaTime);
+
+				lastPosition = observedGrabbable.transform.position;
+			});
+
 		}
 
 		protected override void HandleDropped(Grabbable grabbable) {
+			subscription.Dispose();
+
 			if (timeData.Count < RequiredDataAmount)
 				return;
 

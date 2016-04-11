@@ -32,7 +32,6 @@ namespace PXL.UI.Admin {
 		/// <summary>
 		/// Sets <see cref="Grabbable.MinGrabStrength"/> to the given value and updates the UI text
 		/// </summary>
-		/// <param name="newStrength"></param>
 		private void SetGrabStrength(float newStrength) {
 			if (newStrength < 0.1f || newStrength > 0.8f)
 				return;

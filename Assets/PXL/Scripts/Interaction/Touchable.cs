@@ -9,7 +9,6 @@ using UnityEngine;
 namespace PXL.Interaction {
 
 	public class FingerInfo {
-
 		public Fingertip Fingertip;
 		public HandModel HandModel;
 
@@ -17,17 +16,11 @@ namespace PXL.Interaction {
 			Fingertip = fingertip;
 			HandModel = handModel;
 		}
-
 	}
 
 	[RequireComponent(typeof(Collider))]
 	[RequireComponent(typeof(Rigidbody))]
 	public class Touchable : MonoBehaviour {
-
-		/// <summary>
-		/// The minimum fingers necessary to pick up an object
-		/// </summary>
-		public static int MinFingerCount = 3;
 
 		/// <summary>
 		/// Subject returned by <see cref="FingerEntered" />
@@ -42,9 +35,7 @@ namespace PXL.Interaction {
 		/// <summary>
 		/// All the fingers of all hands currently overlapping this object
 		/// </summary>
-		public readonly IDictionary<HandModel, HashSet<Fingertip>> HandFingers =
-			new Dictionary<HandModel, HashSet<Fingertip>>();
-
+		public IDictionary<HandModel, HashSet<Fingertip>> HandFingers = new Dictionary<HandModel, HashSet<Fingertip>>();
 		private Rigidbody mRigidbody;
 
 		/// <summary>
@@ -71,6 +62,10 @@ namespace PXL.Interaction {
 		/// </summary>
 		public Rigidbody Rigidbody {
 			get { return mRigidbody ?? (mRigidbody = this.TryGetComponent<Rigidbody>()); }
+		}
+
+		private void Update() {
+			HandFingers = HandFingers.Where(entry => entry.Value.Count > 0 && entry.Value.All(c => c.Touchable == this)).ToDictionary(c => c.Key, c => c.Value);
 		}
 
 		/// <summary>
@@ -116,8 +111,9 @@ namespace PXL.Interaction {
 
 			HandFingers[hand].Remove(fingertip);
 
-			if (HandFingers[hand].Count == 0)
+			if (HandFingers[hand].Count == 0) {
 				HandFingers.Remove(hand);
+			}
 		}
 
 		/// <summary>
@@ -151,8 +147,8 @@ namespace PXL.Interaction {
 		/// <summary>
 		/// Returns whether there are enough fingers touching the object and the thumb is one of them
 		/// </summary>
-		public bool CanGrabObject(HandModel hand) {
-			return HandFingers.ContainsKey(hand) && HandFingers[hand].Count > MinFingerCount && thumbTouches;
+		public bool AreEnoughFingersAndIsThumbTouching(HandModel hand, int minFingerCount) {
+			return HandFingers.ContainsKey(hand) && HandFingers[hand].Count > minFingerCount && thumbTouches;
 		}
 
 		/// <summary>

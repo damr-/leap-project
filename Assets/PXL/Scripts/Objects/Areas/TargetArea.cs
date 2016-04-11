@@ -10,7 +10,7 @@ namespace PXL.Objects.Areas {
 	public abstract class TargetArea : MonoBehaviour {
 
 		/// <summary>
-		/// What tag an object has to have to be recognised
+		/// What tag an object needsto be recognised by this area
 		/// </summary>
 		public Tags.TagType TargetTagType;
 

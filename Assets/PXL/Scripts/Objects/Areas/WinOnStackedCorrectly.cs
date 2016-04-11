@@ -29,7 +29,10 @@ namespace PXL.Objects.Areas {
 		private StackArea mStackArea;
 
 		private void Start() {
-			StackArea.StackedCorrectly.Subscribe(_ => {
+			StackArea.AreaStatus.Subscribe(status => {
+				if (status != StackArea.Status.GameWon)
+					return;
+
 				if (WinImmediately) {
 					GameMode.SetGameWon(true);
 				}
