@@ -245,6 +245,8 @@ namespace PXL.Interaction {
 			if (IsGrabbed)
 				Drop();
 			CurrentHand = null;
+			unparentSubscription.Dispose();
+			transform.SetParent(null, true);
 		}
 
 	}
