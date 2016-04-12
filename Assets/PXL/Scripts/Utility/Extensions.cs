@@ -1,8 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Leap.Unity;
 using UnityEngine;
+using Object = UnityEngine.Object;
+using Random = UnityEngine.Random;
 
 namespace PXL.Utility {
 
@@ -153,6 +156,15 @@ namespace PXL.Utility {
 					Object.DestroyImmediate(o.gameObject);
 				}
 			}
+		}
+
+		/// <summary>
+		/// Truncates the given float value to a specified number of digits
+		/// </summary>
+		public static float Truncate(this float value, int digits) {
+			var mult = Math.Pow(10.0, digits);
+			var result = Math.Truncate(mult * value) / mult;
+			return (float)result;
 		}
 
 	}

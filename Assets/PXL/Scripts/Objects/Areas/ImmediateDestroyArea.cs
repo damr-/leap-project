@@ -12,6 +12,7 @@ namespace PXL.Objects.Areas {
             if (CurrentDestroyAmount.Value == WinDestroyAmount) {
 				HandleGameWon();
 			}
+			ObjectDestroyedSubject.OnNext(interactiveObject);
 			interactiveObject.Kill();
         }
 
@@ -19,6 +20,7 @@ namespace PXL.Objects.Areas {
 			base.HandleInvalidObjectType(interactiveObject);
 
 			if (DestroyWrongTypes) {
+				ObjectDestroyedSubject.OnNext(interactiveObject);
 				interactiveObject.Kill();
 			}
 			if (PunishWrongTypes) {

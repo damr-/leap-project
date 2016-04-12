@@ -23,10 +23,12 @@ namespace PXL.Objects.Areas {
 					continue;
 
 				CurrentDestroyAmount.Value++;
+				ObjectDestroyedSubject.OnNext(o);
+
 				if (CurrentDestroyAmount.Value == WinDestroyAmount) {
 					HandleGameWon();
 					o.Kill();
-					break;
+					return;
 				}
 				o.Kill();
 			}

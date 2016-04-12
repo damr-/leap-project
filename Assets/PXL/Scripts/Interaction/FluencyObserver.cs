@@ -67,31 +67,13 @@ namespace PXL.Interaction {
 		public IObservable<TrackData> FinishedObserving { get { return finishedObservingSubject; } }
 		private readonly ISubject<TrackData> finishedObservingSubject = new Subject<TrackData>();
 		
-		private void Update() {
-			//if (observedGrabbable == null)
-			//	return;
-
-			//if (Time.time - lastTrackTime < 1/TrackFrequency)
-			//	return;
-			
-			//var observedTime = Time.time - startTime;
-			//timeData.Add(observedTime);
-
-			//var deltaTime = Time.time - lastTrackTime;
-			//var deltaPos = observedGrabbable.transform.position - lastPosition;
-			//speedData.Add(deltaPos.magnitude / deltaTime);
-
-			//lastPosition = observedGrabbable.transform.position;
-			//lastTrackTime = Time.time;
-		}
-
 		protected override void HandleGrabbed(Grabbable grabbable) {
 			observedGrabbable = grabbable;
 			speedData = new List<float>();
 			timeData = new List<float>();
 			lastPosition = observedGrabbable.transform.position;
 			startTime = Time.time;
-			lastTrackTime = 0f;
+			lastTrackTime = Time.time;
 
 			subscription = Observable.Interval(TimeSpan.FromSeconds(1 / TrackFrequency)).Subscribe(_ => {
 				if (observedGrabbable == null) {
@@ -100,12 +82,13 @@ namespace PXL.Interaction {
 				}
 
 				var observedTime = Time.time - startTime;
-				timeData.Add(observedTime);
-
 				var deltaTime = Time.time - lastTrackTime;
 				var deltaPos = observedGrabbable.transform.position - lastPosition;
+
+				timeData.Add(observedTime);
 				speedData.Add(deltaPos.magnitude / deltaTime);
 
+				lastTrackTime = Time.time;
 				lastPosition = observedGrabbable.transform.position;
 			});
 

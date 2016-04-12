@@ -44,8 +44,8 @@ namespace PXL.Objects.Areas {
 		/// <summary>
 		/// Invoked when <see cref="CurrentDestroyAmount"/> reaches <see cref="WinDestroyAmount"/>
 		/// </summary>
-		public IObservable<Unit> GoalReached { get { return GoalReachedSubject; } }
-		protected readonly ISubject<Unit> GoalReachedSubject = new Subject<Unit>();
+		public IObservable<Unit> GoalReached { get { return goalReachedSubject; } }
+		private readonly ISubject<Unit> goalReachedSubject = new Subject<Unit>();
 
 		/// <summary>
 		/// Invoked when an object with the correct type enters
@@ -58,6 +58,13 @@ namespace PXL.Objects.Areas {
 		/// </summary>
 		public IObservable<InteractiveObject> InvalidObject { get { return invalidObjectSubject; } }
 		private readonly ISubject<InteractiveObject> invalidObjectSubject = new Subject<InteractiveObject>();
+
+		/// <summary>
+		/// Invoked when an object is about to be destroyed by this area
+		/// </summary>
+		public IObservable<InteractiveObject> ObjectDestroyed { get { return ObjectDestroyedSubject; } }
+
+		protected readonly ISubject<InteractiveObject> ObjectDestroyedSubject = new Subject<InteractiveObject>();
 
 		/// <summary>
 		/// Reset <see cref="CurrentDestroyAmount"/>
@@ -79,7 +86,7 @@ namespace PXL.Objects.Areas {
 				GameMode.AddPoints(WorthWinPoints);
 			}
 			SetAreaActive(false);
-			GoalReachedSubject.OnNext(Unit.Default);
+			goalReachedSubject.OnNext(Unit.Default);
 		}
 
 		protected override void HandleValidObjectType(InteractiveObject interactiveObject) {

@@ -1,11 +1,9 @@
 ﻿using PXL.Utility;
-using UniRx;
 using UnityEngine;
 
 namespace PXL.Interaction {
 
 	public class MovementInfo {
-
 		public Vector3 Delta;
 		public Moveable Moveable;
 		public Vector3 NewPosition;
@@ -15,7 +13,6 @@ namespace PXL.Interaction {
 			Delta = delta;
 			NewPosition = newPosition;
 		}
-
 	}
 
 	[RequireComponent(typeof(Grabbable))]
@@ -67,44 +64,13 @@ namespace PXL.Interaction {
 		public Vector3 OverwriteRotationValues = Vector3.zero;
 
 		/// <summary>
-		/// The offset of the object's position when being picked up
-		/// </summary>
-		//private Vector3 posOffset;
-
-		/// <summary>
-		/// The offset of the object's rotation when begin picked up
-		/// </summary>
-		//private Quaternion rotOffset;
-
-		/// <summary>
-		/// The Transform this object tracks when grabbed
-		/// </summary>
-		//private Transform trackedTarget;
-
-		/// <summary>
 		/// The Touchable component of this object
 		/// </summary>
 		public Grabbable Grabbable {
 			get { return mGrabbable ?? (mGrabbable = this.TryGetComponent<Grabbable>()); }
 		}
-
-		/// <summary>
-		/// The Grabbable component of this object
-		/// </summary>
 		private Grabbable mGrabbable;
-
-		/// <summary>
-		/// The Touchable component of this object
-		/// </summary>
-		private Touchable Touchable {
-			get { return mTouchable ?? (mTouchable = this.TryGetComponent<Touchable>()); }
-		}
-
-		/// <summary>
-		/// The touchable component of this object
-		/// </summary>
-		private Touchable mTouchable;
-
+		
 		/// <summary>
 		/// The position of the object in the previous frame
 		/// </summary>
@@ -119,7 +85,6 @@ namespace PXL.Interaction {
 		/// Sets up subscriptions
 		/// </summary>
 		private void Start() {
-			Grabbable.IsGrabbed.Subscribe(HandleGrabStateChange);
 			lastPosition = transform.position;
 		}
 
@@ -141,7 +106,7 @@ namespace PXL.Interaction {
 		/// frozen values
 		/// </summary>
 		private void UpdatePosition() {
-			var newPosition = transform.position; //CalculateObjectPosition();
+			var newPosition = transform.position;
 
 			for (var i = 0; i < 3; i++) {
 				if (!(FreezePosition[i] > 0)) 
@@ -159,7 +124,7 @@ namespace PXL.Interaction {
 		/// frozen values
 		/// </summary>
 		private void UpdateRotation() {
-			var newRotation = transform.rotation.eulerAngles; //(trackedTarget.rotation * rotOffset).eulerAngles;
+			var newRotation = transform.rotation.eulerAngles;
 			
 			for (var i = 0; i < 3; i++) {
 				if (!(FreezeRotation[i] > 0))
@@ -173,21 +138,7 @@ namespace PXL.Interaction {
 		}
 
 		/// <summary>
-		/// Called when the grabbed state of the object changes
-		/// </summary>
-		private void HandleGrabStateChange(bool grabbed) {
-			if (grabbed) {
-				//trackedTarget = Grabbable.CurrentHand.palm;
-				//posOffset = transform.position - Touchable.GetAverageFingerPosition(Grabbable.CurrentHand);
-				//rotOffset = Quaternion.Inverse(trackedTarget.rotation) * transform.rotation;
-			}
-			else {
-				//trackedTarget = null;
-			}
-		}
-
-		/// <summary>
-		/// Checks whether the object has been moved beyond a certain threshold and if yes, emits the subject
+		/// Checks whether the object has been moved beyond a certain threshold. If yes, invokes the observable
 		/// </summary>
 		private void CheckMovement() {
 			if (!(Vector3.Distance(transform.position, lastPosition) > MoveThresHold))
@@ -199,21 +150,6 @@ namespace PXL.Interaction {
 					transform.position));
 
 			lastPosition = transform.position;
-		}
-
-		/// <summary>
-		/// Returns the position of the object whilst being held
-		/// </summary>
-		//private Vector3 CalculateObjectPosition() {
-		//	return Touchable.GetAverageFingerPosition(Grabbable.CurrentHand) -
-		//	       posOffset.magnitude * trackedTarget.up * OffsetPercent;
-		//}
-
-		/// <summary>
-		/// Remove the tracked target when the object is destroyed
-		/// </summary>
-		private void OnDisable() {
-			//trackedTarget = null;
 		}
 
 	}

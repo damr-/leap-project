@@ -1,4 +1,5 @@
-﻿using PXL.Objects;
+﻿using System.Linq;
+using PXL.Objects;
 using UnityEngine;
 using PXL.Objects.Areas;
 
@@ -8,27 +9,22 @@ namespace PXL.Utility {
 
 		public Vector3 Force;
 
-		public Vector3 MaxVelocity;
+		[Range(0.1f, 10f)]
+		public float MaxSpeed;
 
 		protected override void Update() {
 			base.Update();
 
-			foreach (var keyValuePair in Objects) {
-				var r = keyValuePair.Key.GetComponent<Rigidbody>();
-
-				if (r == null)
-					continue;
-
-				var actualForce = Vector3.zero;
-
-				for (var i = 0; i < 3; i++) {
-					if (Mathf.Abs(r.velocity[i]) >= MaxVelocity[i])
-						continue;
-
-					if (Force[i] < 0 || Force[i] > 0)
-						actualForce[i] = Force[i];
+			foreach (var r in Objects.Select(keyValuePair => keyValuePair.Key.GetComponent<Rigidbody>()).Where(r => r != null)) {
+				if (r.velocity.magnitude > MaxSpeed) {
+					var correctVelocity = r.velocity.normalized * MaxSpeed;
+					r.velocity = Vector3.Lerp(r.velocity, correctVelocity, Time.deltaTime * 1.5f);
 				}
-				r.AddForce(actualForce, ForceMode.Force);
+				else {
+					var modifiedForce = Force * (1 - r.velocity.magnitude / MaxSpeed);
+					var force = Vector3.Lerp(Force, modifiedForce, Vector3.Dot(r.velocity, Force));
+					r.AddForce(force, ForceMode.Force);
+				}
 			}
 		}
 

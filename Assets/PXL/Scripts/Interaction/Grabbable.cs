@@ -37,8 +37,6 @@ namespace PXL.Interaction {
 		private readonly IDictionary<HandModel, InteractionHand> interactionHands =
 			new Dictionary<HandModel, InteractionHand>();
 
-		private readonly ObservableProperty<bool> isGrabbed = new ObservableProperty<bool>();
-
 		/// <summary>
 		/// Whether the object can change hands at this moment.
 		/// </summary>
@@ -52,9 +50,7 @@ namespace PXL.Interaction {
 		/// <summary>
 		/// Whether this object is currently grabbed or not
 		/// </summary>
-		public ObservableProperty<bool> IsGrabbed {
-			get { return isGrabbed; }
-		}
+		public ObservableProperty<bool> IsGrabbed = new ObservableProperty<bool>();
 
 		/// <summary>
 		/// The HandModel currently grabbing the object, or at least trying to
@@ -83,6 +79,11 @@ namespace PXL.Interaction {
 		}
 
 		/// <summary>
+		/// Whether the delay on dropping an object is enabled
+		/// </summary>
+		public bool EnableDropDelay = true;
+
+		/// <summary>
 		/// For how many seconds the grab strength has been 0 while the object is grabbed
 		/// </summary>
 		private float noGrabTime;
@@ -90,7 +91,7 @@ namespace PXL.Interaction {
 		/// <summary>
 		/// For how many seconds the grab strength can be 0 while grabbed before the object is dropped
 		/// </summary>
-		private const float MaxNoGrabTime = 0.1f;
+		private const float MaxNoGrabTime = 0.15f;
 
 		/// <summary>
 		/// Subscription to setting the parent null interval
@@ -109,7 +110,7 @@ namespace PXL.Interaction {
 		/// Updates the state of the object
 		/// </summary>
 		private void Update() {
-			if (!isGrabbed) {
+			if (!IsGrabbed) {
 				if (CurrentHand.IsHandValid() && GrabbingHandsManager.CanHandGrab(CurrentHand) &&
 					Touchable.AreEnoughFingersAndIsThumbTouching(CurrentHand, MinFingerCount)) {
 					Grab();
@@ -120,12 +121,16 @@ namespace PXL.Interaction {
 			if (!CurrentHand.IsHandValid()) {
 				Drop();
 			}
-			else if (!(CurrentHand.GetLeapHand().GrabStrength >/*=*/ 0f)) {// MinGrabStrength;)) {
-				noGrabTime += Time.deltaTime;
-
-				if (noGrabTime > MaxNoGrabTime) {
-					noGrabTime = 0f;
+			else if (!(CurrentHand.GetLeapHand().GrabStrength > 0f)) {
+				if (!EnableDropDelay) {
 					Drop();
+				}
+				else {
+					noGrabTime += Time.deltaTime;
+					if (noGrabTime > MaxNoGrabTime) {
+						noGrabTime = 0f;
+						Drop();
+					}
 				}
 			}
 		}
@@ -161,7 +166,7 @@ namespace PXL.Interaction {
 		/// Called when a finger leaves the object
 		/// </summary>
 		private void HandleFingerLeft(FingerInfo fingerInfo) {
-			if (isGrabbed)
+			if (IsGrabbed)
 				return;
 
 			Touchable.CleanupHands(fingerInfo);
@@ -194,7 +199,6 @@ namespace PXL.Interaction {
 		private void SetGrabbed(bool grabbed) {
 			Touchable.Rigidbody.useGravity = !grabbed;
 			Touchable.Rigidbody.isKinematic = grabbed;
-			isGrabbed.Value = grabbed;
 
 			unparentSubscription.Dispose();
 
@@ -220,15 +224,8 @@ namespace PXL.Interaction {
 				grabbingHand.DropObject(this);
 				GrabbingHandsManager.RemoveHand(CurrentHand);
 			}
-		}
 
-		/// <summary>
-		/// Drops the object when it is disabled
-		/// </summary>
-		private void OnDisable() {
-			if (isGrabbed)
-				Drop();
-			CurrentHand = null;
+			IsGrabbed.Value = grabbed;
 		}
 
 		/// <summary>
@@ -239,6 +236,15 @@ namespace PXL.Interaction {
 				   Touchable.HandFingers[newHand].Count > MinFingerCount &&
 				   Touchable.IsCertainFingerTouching(newHand, Finger.FingerType.TYPE_THUMB) &&
 				   canChangeHands;
+		}
+
+		/// <summary>
+		/// Drops the object when it is disabled
+		/// </summary>
+		private void OnDisable() {
+			if (IsGrabbed)
+				Drop();
+			CurrentHand = null;
 		}
 
 	}

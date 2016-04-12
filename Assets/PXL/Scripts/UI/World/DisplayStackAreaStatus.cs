@@ -1,5 +1,4 @@
-﻿using System;
-using PXL.Gamemodes;
+﻿using PXL.Gamemodes;
 using PXL.Objects.Areas;
 using PXL.Utility;
 using UnityEngine;
@@ -74,7 +73,7 @@ namespace PXL.UI.World {
 			CheckProgressbar.AssertNotNull();
 			StatusText.AssertNotNull();
 			if (ObjectsCheckMarks.Length != CheckingStackArea.RequiredObjectsAmount)
-				throw new MissingReferenceException("Not enough check marks assigned!");
+				throw new MissingReferenceException("Not enough object check marks assigned!");
 
 			CheckingStackArea.AreaStatus.Subscribe(HandleStatusChange);
 		}
@@ -83,7 +82,7 @@ namespace PXL.UI.World {
 		/// Called when the status of the StackArea changes
 		/// </summary>
 		private void HandleStatusChange(StackArea.Status status) {
-			incorrectIndex = 0;
+			incorrectIndex = -1;
 			switch (status) {
 				case StackArea.Status.NotStationary:
 					CancelChecks("objects not stationary");

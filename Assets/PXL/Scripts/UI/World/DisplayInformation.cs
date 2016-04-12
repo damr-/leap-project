@@ -7,7 +7,7 @@ using UnityEngine.UI;
 namespace PXL.UI.World {
 
 	public class DisplayInformation : InteractionHandSubscriber {
-	
+
 		/// <summary>
 		/// The Text components of the picks labels for left and right hand
 		/// </summary>
@@ -27,7 +27,7 @@ namespace PXL.UI.World {
 		/// The referenced display for the time
 		/// </summary>
 		public DisplayTime DisplayTime;
-		
+
 		/// <summary>
 		/// The distance each hand has carried an object
 		/// </summary>
@@ -65,11 +65,11 @@ namespace PXL.UI.World {
 			if (side == HandSide.None)
 				return;
 
-			var index = (int) side - 1;
+			var index = (int)side - 1;
 			distances[index] += movementInfo.Delta.magnitude;
 			DistanceTexts[index].text = distances[index].ToString("0.000");
 		}
-		
+
 		/// <summary>
 		/// Returns the text of the given Text component as an Integer, if possible
 		/// </summary>
@@ -89,12 +89,29 @@ namespace PXL.UI.World {
 			if (side == HandSide.None)
 				return;
 
-			var text = possibleTexts[(int)side-1];
+			var text = possibleTexts[(int)side - 1];
 
 			var value = GetLabelTextAsNumber(text);
 			if (value != -1)
 				text.text = (value + 1).ToString();
 		}
+
+		/// <summary>
+		/// Resets the displayed information to the default state
+		/// </summary>
+		public void ResetInformation() {
+			foreach (var distanceText in DistanceTexts) {
+				distanceText.text = "0.000";
+			}
+			foreach (var picksText in PicksTexts) {
+				picksText.text = "0";
+			}
+			foreach (var dropsText in DropsTexts) {
+				dropsText.text = "0";
+			}
+			DisplayTime.ResetTimer();
+			DisplayTime.StopTimer();
+        }
 
 	}
 }

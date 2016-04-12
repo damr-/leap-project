@@ -72,6 +72,14 @@ namespace PXL.UI.World {
 		}
 
 		/// <summary>
+		/// Sets the timer back to zero. Doesn't stop the timer.
+		/// </summary>
+		public void ResetTimer() {
+			startTime = Time.time;
+			TimeText.text = "00:00:00";
+		}
+
+		/// <summary>
 		/// Stops the timer
 		/// </summary>
 		public void StopTimer() {
