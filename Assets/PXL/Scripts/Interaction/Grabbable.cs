@@ -34,8 +34,7 @@ namespace PXL.Interaction {
 		/// <summary>
 		/// Every HandModel and its corresponding InteractionHand
 		/// </summary>
-		private readonly IDictionary<HandModel, InteractionHand> interactionHands =
-			new Dictionary<HandModel, InteractionHand>();
+		public static IDictionary<HandModel, InteractionHand> InteractionHands = new Dictionary<HandModel, InteractionHand>();
 
 		/// <summary>
 		/// Whether the object can change hands at this moment.
@@ -56,7 +55,7 @@ namespace PXL.Interaction {
 		/// The hand interacting with this object
 		/// </summary>
 		public InteractionHand InteractionHand {
-			get { return interactionHands.GetOrAdd(CurrentHand); }
+			get { return InteractionHands.GetOrAdd(CurrentHand); }
 		}
 
 		/// <summary>
@@ -211,7 +210,7 @@ namespace PXL.Interaction {
 				});
 			}
 
-			var grabbingHand = interactionHands.GetOrAdd(CurrentHand);
+			var grabbingHand = InteractionHands.GetOrAdd(CurrentHand);
 			if (grabbed) {
 				grabbingHand.GrabObject(this);
 				GrabbingHandsManager.AddHand(CurrentHand);
@@ -241,8 +240,6 @@ namespace PXL.Interaction {
 			if (IsGrabbed)
 				Drop();
 			CurrentHand = null;
-			unparentSubscription.Dispose();
-			//transform.SetParent(null, true);
 		}
 
 	}

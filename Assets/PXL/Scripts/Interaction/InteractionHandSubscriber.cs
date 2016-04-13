@@ -9,7 +9,7 @@ namespace PXL.Interaction {
 	public abstract class InteractionHandSubscriber : MonoBehaviour {
 
 		/// <summary>
-		/// The two hands in this scene
+		/// The referenced hands in the scene
 		/// </summary>
 		public List<HandModel> HandModels = new List<HandModel>();
 
