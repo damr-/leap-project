@@ -5,7 +5,7 @@ using PXL.Interaction;
 using PXL.Utility;
 using UnityEngine.UI;
 
-namespace PXL.UI.World {
+namespace PXL.UI.World.Display {
 
 	[RequireComponent(typeof(RawImage))]
 	public class DisplayFluency : MonoBehaviour {

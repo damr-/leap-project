@@ -4,7 +4,7 @@ using PXL.Objects.Areas;
 using PXL.Utility;
 using UnityEngine.UI;
 
-namespace PXL.UI.World {
+namespace PXL.UI.World.Display {
 
 	[RequireComponent(typeof(Text))]
 	public class DisplayDestroyAreaAmount : MonoBehaviour {

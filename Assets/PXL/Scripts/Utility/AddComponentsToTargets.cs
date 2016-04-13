@@ -19,7 +19,7 @@ namespace PXL.Utility {
 
 		private void Awake() {
 			assemblyName = Assembly.GetExecutingAssembly().FullName;
-			if(Targets.Count == 0)
+			if (Targets.Count == 0)
 				throw new MissingReferenceException("No targets set!");
 			Targets.ForEach(t => t.AssertNotNull("Target is missing or null!"));
 			Targets.ForEach(AddComponents);

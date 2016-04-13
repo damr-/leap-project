@@ -5,7 +5,7 @@ using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace PXL.UI.World {
+namespace PXL.UI.World.Display {
 
 	[RequireComponent(typeof(Text))]
 	public class DisplayTime : MonoBehaviour {
@@ -49,7 +49,7 @@ namespace PXL.UI.World {
 		private void OnEnable() {
 			if (AutoStart)
 				TryStartTimer();
-			gameWinSubscription = GameMode.GameOver.Subscribe(_ => HandleGameOver());
+			gameWinSubscription = GameMode.GameOver.Subscribe(HandleGameOver);
 		}
 
 		private void Update() {
@@ -89,8 +89,9 @@ namespace PXL.UI.World {
 		/// <summary>
 		/// Called when the game is over
 		/// </summary>
-		private void HandleGameOver() {
-			StopTimer();
+		private void HandleGameOver(bool gameOver) {
+			if(gameOver)
+				StopTimer();
 		}
 
 	}

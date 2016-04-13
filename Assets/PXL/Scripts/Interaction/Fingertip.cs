@@ -6,10 +6,11 @@ using UnityEngine;
 namespace PXL.Interaction {
 
 	public class Fingertip : MonoBehaviour {
+
 		/// <summary>
 		/// The type of tag this fingertip interacts with
 		/// </summary>
-		private const Tags.TagType TargetTagType = Tags.TagType.Object;
+		public Tags.TagType TargetTagType = Tags.TagType.Object;
 
 		/// <summary>
 		/// The actual tag as string
@@ -17,10 +18,13 @@ namespace PXL.Interaction {
 		private string targetTag;
 
 		/// <summary>
-		/// The hand this finger tip's finger belongs to
+		/// The hand this finger tip belongs to
 		/// </summary>
 		public HandModel HandModel { get; private set; }
 
+		/// <summary>
+		/// The Touchable this Fingertip is currently touching
+		/// </summary>
 		public Touchable Touchable;
 
 		/// <summary>

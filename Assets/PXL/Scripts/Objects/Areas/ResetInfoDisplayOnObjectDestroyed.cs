@@ -1,5 +1,5 @@
 ﻿using System;
-using PXL.UI.World;
+using PXL.UI.World.Display;
 using PXL.Utility;
 using UnityEngine;
 using UniRx;

@@ -27,11 +27,8 @@ namespace PXL.Utility {
 		/// <summary>
 		/// All the names of the scenes and the corresponding keys to load them
 		/// </summary>
-		public List<SceneInfo> SceneInfos = new List<SceneInfo> {
-			new SceneInfo("dev", KeyCode.F1),
-			new SceneInfo("hanoi", KeyCode.F2)
-		};
-
+		public List<SceneInfo> SceneInfos = new List<SceneInfo>();
+		
 		private void Update() {
 			if (isLoading)
 				return;
@@ -40,12 +37,12 @@ namespace PXL.Utility {
 				if (!Input.GetKeyDown(item.value.LoadKey))
 					continue;
 
-				StartCoroutine(CallLoad(item.i));
+				StartLoadLevel(item.i);
 			}
 
 			if (Input.GetKeyDown(RestartKey)) {
 				var currentLevel = SceneManager.GetActiveScene().buildIndex;
-				StartCoroutine(CallLoad(currentLevel));
+				StartLoadLevel(currentLevel);
 			}
 
 			if (Input.GetKeyDown(QuitKey)) {
@@ -54,23 +51,42 @@ namespace PXL.Utility {
 		}
 
 		/// <summary>
+		/// Starts to load the level with the given index
+		/// </summary>
+		public void StartLoadLevel(int levelIndex) {
+			if (isLoading)
+				return;
+
+			StartCoroutine(CallLoad(levelIndex));
+		}
+
+		/// <summary>
 		/// Starts to asynchronously load the level with the given index
 		/// </summary>
-		private IEnumerator CallLoad(int loadLevel) {
+		private IEnumerator CallLoad(int levelIndex) {
 			isLoading = true;
-			var async = SceneManager.LoadSceneAsync(loadLevel);
+			SceneInfo.Counter = 0;
+			var async = SceneManager.LoadSceneAsync(levelIndex);
 			yield return async;
 		}
 
 		[Serializable]
 		public class SceneInfo {
+			public static int Counter;
+
 			public KeyCode LoadKey;
 			public string SceneName;
+			public string PrettyName;
 
-			public SceneInfo(string sceneName, KeyCode loadKey) {
-				SceneName = sceneName;
-				LoadKey = loadKey;
+			public int Index {
+				get {
+					if (mIndex == 0)
+						mIndex = Counter++;
+					return mIndex;
+				}
 			}
+
+			private int mIndex;
 		}
 
 	}

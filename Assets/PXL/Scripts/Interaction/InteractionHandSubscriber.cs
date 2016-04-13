@@ -16,7 +16,10 @@ namespace PXL.Interaction {
 		protected List<InteractionHand> InteractionHands = new List<InteractionHand>();
 
 		protected virtual void Start() {
-			HandModels.ForEach(i => InteractionHands.Add(i.GetComponent<InteractionHand>()));
+			HandModels.ForEach(i => {
+				i.AssertNotNull("HandModel is missing!");
+				InteractionHands.Add(i.GetComponent<InteractionHand>());
+			});
 
 			foreach (var hand in InteractionHands) {
 				hand.ObjectGrabbed.Subscribe(HandleGrabbed);

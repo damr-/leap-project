@@ -16,12 +16,26 @@ namespace PXL.Objects {
 		public Vector3 Origin;
 
 		/// <summary>
+		/// Optional transform to be used as origin
+		/// </summary>
+		public Transform OriginTransform;
+
+		/// <summary>
+		/// The actual origin position used to calculate the distance
+		/// </summary>
+		private Vector3 origin;
+
+		/// <summary>
 		/// Whether this object should be despawned and not destroyed
 		/// </summary>
 		public bool Despawn = true;
 
+		private void Start() {
+			origin = OriginTransform == null ? Origin : OriginTransform.position;
+		}
+
 		private void Update() {
-			if (Vector3.Distance(Origin, transform.position) > DespawnDistance) {
+			if (Vector3.Distance(origin, transform.position) > DespawnDistance) {
 				HandleTooFarAway();
 			}
 		}

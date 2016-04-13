@@ -1,6 +1,6 @@
 ﻿using Leap.Unity;
 
-namespace PXL.UI.World {
+namespace PXL.UI.World.Display {
 
 	public class DisplayTextGrabStrength : DisplayTextBase {
 

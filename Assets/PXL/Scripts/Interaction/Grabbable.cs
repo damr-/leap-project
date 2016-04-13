@@ -43,11 +43,6 @@ namespace PXL.Interaction {
 		private bool canChangeHands = true;
 
 		/// <summary>
-		/// The Touchable component of this object
-		/// </summary>
-		private Touchable mTouchable;
-
-		/// <summary>
 		/// Whether this object is currently grabbed or not
 		/// </summary>
 		public ObservableProperty<bool> IsGrabbed = new ObservableProperty<bool>();
@@ -77,6 +72,7 @@ namespace PXL.Interaction {
 		private Touchable Touchable {
 			get { return mTouchable ?? (mTouchable = this.TryGetComponent<Touchable>()); }
 		}
+		private Touchable mTouchable;
 
 		/// <summary>
 		/// Whether the delay on dropping an object is enabled
@@ -246,7 +242,7 @@ namespace PXL.Interaction {
 				Drop();
 			CurrentHand = null;
 			unparentSubscription.Dispose();
-			transform.SetParent(null, true);
+			//transform.SetParent(null, true);
 		}
 
 	}

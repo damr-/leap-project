@@ -12,7 +12,7 @@ namespace PXL.Objects {
 		Ring = 6,
 		Cup = 7,
 	}
-	
+
 	public class InteractiveObject : MonoBehaviour {
 
 		/// <summary>
@@ -24,7 +24,7 @@ namespace PXL.Objects {
 		/// The scale of this object
 		/// </summary>
 		public float Scale { get; set; }
-		
+
 	}
 
 }

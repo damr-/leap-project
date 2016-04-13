@@ -23,32 +23,17 @@ namespace PXL.Interaction {
 	public class Touchable : MonoBehaviour {
 
 		/// <summary>
-		/// Subject returned by <see cref="FingerEntered" />
-		/// </summary>
-		private readonly ISubject<FingerInfo> fingerEnteredSubject = new Subject<FingerInfo>();
-
-		/// <summary>
-		/// Subject returned by <see cref="FingerLeft" />
-		/// </summary>
-		private readonly ISubject<FingerInfo> fingerLeftSubject = new Subject<FingerInfo>();
-
-		/// <summary>
-		/// All the fingers of all hands currently overlapping this object
+		/// All the hands and their fingers which are currently touching this object
 		/// </summary>
 		public IDictionary<HandModel, HashSet<Fingertip>> HandFingers = new Dictionary<HandModel, HashSet<Fingertip>>();
-		private Rigidbody mRigidbody;
-
-		/// <summary>
-		/// Whether the thumb is actively touching the object
-		/// </summary>
-		private bool thumbTouches;
-
+		
 		/// <summary>
 		/// Observable for when a fingertip enters
 		/// </summary>
 		public IObservable<FingerInfo> FingerEntered {
 			get { return fingerEnteredSubject; }
 		}
+		private readonly ISubject<FingerInfo> fingerEnteredSubject = new Subject<FingerInfo>();
 
 		/// <summary>
 		/// Observable for when a fingertip enters
@@ -56,6 +41,7 @@ namespace PXL.Interaction {
 		public IObservable<FingerInfo> FingerLeft {
 			get { return fingerLeftSubject; }
 		}
+		private readonly ISubject<FingerInfo> fingerLeftSubject = new Subject<FingerInfo>();
 
 		/// <summary>
 		/// The Rigidbody component of this object
@@ -63,6 +49,12 @@ namespace PXL.Interaction {
 		public Rigidbody Rigidbody {
 			get { return mRigidbody ?? (mRigidbody = this.TryGetComponent<Rigidbody>()); }
 		}
+		private Rigidbody mRigidbody;
+
+		/// <summary>
+		/// Whether the thumb is actively touching the object
+		/// </summary>
+		private bool thumbTouches;
 
 		private void Update() {
 			HandFingers = HandFingers.Where(entry => entry.Value.Count > 0 && entry.Value.All(c => c.Touchable == this)).ToDictionary(c => c.Key, c => c.Value);

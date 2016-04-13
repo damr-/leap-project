@@ -4,7 +4,7 @@ using PXL.Interaction;
 using PXL.Utility;
 using UnityEngine.UI;
 
-namespace PXL.UI.World {
+namespace PXL.UI.World.Display {
 
 	public class DisplayInformation : InteractionHandSubscriber {
 

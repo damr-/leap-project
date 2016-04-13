@@ -2,7 +2,7 @@
 using UnityEngine.UI;
 using PXL.Utility;
 
-namespace PXL.UI.World {
+namespace PXL.UI.World.Display {
 
 	[RequireComponent(typeof(Text))]
 	public class DisplayTextBase : MonoBehaviour {

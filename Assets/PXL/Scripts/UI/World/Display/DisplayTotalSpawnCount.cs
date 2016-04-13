@@ -4,7 +4,7 @@ using PXL.Utility;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace PXL.UI.World {
+namespace PXL.UI.World.Display {
 
 	public class DisplayTotalSpawnCount : MonoBehaviour {
 

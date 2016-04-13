@@ -10,8 +10,7 @@ namespace PXL.Utility {
 		/// </summary>
 		public enum TagType {
 			Untagged = 0,
-			Object = 1,
-			PreviewContainer = 2,
+			Object = 1
 		}
 
 		/// <summary>
@@ -26,8 +25,7 @@ namespace PXL.Utility {
 		/// </summary>
 		private static readonly Dictionary<TagType, string> AvailableTags = new Dictionary<TagType, string>() {
 			{TagType.Untagged, "Untagged"},
-			{TagType.Object, "Object"},
-			{TagType.PreviewContainer, "PreviewContainer"}
+			{TagType.Object, "Object"}
 		};
 
 	}

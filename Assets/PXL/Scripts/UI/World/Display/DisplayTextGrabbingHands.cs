@@ -2,7 +2,7 @@
 using PXL.Interaction;
 using System.Collections.Generic;
 
-namespace PXL.UI.World {
+namespace PXL.UI.World.Display {
 
 	public class DisplayTextGrabbingHands : DisplayTextBase {
 

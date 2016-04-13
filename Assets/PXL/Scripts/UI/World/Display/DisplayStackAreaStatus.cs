@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UniRx;
 
-namespace PXL.UI.World {
+namespace PXL.UI.World.Display {
 
 	[RequireComponent(typeof(CheckingStackArea))]
 	public class DisplayStackAreaStatus : MonoBehaviour {
@@ -90,7 +90,7 @@ namespace PXL.UI.World {
 				case StackArea.Status.StackedIcorrectly:
 					var o = CheckingStackArea.IncorrectObject;
 					var i = CheckingStackArea.SortedObjects.IndexOf(o);
-					CancelChecks("object " + (i + 1) + "stacked incorrectly");
+					CancelChecks("object " + (i + 1) + " stacked incorrectly");
 					incorrectIndex = i;
 					break;
 				case StackArea.Status.NotEnoughObjects:
