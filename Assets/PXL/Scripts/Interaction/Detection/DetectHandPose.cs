@@ -34,6 +34,8 @@ namespace PXL.Interaction.Detection {
 
 		public FingerPose NewPose = new FingerPose();
 
+		public HandModel NewHand;
+
 		protected override void CheckHand(HandModel hand) {
 			var leapHand = TryGetLeapHand(hand);
 			if (leapHand == null)
@@ -67,6 +69,13 @@ namespace PXL.Interaction.Detection {
 				return;
 			FingerPoses.Add(NewPose);
 			NewPose = new FingerPose();
+		}
+
+		public void AddHand() {
+			if (HandModels.Contains(NewHand))
+				return;
+			HandModels.Add(NewHand);
+			NewHand = null;
 		}
 
 		private bool AreFingerPosesCorrect(List<Finger> fingers) {

@@ -62,8 +62,7 @@ namespace PXL.UI.World.Display {
 			var dir = throwableObject.GetMotionDirection();
 			ThrowStateText.text = "drop delay: " + (grabbableObject.EnableDropDelay ? "Yes" : "No") + "\n" +
 									dir.x.ToString("0.00") + ", " + dir.y.ToString("0.00") + ", " + dir.z.ToString("0.00") + "\n" +
-									dir.magnitude.ToString("0.00") + "\n" +
-									throwableObject.MotionAngle.ToString("0");
+									dir.magnitude.ToString("0.00") + "\n";
 		}
 	}
 

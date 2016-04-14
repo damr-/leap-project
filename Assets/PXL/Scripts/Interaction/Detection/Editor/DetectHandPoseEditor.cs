@@ -1,5 +1,6 @@
 ﻿using System;
 using Leap;
+using Leap.Unity;
 using UnityEditor;
 using UnityEngine;
 
@@ -9,7 +10,35 @@ namespace PXL.Interaction.Detection.Editor {
 	public class DetectHandPoseEditor : UnityEditor.Editor {
 
 		public override void OnInspectorGUI() {
-			var t = (DetectHandPose) target;
+			var t = (DetectHandPose)target;
+
+			EditorGUILayout.Space();
+			EditorGUILayout.LabelField("Observed Hands: ", new GUIStyle(EditorStyles.largeLabel) { fontStyle = FontStyle.Bold }, GUILayout.MaxWidth(150));
+
+			for (var i = 0; i < t.HandModels.Count; i++) {
+				EditorGUILayout.BeginHorizontal();
+				EditorGUILayout.LabelField(t.HandModels[i].gameObject.name, GUILayout.MinWidth(120), GUILayout.MaxWidth(120));
+				t.HandModels[i] =
+					(RigidHand)
+						EditorGUILayout.ObjectField("", t.HandModels[i], typeof(RigidHand), true,
+							GUILayout.MaxWidth(150));
+
+				if (GUILayout.Button(new GUIContent("X", "Removes this item from the list"), GUILayout.MaxWidth(20),
+					GUILayout.MaxHeight(20))) {
+					t.HandModels.RemoveAt(i);
+				}
+				EditorGUILayout.EndHorizontal();
+			}
+
+			EditorGUILayout.BeginHorizontal();
+			EditorGUILayout.LabelField("New Hand: ", EditorStyles.boldLabel, GUILayout.MaxWidth(75));
+			t.NewHand = (RigidHand)EditorGUILayout.ObjectField("", t.NewHand, typeof(RigidHand), true, GUILayout.MaxWidth(150));
+
+			if (GUILayout.Button(new GUIContent("Add", "Adds the given hand to the list"), GUILayout.MaxWidth(75)))
+				t.AddHand();
+			EditorGUILayout.EndHorizontal();
+
+			EditorGUILayout.Space();
 
 			t.DetectFingerPoses = EditorGUILayout.BeginToggleGroup("Detect Finger Poses", t.DetectFingerPoses);
 
@@ -55,7 +84,7 @@ namespace PXL.Interaction.Detection.Editor {
 			EditorGUILayout.BeginHorizontal();
 			EditorGUILayout.LabelField("Finger ", GUILayout.MaxWidth(50));
 			t.NewPose.FingerType =
-				(Finger.FingerType) EditorGUILayout.EnumPopup("", t.NewPose.FingerType, GUILayout.MaxWidth(100));
+				(Finger.FingerType)EditorGUILayout.EnumPopup("", t.NewPose.FingerType, GUILayout.MaxWidth(100));
 			EditorGUILayout.LabelField("extended ", GUILayout.MaxWidth(60));
 			t.NewPose.Extended = EditorGUILayout.Toggle("", t.NewPose.Extended, GUILayout.MaxWidth(150));
 			EditorGUILayout.EndHorizontal();
@@ -79,7 +108,7 @@ namespace PXL.Interaction.Detection.Editor {
 			var p = t.FingerPoses[i];
 			EditorGUILayout.LabelField("Finger ", GUILayout.MaxWidth(50));
 			p.FingerType =
-				(Finger.FingerType) EditorGUILayout.EnumPopup("", p.FingerType, GUILayout.MaxWidth(75));
+				(Finger.FingerType)EditorGUILayout.EnumPopup("", p.FingerType, GUILayout.MaxWidth(75));
 			EditorGUILayout.LabelField("extended", GUILayout.MaxWidth(75));
 			p.Extended = EditorGUILayout.Toggle(p.Extended, GUILayout.MaxWidth(25));
 			t.FingerPoses[i] = p;

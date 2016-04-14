@@ -51,17 +51,13 @@ namespace PXL.Interaction {
 				lineRenderer.enabled = true;
 			}
 
-			if (!correspondingHand.isActiveAndEnabled) {
-				EnableLaser(false);
+			if (!correspondingHand.isActiveAndEnabled)
 				return;
-			}
 
 			var leapHand = correspondingHand.GetLeapHand();
 
-			if (leapHand == null) {
-				EnableLaser(false);
+			if (leapHand == null)
 				return;
-			}
 
 			var direction = leapHand.Direction.ToVector3().normalized;
 

@@ -34,8 +34,8 @@ namespace PXL.Interaction.Detection {
 		}
 
 		protected virtual void Update() {
-			for (var i = 0; i < 2; i++) {
-				CheckHand(HandModels[i]);
+			foreach (var handModel in HandModels) {
+				CheckHand(handModel);
 			}
 		}
 

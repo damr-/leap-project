@@ -76,7 +76,7 @@ namespace PXL.UI.World.Buttons {
 
 			Image.color = TouchCancelled;
 			CancelledFlashDisposable.Dispose();
-			CancelledFlashDisposable = Observable.Timer(TimeSpan.FromSeconds(1f)).Subscribe(_ => {
+			CancelledFlashDisposable = Observable.Timer(TimeSpan.FromSeconds(0.5f)).Subscribe(_ => {
 				Image.fillAmount = 0;
 			});
 			StartTime = -1;
@@ -96,11 +96,14 @@ namespace PXL.UI.World.Buttons {
 		/// Returns whether the button is currently touched by a finger and the duration is counting
 		/// </summary>
 		protected bool IsTouched() {
-			return Fingertip != null && StartTime > 0;
+			return Fingertip != null && StartTime >= 0;
 		}
 
 		private void OnDisable() {
 			CancelledFlashDisposable.Dispose();
+			Image.fillAmount = 0;
+			Fingertip = null;
+			StartTime = -1;
 		}
 
 	}

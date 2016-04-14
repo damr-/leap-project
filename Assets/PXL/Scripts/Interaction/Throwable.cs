@@ -50,8 +50,6 @@ namespace PXL.Interaction {
 		/// </summary>
 		private Vector3 lastPosition;
 
-		public float MotionAngle;
-
 		private void Start() {
 			Grabbable.IsGrabbed.Subscribe(HandleGrabStateChange);
 		}
