@@ -70,7 +70,6 @@ namespace PXL.Objects.Spawner.Editor {
 
 			if (GUILayout.Button(new GUIContent("Add", "Adds the given color to the list"))) {
 				t.AddColor();
-				//showAvailableColors = true;
 			}
 			EditorGUILayout.EndVertical();
 

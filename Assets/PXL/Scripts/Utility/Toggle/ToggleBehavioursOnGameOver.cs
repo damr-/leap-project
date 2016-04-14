@@ -30,16 +30,16 @@ namespace PXL.Utility.Toggle {
 		/// <summary>
 		/// Subscription for game win
 		/// </summary>
-		private IDisposable winSubscription = Disposable.Empty;
+		private IDisposable winDisposable = Disposable.Empty;
 
 		/// <summary>
 		/// Subscription for game lose
 		/// </summary>
-		private IDisposable loseSubscription = Disposable.Empty;
+		private IDisposable loseDisposable = Disposable.Empty;
 
 		private void Start() {
-			winSubscription = GameMode.GameWon.Subscribe(_ => ToggleBehaviours(true));
-			loseSubscription = GameMode.GameLost.Subscribe(_ => ToggleBehaviours(false));
+			winDisposable = GameMode.GameWon.Subscribe(_ => ToggleBehaviours(true));
+			loseDisposable = GameMode.GameLost.Subscribe(_ => ToggleBehaviours(false));
 		}
 
 		/// <summary>
@@ -69,8 +69,8 @@ namespace PXL.Utility.Toggle {
 		/// Called when this object is disabled
 		/// </summary>
 		private void OnDisable() {
-			winSubscription.Dispose();
-			loseSubscription.Dispose();
+			winDisposable.Dispose();
+			loseDisposable.Dispose();
 		}
 
 	}

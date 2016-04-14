@@ -52,7 +52,7 @@ namespace PXL.Objects.Spawner {
 		/// <summary>
 		/// Subscription for manually updating the preview
 		/// </summary>
-		private IDisposable timeSubscription = Disposable.Empty;
+		private IDisposable timeDisposable = Disposable.Empty;
 
 		/// <summary>
 		/// The <see cref="PatternSpawner" /> component of this object
@@ -86,7 +86,7 @@ namespace PXL.Objects.Spawner {
 		/// Handles the change of application states.
 		/// </summary>
 		private void StateChange() {
-			timeSubscription.Dispose();
+			timeDisposable.Dispose();
 			if (EditorApplication.isPlayingOrWillChangePlaymode && EditorApplication.isPlaying) {
 				RemoveAllPreviewObjects();
 				return;
@@ -98,14 +98,14 @@ namespace PXL.Objects.Spawner {
 		/// Loads the list of preview objects, if possible, and starts the manual update timer.
 		/// </summary>
 		private void StartUpdating() {
-			timeSubscription = Observable.Interval(TimeSpan.FromSeconds(0.01f)).Subscribe(_ => UpdatePreview());
+			timeDisposable = Observable.Interval(TimeSpan.FromSeconds(0.01f)).Subscribe(_ => UpdatePreview());
 		}
 
 		/// <summary>
 		/// Saves the current list of preview objects, disposes the timer and removes the callback handle.
 		/// </summary>
 		private void OnDisable() {
-			timeSubscription.Dispose();
+			timeDisposable.Dispose();
 			EditorApplication.playmodeStateChanged -= StateChange;
 		}
 

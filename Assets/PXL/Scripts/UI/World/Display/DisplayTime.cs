@@ -18,7 +18,7 @@ namespace PXL.UI.World.Display {
 		/// <summary>
 		/// Subscription for when the game is won
 		/// </summary>
-		private IDisposable gameWinSubscription = Disposable.Empty;
+		private IDisposable gameWinDisposable = Disposable.Empty;
 
 		/// <summary>
 		/// The time the first object got picked up
@@ -43,13 +43,13 @@ namespace PXL.UI.World.Display {
 		private Text mTimeText;
 
 		private void OnDisable() {
-			gameWinSubscription.Dispose();
+			gameWinDisposable.Dispose();
 		}
 
 		private void OnEnable() {
 			if (AutoStart)
 				TryStartTimer();
-			gameWinSubscription = GameMode.GameOver.Subscribe(HandleGameOver);
+			gameWinDisposable = GameMode.GameOver.Subscribe(HandleGameOver);
 		}
 
 		private void Update() {

@@ -91,7 +91,7 @@ namespace PXL.Interaction {
 		/// <summary>
 		/// Subscription to setting the parent null interval
 		/// </summary>
-		private IDisposable unparentSubscription = Disposable.Empty;
+		private IDisposable unparentDisposable = Disposable.Empty;
 
 		/// <summary>
 		/// Sets up the subscriptions
@@ -195,15 +195,15 @@ namespace PXL.Interaction {
 			Touchable.Rigidbody.useGravity = !grabbed;
 			Touchable.Rigidbody.isKinematic = grabbed;
 
-			unparentSubscription.Dispose();
+			unparentDisposable.Dispose();
 
 			if (grabbed) {
 				transform.SetParent(CurrentHand.palm, true);
 			}
 			else {
-				unparentSubscription = Observable.Interval(TimeSpan.FromSeconds(0.01f)).Subscribe(_ => {
+				unparentDisposable = Observable.Interval(TimeSpan.FromSeconds(0.01f)).Subscribe(_ => {
 					if (transform.parent == null) {
-						unparentSubscription.Dispose();
+						unparentDisposable.Dispose();
 						return;
 					}
 					transform.SetParent(null, true);

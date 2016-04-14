@@ -14,10 +14,10 @@ public class DestroyOnGameWon : MonoBehaviour {
 	/// <summary>
 	/// Subscription to the GameWon state in GameMode
 	/// </summary>
-	private IDisposable gameWinSubscription = Disposable.Empty;
+	private IDisposable gameWinDisposable = Disposable.Empty;
 
 	private void Start() {
-		gameWinSubscription = GameMode.GameWon.Subscribe(_ => HandleGameWon());
+		gameWinDisposable = GameMode.GameWon.Subscribe(_ => HandleGameWon());
 	}
 
 	/// <summary>
@@ -34,7 +34,7 @@ public class DestroyOnGameWon : MonoBehaviour {
 	/// Called when this object is disabled
 	/// </summary>
 	private void OnDisable() {
-		gameWinSubscription.Dispose();
+		gameWinDisposable.Dispose();
     }
 
 }

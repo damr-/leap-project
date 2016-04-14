@@ -26,7 +26,7 @@ namespace PXL.Interaction {
 		/// All the hands and their fingers which are currently touching this object
 		/// </summary>
 		public IDictionary<HandModel, HashSet<Fingertip>> HandFingers = new Dictionary<HandModel, HashSet<Fingertip>>();
-		
+
 		/// <summary>
 		/// Observable for when a fingertip enters
 		/// </summary>
@@ -55,6 +55,12 @@ namespace PXL.Interaction {
 		/// Whether the thumb is actively touching the object
 		/// </summary>
 		private bool thumbTouches;
+
+		private void Start() {
+			var t = Tags.GetTagString(Tags.TagType.Object);
+			if (!gameObject.CompareTag(t))
+				Debug.LogError(gameObject.name + " (Touchable) cannot be touched by Fingertips because they need the '" + t + "' tag.");
+		}
 
 		private void Update() {
 			HandFingers = HandFingers.Where(entry => entry.Value.Count > 0 && entry.Value.All(c => c.Touchable == this)).ToDictionary(c => c.Key, c => c.Value);

@@ -44,7 +44,6 @@ namespace PXL.Interaction.Editor {
 		/// </summary>
 		/// <param name="title">The text of the label</param>
 		/// <param name="freezeVector">The vector which describes the freeze state of the object internally</param>
-		/// <param name="defaultFreezeState">The Vector containing the default state for rotation/position of the frozen object</param>
 		private void UpdateFreezeOptions(string title, ref Vector3 freezeVector) {
 			var freezeState = new bool[3];
 

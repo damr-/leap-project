@@ -172,27 +172,27 @@ namespace PXL.Objects.Spawner {
 		/// <summary>
 		/// Subscription for spawning new objects when all got removed
 		/// </summary>
-		private IDisposable removeAllSubscription = Disposable.Empty;
+		private IDisposable removeAllDisposable = Disposable.Empty;
 
 		/// <summary>
 		/// The subscription before starting to spawn
 		/// </summary>
-		private IDisposable startSpawnDelaySubscription = Disposable.Empty;
+		private IDisposable startSpawnDelayDisposable = Disposable.Empty;
 
 		/// <summary>
 		/// The subscription for the interval to spawn the start amount of objects
 		/// </summary>
-		private IDisposable startSpawnSubscription = Disposable.Empty;
+		private IDisposable startSpawnDisposable = Disposable.Empty;
 
 		/// <summary>
 		/// The subscription for the respawn delay
 		/// </summary>
-		private IDisposable respawnDelaySubscription = Disposable.Empty;
+		private IDisposable respawnDelayDisposable = Disposable.Empty;
 
 		/// <summary>
 		/// The subscription for the respawn of all objects
 		/// </summary>
-		private IDisposable respawnSubscription = Disposable.Empty;
+		private IDisposable respawnDisposable = Disposable.Empty;
 
 		/// <summary>
 		/// Setup the spawn position and spawn the first object
@@ -218,14 +218,14 @@ namespace PXL.Objects.Spawner {
 		protected virtual void InitiateInitialSpawns() {
 			IsSpawningEnabled = false;
 
-			startSpawnDelaySubscription = Observable.Timer(TimeSpan.FromSeconds(StartSpawnDelay)).Subscribe(_ => {
+			startSpawnDelayDisposable = Observable.Timer(TimeSpan.FromSeconds(StartSpawnDelay)).Subscribe(_ => {
 				IsSpawningEnabled = true;
 				SpawnObject();
 
 				var counter = 0;
-				startSpawnSubscription = Observable.Interval(TimeSpan.FromSeconds(1f / StartSpawnFrequency)).Subscribe(__ => {
+				startSpawnDisposable = Observable.Interval(TimeSpan.FromSeconds(1f / StartSpawnFrequency)).Subscribe(__ => {
 					if (++counter >= StartAmount) {
-						startSpawnSubscription.Dispose();
+						startSpawnDisposable.Dispose();
 						return;
 					}
 					SpawnObject();
@@ -273,8 +273,8 @@ namespace PXL.Objects.Spawner {
 				return;
 
 			IsSpawningEnabled = false;
-			respawnDelaySubscription.Dispose();
-			respawnDelaySubscription = Observable.Timer(TimeSpan.FromSeconds(RespawnDelay)).Subscribe(_ => {
+			respawnDelayDisposable.Dispose();
+			respawnDelayDisposable = Observable.Timer(TimeSpan.FromSeconds(RespawnDelay)).Subscribe(_ => {
 				IsSpawningEnabled = true;
 				RespawnWhileTooFew();
 			});
@@ -284,10 +284,10 @@ namespace PXL.Objects.Spawner {
 		/// Spawns new objects as long as the amount of <see cref="SpawnedObjects"/> is less than <see cref="MinObjectAmount"/>
 		/// </summary>
 		private void RespawnWhileTooFew() {
-			respawnSubscription = Observable.Interval(TimeSpan.FromSeconds(0.1f)).Subscribe(__ => {
+			respawnDisposable = Observable.Interval(TimeSpan.FromSeconds(0.1f)).Subscribe(__ => {
 				SpawnObject();
 				if (SpawnedObjects.Count >= MinObjectAmount) {
-					respawnSubscription.Dispose();
+					respawnDisposable.Dispose();
 				}
 			});
 		}
@@ -307,8 +307,8 @@ namespace PXL.Objects.Spawner {
 				return;
 			}
 
-			removeAllSubscription.Dispose();
-			removeAllSubscription = Observable.Timer(TimeSpan.FromSeconds(RemoveAllSpawnDelay)).Subscribe(_ => {
+			removeAllDisposable.Dispose();
+			removeAllDisposable = Observable.Timer(TimeSpan.FromSeconds(RemoveAllSpawnDelay)).Subscribe(_ => {
 				IsSpawningEnabled = true;
 				RespawnWhileTooFew();
 			});
@@ -356,13 +356,13 @@ namespace PXL.Objects.Spawner {
 			var health = newObject.GetComponent<Health.Health>();
 			health.AssertNotNull("Object is missing a Health component!");
 
-			var subscription = health.Death.Subscribe(_ => {
+			var disposable = health.Death.Subscribe(_ => {
 				objectDestroySubscriptions[health.gameObject].Dispose();
 				objectDestroySubscriptions.Remove(health.gameObject);
 				HandleObjectDespawned(interactiveObject);
 			});
 
-			objectDestroySubscriptions.Add(new KeyValuePair<GameObject, IDisposable>(newObject, subscription));
+			objectDestroySubscriptions.Add(new KeyValuePair<GameObject, IDisposable>(newObject, disposable));
 
 			SpawnedObjects.Add(interactiveObject);
 
@@ -408,11 +408,11 @@ namespace PXL.Objects.Spawner {
 		}
 
 		private void OnDisable() {
-			removeAllSubscription.Dispose();
-			startSpawnDelaySubscription.Dispose(); 
-			startSpawnSubscription.Dispose();
-			respawnDelaySubscription.Dispose();
-			respawnSubscription.Dispose();
+			removeAllDisposable.Dispose();
+			startSpawnDelayDisposable.Dispose(); 
+			startSpawnDisposable.Dispose();
+			respawnDelayDisposable.Dispose();
+			respawnDisposable.Dispose();
             foreach (var entry in objectDestroySubscriptions) {
 				entry.Value.Dispose();
 			}

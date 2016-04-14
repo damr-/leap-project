@@ -19,10 +19,10 @@ namespace PXL.Utility {
 		/// <summary>
 		/// Disposable for the life time subscription
 		/// </summary>
-		private IDisposable subscription = Disposable.Empty;
+		private IDisposable lifeTimeDisposable = Disposable.Empty;
 		
 		private void OnEnable() {
-			subscription = Observable.Timer(TimeSpan.FromSeconds(LifeTime)).Subscribe(_ => {
+			lifeTimeDisposable = Observable.Timer(TimeSpan.FromSeconds(LifeTime)).Subscribe(_ => {
 				if(Despawn)
 					SimplePool.Despawn(gameObject);
 				else
@@ -31,7 +31,7 @@ namespace PXL.Utility {
 		}
 
 		private void OnDisable() {
-			subscription.Dispose();
+			lifeTimeDisposable.Dispose();
 		}
 
 	}

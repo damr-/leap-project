@@ -1,9 +1,6 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
-using Leap;
 using Leap.Unity;
 using PXL.Objects;
-using PXL.UI.World;
 using PXL.Utility;
 using UnityEngine;
 
@@ -11,66 +8,79 @@ namespace PXL.Interaction {
 
 	public class ObjectDestroyLaser : MonoBehaviour {
 
-		private LineRenderer lineRenderer;
+		public List<Material> AvailableMaterials = new List<Material>();
 
 		public bool Enabled;
 
+		private LineRenderer lineRenderer;
+
+		private HandModel correspondingHand;
+
 		private void Start() {
+			correspondingHand = GetComponentInParent<HandModel>();
+			correspondingHand.AssertNotNull("ObjectDestroyLaser must be child of a hand!");
 			lineRenderer = GetComponentInChildren<LineRenderer>();
+			ApplyRandomMaterial();
+		}
+
+		public void ToggleLaser() {
+			Enabled = !Enabled;
+		}
+
+		public void EnableLaser(bool newEnabledState) {
+			Enabled = newEnabledState;
+		}
+
+		/// <summary>
+		/// Applies a random material from <see cref="AvailableMaterials"/> to the <see cref="lineRenderer"/>
+		/// </summary>
+		private void ApplyRandomMaterial() {
+			var index = Random.Range(0, AvailableMaterials.Count);
+			lineRenderer.material = AvailableMaterials[index];
 		}
 
 		private void Update() {
-
 			if (!Enabled) {
 				if (lineRenderer.enabled)
 					lineRenderer.enabled = false;
 				return;
 			}
 
-			if(!lineRenderer.enabled)
+			if (!lineRenderer.enabled) {
+				ApplyRandomMaterial();
 				lineRenderer.enabled = true;
+			}
 
-			//if (!hand.gameObject.activeInHierarchy)
-			//	return;
+			if (!correspondingHand.isActiveAndEnabled) {
+				EnableLaser(false);
+				return;
+			}
 
-			//var leapHand = hand.GetLeapHand();
+			var leapHand = correspondingHand.GetLeapHand();
 
-			//if (leapHand == null || leapHand.GrabStrength > 0)
-			//	return;
+			if (leapHand == null) {
+				EnableLaser(false);
+				return;
+			}
 
-			//var fingers = leapHand.Fingers;
+			var direction = leapHand.Direction.ToVector3().normalized;
 
-			//Finger indexFinger = null;
+			lineRenderer.enabled = true;
+			lineRenderer.SetVertexCount(2);
+			lineRenderer.SetPosition(0, transform.position);
+			lineRenderer.SetPosition(1, transform.position + direction * 100f);
 
-			//foreach (var finger in fingers.Where(finger => finger.IsExtended)) {
-			//	if (finger.Type == Finger.FingerType.TYPE_INDEX)
-			//		indexFinger = finger;
-			//	else
-			//		return;
-			//}
+			var ray = new Ray(transform.position, direction);
+			RaycastHit hit;
+			if (!Physics.Raycast(ray, out hit, 100f))
+				return;
 
-			//if (indexFinger == null)
-			//	return;
+			var interactiveObject = hit.transform.GetComponent<InteractiveObject>();
 
-			//var fingerPos = indexFinger.TipPosition.ToVector3();
-			//var fingerDir = indexFinger.Direction.ToVector3();
+			if (interactiveObject == null)
+				return;
 
-			//lineRenderer.enabled = true;
-			//lineRenderer.SetVertexCount(2);
-			//lineRenderer.SetPosition(0, fingerPos);
-			//lineRenderer.SetPosition(1, fingerPos + fingerDir * 1000f);
-
-			//var ray = new Ray(fingerPos, fingerDir);
-			//RaycastHit hit;
-			//if (!Physics.Raycast(ray, out hit, 1000f))
-			//	return;
-
-			//var interactiveObject = hit.transform.GetComponent<InteractiveObject>();
-
-			//if (interactiveObject == null)
-			//	return;
-
-			//interactiveObject.Kill();
+			interactiveObject.Kill();
 		}
 
 	}

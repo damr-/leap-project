@@ -54,13 +54,13 @@ namespace PXL.UI.Admin {
 		/// </summary>
 		private List<SpawnerElement> elements = new List<SpawnerElement>();
 
-		private IDisposable subscription = Disposable.Empty;
+		private IDisposable disposable = Disposable.Empty;
 
 		private void Start() {
 			SetupSpawnerElements.AssertNotNull("Missing SetupSpawnerElements reference!");
 			AdminPanelTransform.AssertNotNull("Missing Admin Panel RectTransform");
 
-			subscription = Observable.Timer(TimeSpan.FromSeconds(0.1f)).Subscribe(_ => {
+			disposable = Observable.Timer(TimeSpan.FromSeconds(0.1f)).Subscribe(_ => {
 				//Debug.Log("Seems like elements have already been spawned. Manually retreiving elements.");
 				elements = GetComponentsInChildren<SpawnerElement>().ToList();
 				SetCurrentElement(0);
@@ -69,7 +69,7 @@ namespace PXL.UI.Admin {
 			SetupSpawnerElements.SpawnFinished.Subscribe(spawnedElements => {
 				elements = spawnedElements;
 				SetCurrentElement(0);
-				subscription.Dispose();
+				disposable.Dispose();
 			});
 
 		}

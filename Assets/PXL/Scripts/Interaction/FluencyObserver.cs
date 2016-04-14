@@ -59,7 +59,7 @@ namespace PXL.Interaction {
 		/// </summary>
 		private float lastTrackTime;
 
-		private IDisposable subscription = Disposable.Empty;
+		private IDisposable disposable = UniRx.Disposable.Empty;
 
 		/// <summary>
 		/// Invoked when an object is dropped and the observing is finished
@@ -75,9 +75,9 @@ namespace PXL.Interaction {
 			startTime = Time.time;
 			lastTrackTime = Time.time;
 
-			subscription = Observable.Interval(TimeSpan.FromSeconds(1 / TrackFrequency)).Subscribe(_ => {
+			disposable = Observable.Interval(TimeSpan.FromSeconds(1 / TrackFrequency)).Subscribe(_ => {
 				if (observedGrabbable == null) {
-					subscription.Dispose();
+					disposable.Dispose();
 					return;
 				}
 
@@ -95,7 +95,7 @@ namespace PXL.Interaction {
 		}
 
 		protected override void HandleDropped(Grabbable grabbable) {
-			subscription.Dispose();
+			disposable.Dispose();
 
 			if (timeData.Count < RequiredDataAmount)
 				return;

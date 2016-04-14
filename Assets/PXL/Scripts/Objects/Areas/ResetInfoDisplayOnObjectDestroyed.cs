@@ -22,11 +22,11 @@ namespace PXL.Objects.Areas {
 		}
 		private DestroyArea mDestroyArea;
 
-		private IDisposable goalReachedSubscription = Disposable.Empty;
+		private IDisposable goalReachedDisposable = Disposable.Empty;
 
 		private void Start() {
 			DisplayInformation.AssertNotNull("Missing DisplayInformation!");
-			goalReachedSubscription = DestroyArea.ObjectDestroyed.Subscribe(_  => HandleObjectDestroyed());
+			goalReachedDisposable = DestroyArea.ObjectDestroyed.Subscribe(_  => HandleObjectDestroyed());
 		}
 
 		private void HandleObjectDestroyed() {
@@ -34,7 +34,7 @@ namespace PXL.Objects.Areas {
 		}
 
 		private void OnDisable() {
-			goalReachedSubscription.Dispose();
+			goalReachedDisposable.Dispose();
         }
 	}
 
