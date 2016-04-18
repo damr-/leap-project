@@ -41,7 +41,7 @@ namespace PXL.UI.World.Buttons {
 
 		protected override void Start() {
 			base.Start();
-			ProgressImage.AssertNotNull("LevelButton is missing the progress image reference!");
+			ProgressImage.AssertNotNull(gameObject.name + " is missing the progress image reference!");
 		}
 
 		protected virtual void Update() {
@@ -52,7 +52,7 @@ namespace PXL.UI.World.Buttons {
 
 			if (Time.time - StartTime <= RequiredFingerStayDuration)
 				return;
-			
+
 			HandleDurationOver();
 		}
 
