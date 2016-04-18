@@ -1,4 +1,6 @@
-﻿using PXL.Objects.Spawner;
+﻿using System.Linq;
+using PXL.Objects.Spawner;
+using PXL.UI.Admin;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -20,6 +22,9 @@ namespace PXL.UI.World.Hand {
 
 			SpawnButton.onClick.AddListener(objectSpawner.SpawnObject);
 			ClearButton.onClick.AddListener(objectSpawner.RemoveAllObjects);
+
+			var propertyChangers = GetComponentsInChildren<PropertyChanger>().ToList();
+			propertyChangers.ForEach(p => p.ObjectSpawner = objectSpawner);
 		}
 
 	}

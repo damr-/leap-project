@@ -20,7 +20,6 @@ namespace PXL.UI.World.Hand {
 			get { return mHandSpawnerElementCompact ?? (mHandSpawnerElementCompact = GetComponentInChildren<HandSpawnerElementCompact>(true)); }
 		}
 		private HandSpawnerElementCompact mHandSpawnerElementCompact;
-		
 
 		/// <summary>
 		/// Whether the element is currently expanded

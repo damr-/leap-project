@@ -58,7 +58,6 @@ namespace PXL.UI.Admin {
 			base.AssertReferences();
 			DecreaseButton.AssertNotNull("Decrease button missing");
 			IncreaseButton.AssertNotNull("Increase button missing");
-			PropertyText.AssertNotNull("Property text missing");
 		}
 
 		public abstract void NextValue();

@@ -23,7 +23,8 @@ namespace PXL.UI.Admin {
 		/// </summary>
 		/// <param name="objectScale">The currently selected scale for objects</param>
 		private void SetText(float objectScale) {
-			PropertyText.text = objectScale.ToString("0.00");
+			if (PropertyText != null)
+				PropertyText.text = objectScale.ToString("0.00");
 		}
 	}
 

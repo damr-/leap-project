@@ -1,5 +1,4 @@
 ﻿using PXL.Objects.Spawner;
-using PXL.UI.Admin;
 using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
@@ -10,10 +9,6 @@ namespace PXL.UI.World.Hand {
 	
 		public Text SpawnerNameText;
 
-		public ObjectShapePreview ShapePreview;
-
-		public ObjectColorPreview ColorPreview;
-
 		public Text ScaleText;
 
 		protected ObjectSpawner ObjectSpawner;
@@ -21,9 +16,6 @@ namespace PXL.UI.World.Hand {
 		public void SetSpawner(ObjectSpawner objectSpawner) {
 			ObjectSpawner = objectSpawner;
 			SpawnerNameText.text = ObjectSpawner.gameObject.name;
-
-			ColorPreview.Setup(ObjectSpawner);
-			ShapePreview.Setup(ObjectSpawner);
 
 			ObjectSpawner.CurrentScaleFactor.Subscribe(UpdateScaleDisplay);
 			UpdateScaleDisplay(ObjectSpawner.CurrentScaleFactor.Value);

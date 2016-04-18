@@ -43,7 +43,8 @@ namespace PXL.UI.Admin {
 		/// Sets the text of the text component to the given ball speed
 		/// </summary>
 		private void SetText(float speed) {
-			PropertyText.text = speed.ToString("0.00");
+			if(PropertyText != null)
+				PropertyText.text = speed.ToString("0.00");
 		}
 	}
 

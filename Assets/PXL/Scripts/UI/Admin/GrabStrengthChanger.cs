@@ -43,7 +43,8 @@ namespace PXL.UI.Admin {
 		/// Sets the text of the text component to the given grab strength
 		/// </summary>
 		private void SetText(float strength) {
-			PropertyText.text = strength.ToString("0.00");
+			if (PropertyText != null)
+				PropertyText.text = strength.ToString("0.00");
 		}
 	}
 

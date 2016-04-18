@@ -44,10 +44,10 @@ namespace PXL.Interaction.Detection {
 			var angle = Quaternion.Angle(hand.palm.localRotation, Quaternion.Euler(TargetRotation));
 
 			if (angle < AngleError) {
-				TryInvokeCorrect(hand);
+				TryInvokeCorrect();
 			}
 			else {
-				TryInvokeIncorrect(hand);
+				TryInvokeIncorrect();
 			}
 		}
 

@@ -27,17 +27,15 @@ namespace PXL.Utility.Toggle {
 			if (!Input.GetKeyDown(ToggleKey))
 				return;
 
-			TryToggle();
+			TrySetState(!IsToggled.Value);
 		}
 
-		/// <summary>
-		/// Checks whether admin is required and the admin mode is active and calles <see cref="HandleKeyDown"/>
-		/// </summary>
-		private void TryToggle() {
+		private void TrySetState(bool isEnabled) {
+
 			if (OnlyAdmin && !AdminUiBase.IsAdmin)
 				return;
 
-			IsToggled.Value = !IsToggled.Value;
+			IsToggled.Value = isEnabled;
 			HandleKeyDown();
 		}
 
@@ -47,7 +45,16 @@ namespace PXL.Utility.Toggle {
 		/// Simulates pressing the toggle key
 		/// </summary>
 		public void Toggle() {
-			TryToggle();
+			TrySetState(!IsToggled.Value);
+		}
+
+		public void Enable() {
+			TrySetState(true);
+
+		}
+
+		public void Disable() {
+			TrySetState(false);
 		}
 
 	}

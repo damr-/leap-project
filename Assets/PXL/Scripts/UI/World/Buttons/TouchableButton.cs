@@ -11,7 +11,7 @@ namespace PXL.UI.World.Buttons {
 
 	[RequireComponent(typeof(Touchable))]
 	public abstract class TouchableButton : MonoBehaviour {
-
+	
 		/// <summary>
 		/// The Button component of this object
 		/// </summary>

@@ -38,8 +38,10 @@ namespace PXL.Interaction.Detection {
 
 		protected override void CheckHand(HandModel hand) {
 			var leapHand = TryGetLeapHand(hand);
-			if (leapHand == null)
+			if (leapHand == null) {
+				InvokeIncorrect();
 				return;
+			}
 
 			var correct = true;
 
@@ -50,9 +52,9 @@ namespace PXL.Interaction.Detection {
 				correct &= IsValidGrabStrength(leapHand);
 
 			if(correct)
-				TryInvokeCorrect(hand);
+				TryInvokeCorrect();
 			else 
-				TryInvokeIncorrect(hand);
+				TryInvokeIncorrect();
 		}
 
 		private bool AreFingerPosesCorrect(Hand leapHand) {

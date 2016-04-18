@@ -7,6 +7,9 @@ namespace PXL.UI.Admin {
 
 	public class ObjectShapeChanger : IndexedPropertyChanger {
 	
+		/// <summary>
+		/// Optional preview image reference
+		/// </summary>
 		public ObjectShapePreview ObjectShapePreview;
 
 		private SetObjectShapeOnSpawn SetObjectShapeOnSpawn {
@@ -25,8 +28,8 @@ namespace PXL.UI.Admin {
 
 		protected override void Start() {
 			base.Start();
-			ObjectShapePreview.AssertNotNull("Object Shape Preview missing!");
-			ObjectShapePreview.Setup(ObjectSpawner);
+			if(ObjectShapePreview != null)
+				ObjectShapePreview.Setup(ObjectSpawner);
 			ChangeProperty(SetObjectShapeOnSpawn.AvailableShapes.IndexOf(SetObjectShapeOnSpawn.CurrentObjectShape));
 		}
 
@@ -40,7 +43,8 @@ namespace PXL.UI.Admin {
 			var newShape = SetObjectShapeOnSpawn.AvailableShapes.ElementAt(index);
 
 			SetObjectShapeOnSpawn.SetObjectShape(newShape);
-			PropertyText.text = newShape.Name;
+			if (PropertyText != null)
+				PropertyText.text = newShape.Name;
 			CurrentPropertyIndex = index;
 		}
 

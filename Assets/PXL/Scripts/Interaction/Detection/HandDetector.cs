@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using Leap.Unity;
-using PXL.UI.Admin;
 using PXL.Utility;
 using UniRx;
 using UnityEngine;
@@ -14,11 +13,11 @@ namespace PXL.Interaction.Detection {
 		/// </summary>
 		public List<HandModel> HandModels = new List<HandModel>();
 
-		public IObservable<HandModel> CorrectPose { get { return correctPoseSubject; } }
-		private readonly ISubject<HandModel> correctPoseSubject = new Subject<HandModel>();
+		public IObservable<Unit> CorrectPose { get { return correctPoseSubject; } }
+		private readonly ISubject<Unit> correctPoseSubject = new Subject<Unit>();
 
-		public IObservable<HandModel> IncorrectPose { get { return incorrectPoseSubject; } }
-		private readonly ISubject<HandModel> incorrectPoseSubject = new Subject<HandModel>();
+		public IObservable<Unit> IncorrectPose { get { return incorrectPoseSubject; } }
+		private readonly ISubject<Unit> incorrectPoseSubject = new Subject<Unit>();
 
 		/// <summary>
 		/// The last time <see cref="CorrectPose"/> was invoked
@@ -58,20 +57,24 @@ namespace PXL.Interaction.Detection {
 			return !hand.gameObject.activeInHierarchy ? null : hand.GetLeapHand();
 		}
 
-		protected void TryInvokeCorrect(HandModel currentHand) {
+		protected void TryInvokeCorrect() {
 			if (!(Time.time - LastCorrectInvokeTime > 1 / CorrectInvokeFrequency))
 				return;
 
-			correctPoseSubject.OnNext(currentHand);
+			correctPoseSubject.OnNext(Unit.Default);
 			LastCorrectInvokeTime = Time.time;
 		}
 
-		protected void TryInvokeIncorrect(HandModel currentHand) {
+		protected void TryInvokeIncorrect() {
 			if (!(Time.time - LastIncorrectInvokeTime > 1 / IncorrectInvokeFrequency))
 				return;
 
-			incorrectPoseSubject.OnNext(currentHand);
+			InvokeIncorrect();
 			LastIncorrectInvokeTime = Time.time;
+		}
+
+		protected void InvokeIncorrect() {
+			incorrectPoseSubject.OnNext(Unit.Default);
 		}
 
 	}
