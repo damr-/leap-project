@@ -30,18 +30,12 @@ namespace PXL.UI.Admin {
 		/// Whether the element is currently expanded
 		/// </summary>
 		public bool Expanded;
-
-		/// <summary>
-		/// The referenced ObjectSpawner
-		/// </summary>
-		public ObjectSpawner ObjectSpawner { get; private set; }
-
+		
 		/// <summary>
 		/// Sets the referenced object spawner and sets up the spawner elements
 		/// </summary>
 		/// <param name="objectSpawner"></param>
 		public void SetObjectSpawner(ObjectSpawner objectSpawner) {
-			ObjectSpawner = objectSpawner;
 			SpawnerElementExpanded.SetSpawner(objectSpawner);
 			SpawnerElementCompact.SetSpawner(objectSpawner);
 		}

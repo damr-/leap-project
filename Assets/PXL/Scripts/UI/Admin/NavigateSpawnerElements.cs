@@ -61,7 +61,6 @@ namespace PXL.UI.Admin {
 			AdminPanelTransform.AssertNotNull("Missing Admin Panel RectTransform");
 
 			disposable = Observable.Timer(TimeSpan.FromSeconds(0.1f)).Subscribe(_ => {
-				//Debug.Log("Seems like elements have already been spawned. Manually retreiving elements.");
 				elements = GetComponentsInChildren<SpawnerElement>().ToList();
 				SetCurrentElement(0);
 			});

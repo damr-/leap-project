@@ -16,14 +16,14 @@ namespace PXL.UI.World.Display {
 		/// </summary>
 		public Text PositionText;
 
-
 		/// <summary>
 		/// Text which displayes the state of the Throwable
 		/// </summary>
 		public Text ThrowStateText;
 
-		private Grabbable grabbableObject;
-
+		/// <summary>
+		/// The <see cref="Throwable"/> currently being held by the observed hand
+		/// </summary>
 		private Throwable throwableObject;
 
 		protected override void Start() {
@@ -35,14 +35,12 @@ namespace PXL.UI.World.Display {
 		}
 
 		protected override void HandleGrabbed(Grabbable grabbable) {
-			grabbableObject = grabbable;
 			throwableObject = grabbable.GetComponent<Throwable>();
 			GrabbedStateText.text = grabbable.gameObject.name + " grabbed";
 		}
 
 		protected override void HandleDropped(Grabbable grabbable) {
 			PositionText.text = "";
-			grabbableObject = null;
 			throwableObject = null;
 			GrabbedStateText.text = grabbable.gameObject.name + " dropped";
 		}
@@ -54,13 +52,13 @@ namespace PXL.UI.World.Display {
 		}
 
 		protected virtual void Update() {
-			if (grabbableObject == null || throwableObject == null) {
+			if (throwableObject == null) {
 				if (ThrowStateText.text != "")
 					ThrowStateText.text = "";
 				return;
 			}
 			var dir = throwableObject.GetMotionDirection();
-			ThrowStateText.text = "drop delay: " + (grabbableObject.EnableDropDelay ? "Yes" : "No") + "\n" +
+			ThrowStateText.text = "drop delay: " + (throwableObject.Grabbable.EnableDropDelay ? "Yes" : "No") + "\n" +
 									dir.x.ToString("0.00") + ", " + dir.y.ToString("0.00") + ", " + dir.z.ToString("0.00") + "\n" +
 									dir.magnitude.ToString("0.00") + "\n";
 		}

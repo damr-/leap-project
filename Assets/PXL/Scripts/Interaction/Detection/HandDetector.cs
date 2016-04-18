@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Leap.Unity;
+using PXL.UI.Admin;
 using PXL.Utility;
 using UniRx;
 using UnityEngine;
@@ -19,12 +20,24 @@ namespace PXL.Interaction.Detection {
 		public IObservable<HandModel> IncorrectPose { get { return incorrectPoseSubject; } }
 		private readonly ISubject<HandModel> incorrectPoseSubject = new Subject<HandModel>();
 
+		/// <summary>
+		/// The last time <see cref="CorrectPose"/> was invoked
+		/// </summary>
 		protected float LastCorrectInvokeTime;
 
+		/// <summary>
+		/// The last time <see cref="IncorrectPose"/> was invoked
+		/// </summary>
 		protected float LastIncorrectInvokeTime;
 
+		/// <summary>
+		/// How often per second the <see cref="CorrectPose"/> will be invoked, if so
+		/// </summary>
 		protected const float CorrectInvokeFrequency = 2f;
 
+		/// <summary>
+		/// How often per second the <see cref="IncorrectPose"/> will be invoked, if so
+		/// </summary>
 		protected const float IncorrectInvokeFrequency = 2f;
 
 		protected virtual void Start() {

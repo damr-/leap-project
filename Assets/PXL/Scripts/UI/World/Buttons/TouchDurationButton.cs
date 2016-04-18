@@ -12,7 +12,7 @@ namespace PXL.UI.World.Buttons {
 		/// <summary>
 		/// The progress image sprite
 		/// </summary>
-		public Image Image;
+		public Image ProgressImage;
 
 		/// <summary>
 		/// The color for the progress image sprite when the button is being touched
@@ -41,14 +41,14 @@ namespace PXL.UI.World.Buttons {
 
 		protected override void Start() {
 			base.Start();
-			Image.AssertNotNull("LevelButton is missing the progress image reference!");
+			ProgressImage.AssertNotNull("LevelButton is missing the progress image reference!");
 		}
 
 		protected virtual void Update() {
 			if (!IsTouched())
 				return;
 
-			Image.fillAmount = (Time.time - StartTime).Remap(0, RequiredFingerStayDuration, 0, 1);
+			ProgressImage.fillAmount = (Time.time - StartTime).Remap(0, RequiredFingerStayDuration, 0, 1);
 
 			if (Time.time - StartTime <= RequiredFingerStayDuration)
 				return;
@@ -64,7 +64,7 @@ namespace PXL.UI.World.Buttons {
 				return;
 
 			CancelledFlashDisposable.Dispose();
-			Image.color = Touched;
+			ProgressImage.color = Touched;
 
 			Fingertip = fingerInfo.Fingertip;
 			StartTime = Time.time;
@@ -74,10 +74,10 @@ namespace PXL.UI.World.Buttons {
 			if (!IsTouchingFinger(fingerInfo))
 				return;
 
-			Image.color = TouchCancelled;
+			ProgressImage.color = TouchCancelled;
 			CancelledFlashDisposable.Dispose();
 			CancelledFlashDisposable = Observable.Timer(TimeSpan.FromSeconds(0.5f)).Subscribe(_ => {
-				Image.fillAmount = 0;
+				ProgressImage.fillAmount = 0;
 			});
 			StartTime = -1;
 			Fingertip = null;
@@ -88,6 +88,7 @@ namespace PXL.UI.World.Buttons {
 		/// </summary>
 		protected virtual void HandleDurationOver() {
 			StartTime = -1;
+			ProgressImage.fillAmount = 0;
 			Fingertip = null;
 			Button.onClick.Invoke();
 		}
@@ -101,7 +102,7 @@ namespace PXL.UI.World.Buttons {
 
 		private void OnDisable() {
 			CancelledFlashDisposable.Dispose();
-			Image.fillAmount = 0;
+			ProgressImage.fillAmount = 0;
 			Fingertip = null;
 			StartTime = -1;
 		}

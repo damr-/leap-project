@@ -1,14 +1,11 @@
 ﻿using System;
 using PXL.Gamemodes;
-using PXL.Utility;
 using UniRx;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace PXL.UI.World.Display {
 
-	[RequireComponent(typeof(Text))]
-	public class DisplayTime : MonoBehaviour {
+	public class DisplayTime : DisplayTextBase {
 
 		/// <summary>
 		/// Whether the timer starts as soon as this component is activated
@@ -30,18 +27,6 @@ namespace PXL.UI.World.Display {
 		/// </summary>
 		private TimeSpan timeSpan;
 
-		/// <summary>
-		/// The Text components of the time label
-		/// </summary>
-		private Text TimeText {
-			get { return mTimeText ?? (mTimeText = this.TryGetComponent<Text>()); }
-		}
-
-		/// <summary>
-		/// The private Text component for the <see cref="TimeText"/> property
-		/// </summary>
-		private Text mTimeText;
-
 		private void OnDisable() {
 			gameWinDisposable.Dispose();
 		}
@@ -57,7 +42,7 @@ namespace PXL.UI.World.Display {
 				return;
 
 			timeSpan = TimeSpan.FromSeconds(Time.time - startTime);
-			TimeText.text = string.Format("{0:D0}:{1:D1}:{2:D2}",
+			Text.text = string.Format("{0:D0}:{1:D1}:{2:D2}",
 				timeSpan.Minutes,
 				timeSpan.Seconds,
 				timeSpan.Milliseconds);
@@ -76,7 +61,7 @@ namespace PXL.UI.World.Display {
 		/// </summary>
 		public void ResetTimer() {
 			startTime = Time.time;
-			TimeText.text = "00:00:00";
+			Text.text = "00:00:00";
 		}
 
 		/// <summary>
@@ -90,7 +75,7 @@ namespace PXL.UI.World.Display {
 		/// Called when the game is over
 		/// </summary>
 		private void HandleGameOver(bool gameOver) {
-			if(gameOver)
+			if (gameOver)
 				StopTimer();
 		}
 

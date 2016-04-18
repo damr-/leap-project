@@ -13,6 +13,7 @@ namespace PXL.Interaction.Detection.Editor {
 			var t = (DetectHandPose)target;
 
 			EditorGUILayout.Space();
+
 			EditorGUILayout.LabelField("Observed Hands: ", new GUIStyle(EditorStyles.largeLabel) { fontStyle = FontStyle.Bold }, GUILayout.MaxWidth(150));
 
 			for (var i = 0; i < t.HandModels.Count; i++) {
