@@ -26,16 +26,25 @@ namespace PXL.UI.World.Hand {
 		/// </summary>
 		public bool Expanded;
 
+		/// <summary>
+		/// Sets the ObjectSpawner reference of this SpawnerElement
+		/// </summary>
 		public void SetObjectSpawner(ObjectSpawner objectSpawner) {
 			HandSpawnerElementExpanded.SetSpawner(objectSpawner);
 			HandSpawnerElementCompact.SetSpawner(objectSpawner);
 		}
 
+		/// <summary>
+		/// Expand the element if it isn't yet
+		/// </summary>
 		public void Expand() {
 			if (!Expanded)
 				SetExpanded(true);
 		}
 
+		/// <summary>
+		/// Collapse the element if it isn't yet
+		/// </summary>
 		public void Collapse() {
 			if (Expanded)
 				SetExpanded(false);

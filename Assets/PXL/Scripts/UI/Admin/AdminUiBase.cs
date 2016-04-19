@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using PXL.Objects.Spawner;
 using UnityEngine;
@@ -23,7 +24,9 @@ namespace PXL.UI.Admin {
 		/// <summary>
 		/// Returns whether the admin mode is active
 		/// </summary>
-		public static bool IsAdmin { get { return Mode == UserMode.Admin; } }
+		public static bool IsAdmin {
+			get { return Mode == UserMode.Admin; }
+		}
 
 		/// <summary>
 		/// ALl ObjectManagers in this scene
@@ -35,10 +38,11 @@ namespace PXL.UI.Admin {
 		}
 
 		/// <summary>
-		/// Toggles between admin and rehabilitee mode
+		/// Shifts through all usermodes
 		/// </summary>
 		public static void ToggleMode() {
-			Mode = Mode == UserMode.Admin ? UserMode.Rehabilitee : UserMode.Admin;
+			Mode = (UserMode) ((int) ++Mode % Enum.GetNames(typeof(UserMode)).Length);
+			//Mode =  Mode == UserMode.Admin ? UserMode.Rehabilitee : UserMode.Admin;
 		}
 
 	}

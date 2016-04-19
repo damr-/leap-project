@@ -1,12 +1,14 @@
 ﻿using System.Linq;
 using PXL.Objects.Spawner;
-using PXL.Utility;
 using UnityEngine;
 
 namespace PXL.UI.Admin {
 
 	public class ObjectColorChanger : IndexedPropertyChanger {
 
+		/// <summary>
+		/// Optional preview for the color
+		/// </summary>
 		public ObjectColorPreview ObjectColorPreview;
 
 		private SetObjectColorOnSpawn SetObjectColorOnSpawn {

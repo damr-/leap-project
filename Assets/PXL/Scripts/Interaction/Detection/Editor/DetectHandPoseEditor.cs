@@ -15,10 +15,10 @@ namespace PXL.Interaction.Detection.Editor {
 			EditorGUILayout.Space();
 
 			EditorGUILayout.LabelField("Observed Hands: ", new GUIStyle(EditorStyles.largeLabel) { fontStyle = FontStyle.Bold }, GUILayout.MaxWidth(150));
-
+			
 			for (var i = 0; i < t.HandModels.Count; i++) {
 				EditorGUILayout.BeginHorizontal();
-				EditorGUILayout.LabelField(t.HandModels[i].gameObject.name, GUILayout.MinWidth(120), GUILayout.MaxWidth(120));
+				EditorGUILayout.LabelField(t.HandModels[i] == null ? "Missing" : t.HandModels[i].gameObject.name, GUILayout.MinWidth(120), GUILayout.MaxWidth(120));
 				t.HandModels[i] =
 					(RigidHand)
 						EditorGUILayout.ObjectField("", t.HandModels[i], typeof(RigidHand), true,
@@ -29,6 +29,11 @@ namespace PXL.Interaction.Detection.Editor {
 					t.HandModels.RemoveAt(i);
 				}
 				EditorGUILayout.EndHorizontal();
+			}
+			if (t.HandModels.Count == 0) {
+				EditorGUILayout.LabelField("None",
+					new GUIStyle(EditorStyles.boldLabel) { alignment = TextAnchor.MiddleCenter, fontStyle = FontStyle.BoldAndItalic },
+					GUILayout.MaxWidth(50));
 			}
 
 			EditorGUILayout.BeginHorizontal();

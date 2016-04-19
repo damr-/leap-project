@@ -36,7 +36,7 @@ namespace PXL.UI.Admin {
 		/// The target <see cref="ObjectSpawner"/>, whose properties this script changes
 		/// </summary>
 		public ObjectSpawner ObjectSpawner { get; set; }
-
+		
 		/// <summary>
 		/// Checks for active admin mode and key strokes
 		/// </summary>

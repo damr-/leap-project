@@ -10,6 +10,11 @@ namespace PXL.UI.Admin {
 	public class ObjectColorPreview : MonoBehaviour {
 
 		/// <summary>
+		/// The sprite used to display normal colors
+		/// </summary>
+		public Sprite ColorSprite;
+
+		/// <summary>
 		/// Sprite for the preview image if 'Random' is selected
 		/// </summary>
 		public Sprite RandomColorSprite;
@@ -25,16 +30,20 @@ namespace PXL.UI.Admin {
 		private Image mImage;
 
 		public void Setup(ObjectSpawner objectSpawner) {
+			ColorSprite.AssertNotNull("Missing ColorSprite!");
+			RandomColorSprite.AssertNotNull("Missing random color sprite!");
+
 			var c = objectSpawner.GetComponent<SetObjectColorOnSpawn>();
 			if (c == null)
 				throw new MissingReferenceException(objectSpawner.gameObject.name + " is missing a SetObjectColorOnSpawn component!");
+
 			c.CurrentColor.Subscribe(UpdateColorPreview);
 			UpdateColorPreview(c.CurrentColor);
 		}
 
 		private void UpdateColorPreview(Color newColor) {
 			Image.color = newColor;
-			Image.sprite = newColor == Color.white ? RandomColorSprite : null;
+			Image.sprite = newColor == Color.white ? RandomColorSprite : ColorSprite;
 		}
 
 	}

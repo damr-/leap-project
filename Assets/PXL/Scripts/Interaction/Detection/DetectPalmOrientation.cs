@@ -19,7 +19,7 @@ namespace PXL.Interaction.Detection {
 		/// Whether the orientation preview lines are visible
 		/// </summary>
 		public bool PreviewTargetRotation = true;
-		
+
 		/// <summary>
 		/// The length of the orientation preview lines
 		/// </summary>
@@ -42,7 +42,6 @@ namespace PXL.Interaction.Detection {
 
 		protected override void CheckHand(HandModel hand) {
 			var angle = Quaternion.Angle(hand.palm.localRotation, Quaternion.Euler(TargetRotation));
-
 			if (angle < AngleError) {
 				TryInvokeCorrect();
 			}

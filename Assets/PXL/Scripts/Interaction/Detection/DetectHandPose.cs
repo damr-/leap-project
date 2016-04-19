@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Leap;
 using Leap.Unity;
+using UnityEngine;
 
 namespace PXL.Interaction.Detection {
 

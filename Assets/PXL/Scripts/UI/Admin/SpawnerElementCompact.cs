@@ -6,14 +6,29 @@ namespace PXL.UI.Admin {
 
 	public class SpawnerElementCompact : MenuElement {
 
+		/// <summary>
+		/// The text for the name of the spawner
+		/// </summary>
 		public Text SpawnerNameText;
 
+		/// <summary>
+		/// The preview for the object shape
+		/// </summary>
 		public ObjectShapePreview ShapePreview;
 
+		/// <summary>
+		/// The preview for the object color
+		/// </summary>
 		public ObjectColorPreview ColorPreview;
 
+		/// <summary>
+		/// The text for displaying the currently applied scale
+		/// </summary>
 		public Text ScaleText;
 
+		/// <summary>
+		/// The referenced ObjectSpawner
+		/// </summary>
 		protected ObjectSpawner ObjectSpawner;
 
 		public void SetSpawner(ObjectSpawner objectSpawner) {

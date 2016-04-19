@@ -27,11 +27,6 @@ namespace PXL.Interaction {
 		private const float ChangeHandDelay = 0.5f;
 
 		/// <summary>
-		/// The minimum grab strength necessary to pick up an object
-		/// </summary>
-		public static float MinGrabStrength = 0.25f;
-
-		/// <summary>
 		/// Every HandModel and its corresponding InteractionHand
 		/// </summary>
 		public static IDictionary<HandModel, InteractionHand> InteractionHands = new Dictionary<HandModel, InteractionHand>();

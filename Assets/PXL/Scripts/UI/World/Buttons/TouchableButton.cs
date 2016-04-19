@@ -11,7 +11,7 @@ namespace PXL.UI.World.Buttons {
 
 	[RequireComponent(typeof(Touchable))]
 	public abstract class TouchableButton : MonoBehaviour {
-	
+
 		/// <summary>
 		/// The Button component of this object
 		/// </summary>
@@ -30,7 +30,13 @@ namespace PXL.UI.World.Buttons {
 
 		private Touchable mTouchable;
 
+		/// <summary>
+		/// The FingerTypes which can interact with this touchable button
+		/// </summary>
 		public List<Finger.FingerType> InteractingFingerTypes = new List<Finger.FingerType>() { Finger.FingerType.TYPE_INDEX };
+
+
+		public HandSide InteractingHandSide = HandSide.Both;
 
 		/// <summary>
 		/// Whether there is a finger currently touching this level load button
@@ -65,7 +71,17 @@ namespace PXL.UI.World.Buttons {
 		/// Returns whether the the hand of the given <see cref="FingerInfo"/> is touching this button with any of the possible <see cref="InteractingFingerTypes"/>
 		/// </summary>
 		protected bool IsValidFingerTypeTouching(FingerInfo fingerInfo) {
-			return InteractingFingerTypes.Any(interactingFingerType => Touchable.IsCertainFingerTouching(fingerInfo.HandModel, interactingFingerType));
+			if (InteractingHandSide == HandSide.None)
+				return false;
+
+			var correctHandSide = InteractingHandSide == HandSide.Both ||
+								  InteractionHand.GetHandSide(fingerInfo.HandModel) == InteractingHandSide;
+
+			var correctFingerType =
+				InteractingFingerTypes.Any(
+					interactingFingerType => Touchable.IsCertainFingerTouching(fingerInfo.HandModel, interactingFingerType));
+
+			return correctHandSide && correctFingerType;
 		}
 
 	}

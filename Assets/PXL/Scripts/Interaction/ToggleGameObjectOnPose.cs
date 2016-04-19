@@ -7,12 +7,34 @@ namespace PXL.Interaction {
 
 	public class ToggleGameObjectOnPose : MonoBehaviour {
 
+		/// <summary>
+		/// The PalmOrientationDetector to observe
+		/// </summary>
 		public DetectPalmOrientation DetectPalmOrientation;
+
+		/// <summary>
+		/// The HandPoseDetector to observe
+		/// </summary>
 		public DetectHandPose DetectHandPose;
 
+		/// <summary>
+		/// Whether the orientation is currect
+		/// </summary>
 		private bool correctOrientation;
+
+		/// <summary>
+		/// Whether the pose is correct
+		/// </summary>
 		private bool correctPose;
 
+		/// <summary>
+		/// Whether the target objects are currently enabled
+		/// </summary>
+		private bool objectsEnabled;
+
+		/// <summary>
+		/// The Objects which will be de/activated
+		/// </summary>
 		public List<GameObject> GameObjects = new List<GameObject>();
 
 		private void Start() {
@@ -27,7 +49,7 @@ namespace PXL.Interaction {
 			flag = value;
 			if (value)
 				EnableObjectsIfPossible();
-			else 
+			else
 				EnableObjects(false);
 		}
 
@@ -37,6 +59,10 @@ namespace PXL.Interaction {
 		}
 
 		private void EnableObjects(bool newEnabledState) {
+			if (objectsEnabled == newEnabledState)
+				return;
+
+			objectsEnabled = newEnabledState;
 			GameObjects.ForEach(c => c.SetActive(newEnabledState));
 		}
 

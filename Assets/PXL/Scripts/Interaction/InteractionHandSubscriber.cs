@@ -46,13 +46,10 @@ namespace PXL.Interaction {
 		protected abstract void HandleMoved(MovementInfo movementInfo);
 
 		/// <summary>
-		/// Returns the index for accessing the arrays for the correct hand, -1 if the hand is invalid
+		/// Returns the HandSide of the given grabbable's hand
 		/// </summary>
 		protected HandSide GetHandSideIfValid(Grabbable grabbable) {
-			var hand = grabbable.CurrentHand;
-			if (!hand.IsHandValid())
-				return HandSide.None;
-			return hand.GetLeapHand().IsLeft ? HandSide.Left : HandSide.Right;
+			return InteractionHand.GetHandSide(grabbable.CurrentHand);
 		}
 
 	}

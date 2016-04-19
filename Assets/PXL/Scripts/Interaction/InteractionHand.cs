@@ -1,25 +1,23 @@
-﻿using UniRx;
+﻿using Leap.Unity;
+using PXL.Utility;
+using UniRx;
 using UnityEngine;
 
 namespace PXL.Interaction {
 
 	public enum HandSide {
-
 		None = 0,
 		Left = 1,
 		Right = 2,
 		Both = 3
-
 	}
 
 	public enum InteractionType {
-
 		Touch = 0,
 		EndTouch = 1,
 		Grab = 2,
 		Drop = 3,
 		Move = 4
-
 	}
 
 	public class InteractionHand : MonoBehaviour {
@@ -70,6 +68,12 @@ namespace PXL.Interaction {
 
 		public void MoveObject(MovementInfo movementInfo) {
 			objectMovedSubject.OnNext(movementInfo);
+		}
+
+		public static HandSide GetHandSide(HandModel hand) {
+			if (!hand.IsHandValid())
+				return HandSide.None;
+			return hand.GetLeapHand().IsLeft ? HandSide.Left : HandSide.Right;
 		}
 
 	}
