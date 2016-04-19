@@ -5,7 +5,7 @@ using UnityEngine;
 namespace PXL.UI.Admin {
 
 	public class ObjectShapeChanger : IndexedPropertyChanger {
-	
+
 		/// <summary>
 		/// Optional preview image reference
 		/// </summary>
@@ -13,21 +13,17 @@ namespace PXL.UI.Admin {
 
 		private SetObjectShapeOnSpawn SetObjectShapeOnSpawn {
 			get {
-				if (mSetObjectShapeOnSpawn != null)
-					return mSetObjectShapeOnSpawn;
-
-				mSetObjectShapeOnSpawn = ObjectSpawner.GetComponent<SetObjectShapeOnSpawn>();
-				if (mSetObjectShapeOnSpawn == null)
-					throw new MissingReferenceException(ObjectSpawner.gameObject.name + " is missing a SetObjectShapeOnSpawn component!");
-
-				return mSetObjectShapeOnSpawn;
+				return ObjectSpawner.GetComponent<SetObjectShapeOnSpawn>();
 			}
 		}
-		private SetObjectShapeOnSpawn mSetObjectShapeOnSpawn;
 
-		protected override void Start() {
-			base.Start();
-			if(ObjectShapePreview != null)
+		/// <summary>
+		/// Sets up the ShapeChanger with the given objects spawner
+		/// </summary>
+		public override void SetObjectSpawner(ObjectSpawner objectSpawner) {
+			base.SetObjectSpawner(objectSpawner);
+
+			if (ObjectShapePreview != null)
 				ObjectShapePreview.Setup(ObjectSpawner);
 			ChangeProperty(SetObjectShapeOnSpawn.AvailableShapes.IndexOf(SetObjectShapeOnSpawn.CurrentObjectShape));
 		}
@@ -47,6 +43,9 @@ namespace PXL.UI.Admin {
 			CurrentPropertyIndex = index;
 		}
 
+		/// <summary>
+		/// Returns whether the index is within 0 and the length of availableshapes
+		/// </summary>
 		protected override bool IsValidIndex(int index) {
 			return index >= 0 && index < SetObjectShapeOnSpawn.AvailableShapes.Count;
 		}

@@ -1,5 +1,6 @@
 ﻿using PXL.Objects.Spawner;
 using PXL.UI.Admin;
+using PXL.Utility;
 using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
@@ -7,7 +8,7 @@ using UnityEngine.UI;
 namespace PXL.UI.World.Hand {
 
 	public class HandSpawnerElementCompact : MonoBehaviour {
-	
+
 		/// <summary>
 		/// The text for the name of the spawner
 		/// </summary>
@@ -31,9 +32,35 @@ namespace PXL.UI.World.Hand {
 		/// <summary>
 		/// The referenced ObjectSpawner
 		/// </summary>
-		protected ObjectSpawner ObjectSpawner;
+		public ObjectSpawner ObjectSpawner { get; private set; }
 
-		public void SetSpawner(ObjectSpawner objectSpawner) {
+		/// <summary>
+		/// The Button component of this object
+		/// </summary>
+		private Button Button {
+			get { return mButton ?? (mButton = this.TryGetComponent<Button>()); }
+		}
+		private Button mButton;
+
+		/// <summary>
+		/// The Image component of this object
+		/// </summary>
+		private Image Image {
+			get { return mImage ?? (mImage = this.TryGetComponent<Image>()); }
+		}
+		private Image mImage;
+
+		/// <summary>
+		/// The default color for the button sprite
+		/// </summary>
+		private readonly Color defaultColor = new Color(191 / 255f, 191 / 255f, 191 / 255f);
+
+		/// <summary>
+		/// The color for the button sprite when it's selected
+		/// </summary>
+		private readonly Color selectedColor = new Color(75 / 255f, 75 / 255f, 191 / 255f);
+
+		public void SetupCompactElement(ObjectSpawner objectSpawner, HandSpawnerElementExpanded handSpawnerElementExpanded) {
 			ObjectSpawner = objectSpawner;
 			SpawnerNameText.text = ObjectSpawner.gameObject.name;
 
@@ -42,10 +69,16 @@ namespace PXL.UI.World.Hand {
 
 			ObjectSpawner.CurrentScaleFactor.Subscribe(UpdateScaleDisplay);
 			UpdateScaleDisplay(ObjectSpawner.CurrentScaleFactor.Value);
+
+			Button.onClick.AddListener(() => handSpawnerElementExpanded.ButtonPressed(this));
 		}
 
 		public void UpdateScaleDisplay(float newScale) {
 			ScaleText.text = newScale.ToString("0.00");
+		}
+
+		public void SetSelected(bool newSelectedState) {
+			Image.color = newSelectedState == false ? defaultColor : selectedColor;
 		}
 
 	}

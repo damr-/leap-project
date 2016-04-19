@@ -41,9 +41,9 @@ namespace PXL.UI.Admin {
 			UpdateColorPreview(c.CurrentColor);
 		}
 
-		private void UpdateColorPreview(Color newColor) {
-			Image.color = newColor;
-			Image.sprite = newColor == Color.white ? RandomColorSprite : ColorSprite;
+		private void UpdateColorPreview(SetObjectColorOnSpawn.ObjectColor newObjectColor) {
+			Image.color = newObjectColor.Color;
+			Image.sprite = newObjectColor.Color == Color.white ? RandomColorSprite : ColorSprite;
 		}
 
 	}

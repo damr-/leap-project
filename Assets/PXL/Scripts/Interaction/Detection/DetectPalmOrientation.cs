@@ -28,17 +28,17 @@ namespace PXL.Interaction.Detection {
 		/// <summary>
 		/// The color for the vertical axis, pointing towards the normal of the palm
 		/// </summary>
-		private readonly Color green = new Color(76 / 255f, 176 / 255f, 76 / 255f);
+		private readonly Color green = new Color(42 / 255f, 1f, 42 / 255f);
 
 		/// <summary>
 		/// The color for the horizontal axis, pointing to the right of the palm
 		/// </summary>
-		private readonly Color red = new Color(176 / 255f, 76 / 255f, 76 / 255f);
+		private readonly Color red = new Color(1f, 42 / 255f, 42 / 255f);
 
 		/// <summary>
 		/// The color for the horizontal axis, pointing forward from the palm
 		/// </summary>
-		private readonly Color blue = new Color(76 / 255f, 76 / 255f, 176 / 255f);
+		private readonly Color blue = new Color(42 / 255f, 42 / 255f, 1f);
 
 		protected override void CheckHand(HandModel hand) {
 			var angle = Quaternion.Angle(hand.palm.localRotation, Quaternion.Euler(TargetRotation));

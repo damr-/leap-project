@@ -1,6 +1,5 @@
 ﻿using System.Linq;
 using PXL.Objects.Spawner;
-using UnityEngine;
 
 namespace PXL.UI.Admin {
 
@@ -13,24 +12,16 @@ namespace PXL.UI.Admin {
 
 		private SetObjectColorOnSpawn SetObjectColorOnSpawn {
 			get {
-				if (mSetObjectColorOnSpawn != null)
-					return mSetObjectColorOnSpawn;
-
-				mSetObjectColorOnSpawn = ObjectSpawner.GetComponent<SetObjectColorOnSpawn>();
-				if (mSetObjectColorOnSpawn == null)
-					throw new MissingReferenceException(ObjectSpawner.gameObject.name + " is missing a SetObjectColorOnSpawn component!");
-
-				return mSetObjectColorOnSpawn;
+				return ObjectSpawner.GetComponent<SetObjectColorOnSpawn>();
 			}
 		}
-		private SetObjectColorOnSpawn mSetObjectColorOnSpawn;
 
-		protected override void Start() {
-			base.Start();
+		public override void SetObjectSpawner(ObjectSpawner objectSpawner) {
+			base.SetObjectSpawner(objectSpawner);
 
-			if(ObjectColorPreview != null)
+			if (ObjectColorPreview != null)
 				ObjectColorPreview.Setup(ObjectSpawner);
-			ChangeProperty(SetObjectColorOnSpawn.AvailableColors.IndexOf(SetObjectColorOnSpawn.DefaultColor));
+			ChangeProperty(SetObjectColorOnSpawn.AvailableColors.IndexOf(SetObjectColorOnSpawn.CurrentColor));
 		}
 
 		/// <summary>
@@ -42,7 +33,7 @@ namespace PXL.UI.Admin {
 
 			var newObjectColor = SetObjectColorOnSpawn.AvailableColors.ElementAt(index);
 
-			SetObjectColorOnSpawn.SetColor(newObjectColor.Color);
+			SetObjectColorOnSpawn.SetColor(newObjectColor);
 
 			if (PropertyText != null)
 				PropertyText.text = newObjectColor.Name;
@@ -53,6 +44,7 @@ namespace PXL.UI.Admin {
 		protected override bool IsValidIndex(int index) {
 			return index >= 0 && index < SetObjectColorOnSpawn.AvailableColors.Count;
 		}
+
 	}
 
 }

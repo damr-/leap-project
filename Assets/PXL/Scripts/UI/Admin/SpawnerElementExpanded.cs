@@ -33,7 +33,7 @@ namespace PXL.UI.Admin {
 			ClearButton.onClick.AddListener(objectSpawner.RemoveAllObjects);
 
 			propertyChangers = GetComponentsInChildren<PropertyChanger>().ToList();
-			propertyChangers.ForEach(p => p.ObjectSpawner = objectSpawner);
+			propertyChangers.ForEach(p => p.SetObjectSpawner(objectSpawner));
 		}
 
 		public bool TrySelectNextEntry() {

@@ -1,5 +1,4 @@
-﻿using PXL.Utility;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 namespace PXL.UI.Admin {
@@ -28,7 +27,8 @@ namespace PXL.UI.Admin {
 			get { return mIsSelected; }
 			set {
 				mIsSelected = value;
-				BackgroundImage.color = value ? SelectedColor : DefaultColor;
+				if(BackgroundImage != null)
+					BackgroundImage.color = value ? SelectedColor : DefaultColor;
 			}
 		}
 
@@ -43,7 +43,6 @@ namespace PXL.UI.Admin {
 		/// Asserts that all necessary references are set up and throws exceptions if not
 		/// </summary>
 		protected virtual void AssertReferences() {
-			BackgroundImage.AssertNotNull("Background image missing");
 		}
 
 	}

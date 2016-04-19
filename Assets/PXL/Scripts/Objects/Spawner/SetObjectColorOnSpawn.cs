@@ -44,7 +44,7 @@ namespace PXL.Objects.Spawner {
 		/// <summary>
 		/// Current color used to dye objects
 		/// </summary>
-		public ObservableProperty<Color> CurrentColor = new ObservableProperty<Color>();
+		public ObservableProperty<ObjectColor> CurrentColor = new ObservableProperty<ObjectColor>();
 
 		/// <summary>
 		/// The ObjectSpawner of this object
@@ -73,7 +73,7 @@ namespace PXL.Objects.Spawner {
 		/// Sets the default color as the current one and sets up the spawnsubsription
 		/// </summary>
 		private void Start() {
-            CurrentColor.Value = DefaultColor.Color;
+            CurrentColor.Value = DefaultColor;
 			ObjectSpawner.ObjectSpawned.Subscribe(SetObjectColor);
         }
 
@@ -82,7 +82,8 @@ namespace PXL.Objects.Spawner {
 		/// </summary>
 		/// <param name="interactiveObject">The target object which will get the current color assigned</param>
 		protected virtual void SetObjectColor(InteractiveObject interactiveObject) {
-			var objectColor = CurrentColor == Color.white ? GetRandomColor() : CurrentColor;
+			var curCol = CurrentColor.Value.Color;
+			var objectColor = curCol == Color.white ? GetRandomColor() : curCol;
 			interactiveObject.GetComponent<Renderer>().material.color = objectColor;
 		}
 
@@ -94,10 +95,9 @@ namespace PXL.Objects.Spawner {
 		}
 
 		/// <summary>
-		/// Sets the color used to dye objects
+		/// Sets the ObjectColor used to dye objects
 		/// </summary>
-		/// <param name="newColor"></param>
-		public void SetColor(Color newColor) {
+		public void SetColor(ObjectColor newColor) {
 			CurrentColor.Value = newColor;
 		}
 

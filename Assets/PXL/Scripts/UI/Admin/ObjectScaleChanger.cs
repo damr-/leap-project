@@ -1,11 +1,13 @@
-﻿using UniRx;
+﻿using PXL.Objects.Spawner;
+using UniRx;
 
 namespace PXL.UI.Admin {
 
 	public class ObjectScaleChanger : PropertyChanger {
 
-		protected override void Start() {
-			base.Start();
+		public override void SetObjectSpawner(ObjectSpawner objectSpawner) {
+			base.SetObjectSpawner(objectSpawner);
+
 			ObjectSpawner.ObjectScale.Subscribe(SetText);
 			SetText(ObjectSpawner.ObjectScale.Value);
 		}
@@ -17,7 +19,7 @@ namespace PXL.UI.Admin {
 		public override void PreviousValue() {
 			ObjectSpawner.DecreaseObjectScale();
 		}
-		
+
 		/// <summary>
 		/// Sets the text of the text component to the given scale
 		/// </summary>

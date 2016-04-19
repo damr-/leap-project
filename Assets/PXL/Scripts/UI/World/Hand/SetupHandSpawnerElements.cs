@@ -7,13 +7,19 @@ namespace PXL.UI.World.Hand {
 	public class SetupHandSpawnerElements : AdminUiBase {
 
 		/// <summary>
+		/// The <see cref="HandSpawnerElementExpanded"/> elemend of the hand menu
+		/// </summary>
+		public HandSpawnerElementExpanded HandSpawnerElementExpanded;
+
+		/// <summary>
 		/// Prefab for the spawned UI element
 		/// </summary>
 		public GameObject SpawnerElementPrefab;
 
 		protected override void Start() {
 			base.Start();
-
+			
+			HandSpawnerElementExpanded.AssertNotNull();
 			SpawnerElementPrefab.AssertNotNull();
 
 			ObjectSpawners.ForEach(objectSpawner => {
@@ -21,8 +27,7 @@ namespace PXL.UI.World.Hand {
 				spawnerElementTransform.SetParent(transform, false);
 
 				var spawnerElement = spawnerElementTransform.GetComponent<HandSpawnerElement>();
-				spawnerElement.SetObjectSpawner(objectSpawner);
-				spawnerElement.Collapse();
+				spawnerElement.Setup(objectSpawner, HandSpawnerElementExpanded);
 			});
 		}
 	}
