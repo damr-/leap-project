@@ -35,14 +35,6 @@ namespace PXL.UI.World.Hand {
 		public ObjectSpawner ObjectSpawner { get; private set; }
 
 		/// <summary>
-		/// The Button component of this object
-		/// </summary>
-		private Button Button {
-			get { return mButton ?? (mButton = this.TryGetComponent<Button>()); }
-		}
-		private Button mButton;
-
-		/// <summary>
 		/// The Image component of this object
 		/// </summary>
 		private Image Image {
@@ -70,13 +62,20 @@ namespace PXL.UI.World.Hand {
 			ObjectSpawner.CurrentScaleFactor.Subscribe(UpdateScaleDisplay);
 			UpdateScaleDisplay(ObjectSpawner.CurrentScaleFactor.Value);
 
-			Button.onClick.AddListener(() => handSpawnerElementExpanded.ButtonPressed(this));
+			this.TryGetComponent<Button>().onClick.AddListener(() => handSpawnerElementExpanded.ButtonPressed(this));
 		}
 
+		/// <summary>
+		/// Sets the text of the <see cref="ScaleText"/> to the given, new scale
+		/// </summary>
+		/// <param name="newScale">The new scale which will be displayed</param>
 		public void UpdateScaleDisplay(float newScale) {
 			ScaleText.text = newScale.ToString("0.00");
 		}
 
+		/// <summary>
+		/// Updates the selected state of this compact element by changing the color accordingly
+		/// </summary>
 		public void SetSelected(bool newSelectedState) {
 			Image.color = newSelectedState == false ? defaultColor : selectedColor;
 		}
