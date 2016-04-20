@@ -167,6 +167,16 @@ namespace PXL.Utility {
 			return (float)result;
 		}
 
+		/// <summary>
+		/// Returns the given vector having it's y value replaced by the given <see cref="newY"/>
+		/// </summary>
+		/// <param name="vector">The vector which will have it's y value replaced</param>
+		/// <param name="newY">The new y value for the vector</param>
+		public static Vector3 WithY(this Vector3 vector, float newY) {
+			vector.y = newY;
+			return vector;
+		}
+
 	}
 
 }

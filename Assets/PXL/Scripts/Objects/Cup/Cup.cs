@@ -30,11 +30,31 @@ namespace PXL.Objects.Cup {
 		private List<InteractiveObject> objects = new List<InteractiveObject>();
 
 		/// <summary>
+		/// The positions inside the cup which objects will be assigned to
+		/// </summary>
+		private readonly Vector3[] positions = {
+			new Vector3(0.1f, 0, 0.1f),
+			new Vector3(0, 0, 0.1f),
+			new Vector3(-0.1f, 0, 0.1f),
+			new Vector3(0.1f, 0, 0),
+			new Vector3(0, 0, 0),
+			new Vector3(-0.1f, 0, 0),
+			new Vector3(0.1f, 0, -0.1f),
+			new Vector3(0, 0, -0.1f),
+			new Vector3(-0.1f, 0, -0.1f),
+			new Vector3(0.2f, 0, 0),
+			new Vector3(-0.2f, 0, 0),
+			new Vector3(0, 0, 0.2f),
+			new Vector3(0, 0, -0.2f),
+		};
+
+		/// <summary>
 		/// The Grabbable Component of the cup
 		/// </summary>
 		private Grabbable Grabbable {
 			get { return mGrabbable ?? (mGrabbable = GetComponentInParent<Grabbable>()); }
 		}
+
 		private Grabbable mGrabbable;
 
 		/// <summary>
@@ -62,7 +82,7 @@ namespace PXL.Objects.Cup {
 			var rotX = transform.rotation.eulerAngles.x;
 			var rotZ = transform.rotation.eulerAngles.z;
 			validRotation = !(rotX > MaxTiltAngle && rotX < 360 - MaxTiltAngle) &&
-							!(rotZ > MaxTiltAngle && rotZ < 360 - MaxTiltAngle);
+			                !(rotZ > MaxTiltAngle && rotZ < 360 - MaxTiltAngle);
 
 			if (!validRotation)
 				ReleaseObjects();
@@ -84,35 +104,7 @@ namespace PXL.Objects.Cup {
 		private Vector3 GetObjectPosition() {
 			var index = objects.Count;
 			var y = -0.4f + 0.1f * (index / 13);
-
-			switch (index % 13) {
-				case 0:
-					return new Vector3(0.1f, y, 0.1f);
-				case 1:
-					return new Vector3(0f, y, 0.1f);
-				case 2:
-					return new Vector3(-0.1f, y, 0.1f);
-				case 3:
-					return new Vector3(0.1f, y, 0f);
-				case 4:
-					return new Vector3(0f, y, 0f);
-				case 5:
-					return new Vector3(-0.1f, y, 0f);
-				case 6:
-					return new Vector3(0.1f, y, -0.1f);
-				case 7:
-					return new Vector3(0f, y, -0.1f);
-				case 8:
-					return new Vector3(-0.1f, y, -0.1f);
-				case 9:
-					return new Vector3(0.2f, y, 0f);
-				case 10:
-					return new Vector3(-0.2f, y, 0f);
-				case 11:
-					return new Vector3(0f, y, 0.2f);
-				default:
-					return new Vector3(0f, y, -0.2f);
-			}
+			return positions[index % 13].WithY(y);
 		}
 
 		/// <summary>
@@ -144,7 +136,8 @@ namespace PXL.Objects.Cup {
 
 			var interactiveObject = other.GetComponent<InteractiveObject>();
 
-			if (interactiveObject == null || (ObjectType != ObjectType.All && interactiveObject.ObjectType != ObjectType) || objects.Contains(interactiveObject))
+			if (interactiveObject == null || (ObjectType != ObjectType.All && interactiveObject.ObjectType != ObjectType) ||
+			    objects.Contains(interactiveObject))
 				return;
 
 			SetObjectPickupState(interactiveObject, true);

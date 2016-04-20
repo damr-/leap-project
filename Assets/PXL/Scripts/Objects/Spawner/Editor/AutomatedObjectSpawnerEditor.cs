@@ -12,7 +12,7 @@ namespace PXL.Objects.Spawner.Editor {
 
 			Header("Automated Spawner Settings");
 
-			EditorGUI.BeginDisabledGroup(spawner.ChooseRandomly);
+			EditorGUI.BeginDisabledGroup(spawner.ChooseFrequencyRandomly);
 			spawner.SpawnFrequency =
 				Mathf.Clamp(
 					EditorGUILayout.FloatField(
@@ -20,7 +20,7 @@ namespace PXL.Objects.Spawner.Editor {
 						spawner.SpawnFrequency), 0.0001f, 1000);
 			EditorGUI.EndDisabledGroup();
 		
-			spawner.ChooseRandomly = EditorGUILayout.BeginToggleGroup("Choose Frequency Randomly", spawner.ChooseRandomly);
+			spawner.ChooseFrequencyRandomly = EditorGUILayout.BeginToggleGroup("Choose Frequency Randomly", spawner.ChooseFrequencyRandomly);
 
 			spawner.MinSpawnFrequency =
 				Mathf.Clamp(

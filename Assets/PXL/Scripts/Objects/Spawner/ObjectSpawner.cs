@@ -321,13 +321,13 @@ namespace PXL.Objects.Spawner {
 			SpawnObject(Vector3.zero);
 		}
 
+
 		/// <summary>
 		/// Initiate the spawning of a new object with the given offset
 		/// </summary>
 		public void SpawnObject(Vector3 offset) {
-			if (!CanSpawn()) {
+			if (!CanSpawn())
 				return;
-			}
 
 			spawnInitiatedSubject.OnNext(Unit.Default);
 

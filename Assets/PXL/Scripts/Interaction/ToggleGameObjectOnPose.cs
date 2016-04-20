@@ -2,6 +2,7 @@
 using UniRx;
 using System.Collections.Generic;
 using PXL.Interaction.Detection;
+using PXL.Utility;
 
 namespace PXL.Interaction {
 
@@ -38,6 +39,8 @@ namespace PXL.Interaction {
 		public List<GameObject> GameObjects = new List<GameObject>();
 
 		private void Start() {
+			GameObjects.ForEach(g => g.AssertNotNull("GameObject reference missing!"));
+
 			DetectPalmOrientation.CorrectPose.Subscribe(_ => UpdateFlag(ref correctOrientation, true));
 			DetectPalmOrientation.IncorrectPose.Subscribe(_ => UpdateFlag(ref correctOrientation, false));
 

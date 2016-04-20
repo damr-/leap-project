@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using Random = UnityEngine.Random;
+﻿using Random = UnityEngine.Random;
 
 namespace PXL.Objects.Spawner {
 
@@ -14,7 +13,7 @@ namespace PXL.Objects.Spawner {
 		/// Whether <see cref="SpawnFrequency"/> should be applied or a random one 
 		/// between <see cref="MinSpawnFrequency"/> and <see cref="MaxSpawnFrequency"/> should be chosen every time.
 		/// </summary>
-		public bool ChooseRandomly;
+		public bool ChooseFrequencyRandomly;
 
 		/// <summary>
 		/// The maximum possible spawn frequency, if choosing randomly
@@ -48,6 +47,7 @@ namespace PXL.Objects.Spawner {
 				return;
 
 			SpawnObject();
+
 			SetRandomSpawnFrequencyIfNecessary();
 			lastSpawnTime = UnityEngine.Time.time;
 		}
@@ -57,7 +57,7 @@ namespace PXL.Objects.Spawner {
 		/// If not, sets the frequency to the default one.
 		/// </summary>
 		protected virtual void SetRandomSpawnFrequencyIfNecessary() {
-			if (ChooseRandomly)
+			if (ChooseFrequencyRandomly)
 				SetRandomSpawnFrequency();
 			else if (CurrentSpawnFrequency != SpawnFrequency)
 				CurrentSpawnFrequency = SpawnFrequency;

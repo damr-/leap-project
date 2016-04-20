@@ -111,10 +111,8 @@ namespace PXL.Objects.Spawner {
 					SpawnObject(spawnOffset);
 				}
 			}
-
-			if (SpawnedObjects.Count == 0) {
+			if (SpawnedObjects.Count == 0)
 				SpawnObject();
-			}
 		}
 
 		protected override void HandleObjectDespawned(InteractiveObject interactiveObject) {
