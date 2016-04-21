@@ -44,7 +44,9 @@ namespace PXL.UI.World.Buttons {
 			ProgressImage.AssertNotNull(gameObject.name + " is missing the progress image reference!");
 		}
 
-		protected virtual void Update() {
+		protected override void Update() {
+			base.Update();
+
 			if (!IsTouched())
 				return;
 
@@ -56,23 +58,19 @@ namespace PXL.UI.World.Buttons {
 			HandleDurationOver();
 		}
 
-		protected override void HandleFingerEntered(FingerInfo fingerInfo) {
-			if (!IsReactingToNewFingers())
-				return;
-
-			if (!IsValidFingerTypeTouching(fingerInfo))
-				return;
+		protected override void HandleFingerPressed() {
+			base.HandleFingerPressed();
 
 			CancelledFlashDisposable.Dispose();
 			ProgressImage.color = Touched;
-
-			Fingertip = fingerInfo.Fingertip;
 			StartTime = Time.time;
 		}
 
 		protected override void HandleFingerLeft(FingerInfo fingerInfo) {
 			if (!IsTouchingFinger(fingerInfo))
 				return;
+
+			base.HandleFingerLeft(fingerInfo);
 
 			ProgressImage.color = TouchCancelled;
 			CancelledFlashDisposable.Dispose();
