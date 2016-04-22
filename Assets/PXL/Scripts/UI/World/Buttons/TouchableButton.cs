@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Leap;
-using UnityEngine;
 using PXL.Interaction;
 using PXL.Utility;
-using UnityEngine.UI;
 using UniRx;
+using UnityEngine;
+using UnityEngine.UI;
 using Image = UnityEngine.UI.Image;
 
 namespace PXL.UI.World.Buttons {
@@ -40,12 +40,17 @@ namespace PXL.UI.World.Buttons {
 		/// <summary>
 		/// The FingerTypes which can interact with this touchable button
 		/// </summary>
-		public List<Finger.FingerType> InteractingFingerTypes = new List<Finger.FingerType>() { Finger.FingerType.TYPE_INDEX };
+		public List<Finger.FingerType> InteractingFingerTypes = new List<Finger.FingerType> { Finger.FingerType.TYPE_INDEX };
 
 		/// <summary>
 		/// The color for the button when a finger hovers over it
 		/// </summary>
-		public Color HoverColor = new Color(1f, 165 / 255f, 0f);
+		protected Color HoverColor = new Color(255 / 255f, 209 / 255f, 143 / 255f);
+
+		/// <summary>
+		/// The color for the button when it is pressed
+		/// </summary>
+		protected Color PressedColor = new Color(252 / 255f, 164 / 255f, 63 / 255f);
 
 		/// <summary>
 		/// The default color of the button
@@ -65,13 +70,13 @@ namespace PXL.UI.World.Buttons {
 		/// <summary>
 		/// How close the finger has to be to the button for it to be pressed
 		/// </summary>
-		protected float PressDistance = 0.025f;
+		protected float PressDistance = 0.02f;
 
 		/// <summary>
 		/// If the button is currently pressed
 		/// </summary>
 		private bool isPressed;
-
+		
 		protected virtual void Start() {
 			Touchable.FingerEntered.Subscribe(HandleFingerEntered);
 			Touchable.FingerLeft.Subscribe(HandleFingerLeft);
@@ -79,13 +84,20 @@ namespace PXL.UI.World.Buttons {
 		}
 
 		protected virtual void Update() {
-			if (Fingertip == null || isPressed)
+			if (Fingertip == null)
 				return;
+			
+			var distance = Vector3.Distance(Fingertip.transform.position, transform.position);
 
-			if (Vector3.Distance(Fingertip.transform.position, transform.position) < PressDistance)
-				HandleFingerPressed();
+			if (isPressed && distance > PressDistance)
+				HandlePressCancelled();
+			if (!isPressed && distance < PressDistance)
+				HandlePressed();
 		}
 
+		/// <summary>
+		/// Called when a finger enters the button's trigger
+		/// </summary>
 		protected virtual void HandleFingerEntered(FingerInfo fingerInfo) {
 			if (!IsReactingToNewFingers())
 				return;
@@ -97,13 +109,29 @@ namespace PXL.UI.World.Buttons {
 			Fingertip = fingerInfo.Fingertip;
 		}
 
+		/// <summary>
+		/// Called when a finger leaves the button's trigger
+		/// </summary>
 		protected virtual void HandleFingerLeft(FingerInfo fingerInfo) {
 			Image.color = DefaultColor;
 			isPressed = false;
+			Fingertip = null;
 		}
 
-		protected virtual void HandleFingerPressed() {
+		/// <summary>
+		/// Called when the button is pressed
+		/// </summary>
+		protected virtual void HandlePressed() {
+			Image.color = PressedColor;
 			isPressed = true;
+		}
+
+		/// <summary>
+		/// Called when the button press is interrupted
+		/// </summary>
+		protected virtual void HandlePressCancelled() {
+			Image.color = HoverColor;
+			isPressed = false;
 		}
 
 		/// <summary>
@@ -128,8 +156,8 @@ namespace PXL.UI.World.Buttons {
 			if (InteractingHandSide == HandSide.None)
 				return false;
 
-			var correctHandSide = InteractingHandSide == HandSide.Both ||
-			                      InteractionHand.GetHandSide(fingerInfo.HandModel) == InteractingHandSide;
+			var correctHandSide = InteractingHandSide == HandSide.Both || 
+									InteractionHand.GetHandSide(fingerInfo.HandModel) == InteractingHandSide;
 
 			var correctFingerType =
 				InteractingFingerTypes.Any(

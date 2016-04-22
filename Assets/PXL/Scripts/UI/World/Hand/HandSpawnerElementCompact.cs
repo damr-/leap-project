@@ -37,22 +37,11 @@ namespace PXL.UI.World.Hand {
 		/// <summary>
 		/// The Image component of this object
 		/// </summary>
-		private Image Image {
-			get { return mImage ?? (mImage = this.TryGetComponent<Image>()); }
-		}
-		private Image mImage;
-
-		/// <summary>
-		/// The default color for the button sprite
-		/// </summary>
-		private readonly Color defaultColor = new Color(191 / 255f, 191 / 255f, 191 / 255f);
-
-		/// <summary>
-		/// The color for the button sprite when it's selected
-		/// </summary>
-		private readonly Color selectedColor = new Color(75 / 255f, 75 / 255f, 191 / 255f);
+		public Image Image;
 
 		public void SetupCompactElement(ObjectSpawner objectSpawner, HandSpawnerElementExpanded handSpawnerElementExpanded) {
+			Image.AssertNotNull("Missing Image reference on compact element");
+
 			ObjectSpawner = objectSpawner;
 			SpawnerNameText.text = ObjectSpawner.gameObject.name;
 
@@ -77,7 +66,7 @@ namespace PXL.UI.World.Hand {
 		/// Updates the selected state of this compact element by changing the color accordingly
 		/// </summary>
 		public void SetSelected(bool newSelectedState) {
-			Image.color = newSelectedState == false ? defaultColor : selectedColor;
+			Image.enabled = newSelectedState;
 		}
 
 	}

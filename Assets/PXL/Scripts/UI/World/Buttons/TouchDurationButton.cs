@@ -17,12 +17,12 @@ namespace PXL.UI.World.Buttons {
 		/// <summary>
 		/// The color for the progress image sprite when the button is being touched
 		/// </summary>
-		public Color TouchedColor = new Color(76 / 255f, 176 / 255f, 76 / 255f, 1f);
+		protected Color TouchedColor = new Color(140 / 255f, 140 / 255f, 140 / 255f, 128 / 255f);
 
 		/// <summary>
 		/// The color for the progress image sprite when touching the button is cancelled
 		/// </summary>
-		public Color TouchCancelledColor = new Color(176 / 255f, 76 / 255f, 76 / 255f, 1f);
+		protected Color TouchCancelledColor = new Color(255 / 255f, 143 / 255f, 134 / 255f, 128 / 255f);
 
 		/// <summary>
 		/// How long the finger has to stay for the button to be clicked
@@ -32,7 +32,7 @@ namespace PXL.UI.World.Buttons {
 		/// <summary>
 		/// When the finger entered
 		/// </summary>
-		protected float StartTime;
+		protected float StartTime = -1;
 
 		/// <summary>
 		/// Disposable for the timer when the progress image flashes in <see cref="TouchCancelledColor"/> color because the finger left too early
@@ -50,6 +50,11 @@ namespace PXL.UI.World.Buttons {
 			if (!IsTouched())
 				return;
 
+			if (RequiredFingerStayDuration < 0.01f) {
+				HandleDurationOver();
+				return;
+			}
+
 			ProgressImage.fillAmount = (Time.time - StartTime).Remap(0, RequiredFingerStayDuration, 0, 1);
 
 			if (Time.time - StartTime <= RequiredFingerStayDuration)
@@ -58,8 +63,8 @@ namespace PXL.UI.World.Buttons {
 			HandleDurationOver();
 		}
 
-		protected override void HandleFingerPressed() {
-			base.HandleFingerPressed();
+		protected override void HandlePressed() {
+			base.HandlePressed();
 
 			CancelledFlashDisposable.Dispose();
 			ProgressImage.color = TouchedColor;
@@ -70,7 +75,12 @@ namespace PXL.UI.World.Buttons {
 			if (!IsTouchingFinger(fingerInfo))
 				return;
 
+			HandlePressCancelled();
 			base.HandleFingerLeft(fingerInfo);
+		}
+
+		protected override void HandlePressCancelled() {
+			base.HandlePressCancelled();
 
 			ProgressImage.color = TouchCancelledColor;
 			CancelledFlashDisposable.Dispose();
@@ -78,7 +88,6 @@ namespace PXL.UI.World.Buttons {
 				ProgressImage.fillAmount = 0;
 			});
 			StartTime = -1;
-			Fingertip = null;
 		}
 
 		/// <summary>
@@ -88,7 +97,6 @@ namespace PXL.UI.World.Buttons {
 		protected void HandleDurationOver() {
 			StartTime = -1;
 			ProgressImage.fillAmount = 0;
-			Fingertip = null;
 			Button.onClick.Invoke();
 		}
 
