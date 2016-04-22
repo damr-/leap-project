@@ -85,7 +85,7 @@ namespace PXL.UI.World.Buttons {
 		/// Called when the finger has touched the button for <see cref="RequiredFingerStayDuration"/>.
 		/// Stops the progress animation and invokes the button onclick event.
 		/// </summary>
-		protected virtual void HandleDurationOver() {
+		protected void HandleDurationOver() {
 			StartTime = -1;
 			ProgressImage.fillAmount = 0;
 			Fingertip = null;

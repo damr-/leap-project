@@ -42,14 +42,15 @@ namespace PXL.Interaction.Detection {
 
 		protected override void CheckHand(HandModel hand) {
 			var angle = Quaternion.Angle(hand.palm.localRotation, Quaternion.Euler(TargetRotation));
-			if (angle < AngleError) {
+			if (angle < AngleError)
 				TryInvokeCorrect();
-			}
-			else {
+			else
 				TryInvokeIncorrect();
-			}
 		}
 
+		/// <summary>
+		/// Draw the axes of the palm's rotation, which should be detected
+		/// </summary>
 		private void OnDrawGizmos() {
 			if (!PreviewTargetRotation)
 				return;
@@ -69,7 +70,7 @@ namespace PXL.Interaction.Detection {
 		}
 
 		/// <summary>
-		/// Draws a with <see cref="color"/> dyed ray from origin in the normalized direction, multiplied by <see cref="LineLength"/>
+		/// Draws a ray (with <see cref="color"/>) from origin in the normalized direction, multiplied by <see cref="LineLength"/>
 		/// </summary>
 		/// <param name="origin">The start position of the ray</param>
 		/// <param name="direction">The direction of the ray which will be normalized and multiplied by <see cref="LineLength"/></param>

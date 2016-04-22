@@ -3,7 +3,7 @@ using UnityEngine.UI;
 
 namespace PXL.UI.Admin {
 
-	public abstract class AdminDropdownUi : AdminUiBase {
+	public abstract class AdminDropdown : AdminBase {
 	
 		/// <summary>
 		/// The Dropdown Component of the child UI element

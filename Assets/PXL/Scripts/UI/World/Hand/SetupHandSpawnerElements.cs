@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace PXL.UI.World.Hand {
 
-	public class SetupHandSpawnerElements : AdminUiBase {
+	public class SetupHandSpawnerElements : AdminBase {
 
 		/// <summary>
 		/// The <see cref="HandSpawnerElementExpanded"/> elemend of the hand menu

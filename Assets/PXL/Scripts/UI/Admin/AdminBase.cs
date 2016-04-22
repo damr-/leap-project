@@ -14,7 +14,7 @@ namespace PXL.UI.Admin {
 		Rehabilitee = 1
 	}
 
-	public abstract class AdminUiBase : MonoBehaviour {
+	public abstract class AdminBase : MonoBehaviour {
 
 		/// <summary>
 		/// The currently active mode
@@ -38,11 +38,10 @@ namespace PXL.UI.Admin {
 		}
 
 		/// <summary>
-		/// Shifts through all usermodes
+		/// Sets the current mode to the next one in the available <see cref="UserMode"/>
 		/// </summary>
 		public static void ToggleMode() {
 			Mode = (UserMode) ((int) ++Mode % Enum.GetNames(typeof(UserMode)).Length);
-			//Mode =  Mode == UserMode.Admin ? UserMode.Rehabilitee : UserMode.Admin;
 		}
 
 	}

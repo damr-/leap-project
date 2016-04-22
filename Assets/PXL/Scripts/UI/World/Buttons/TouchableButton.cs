@@ -19,7 +19,6 @@ namespace PXL.UI.World.Buttons {
 		public Image Image {
 			get { return mImage ?? (mImage = GetComponentInChildren<Image>()); }
 		}
-
 		private Image mImage;
 
 		/// <summary>
@@ -28,7 +27,6 @@ namespace PXL.UI.World.Buttons {
 		public Button Button {
 			get { return mButton ?? (mButton = GetComponentInChildren<Button>()); }
 		}
-
 		private Button mButton;
 
 		/// <summary>
@@ -37,7 +35,6 @@ namespace PXL.UI.World.Buttons {
 		protected Touchable Touchable {
 			get { return mTouchable ?? (mTouchable = this.TryGetComponent<Touchable>()); }
 		}
-
 		private Touchable mTouchable;
 
 		/// <summary>
@@ -70,6 +67,9 @@ namespace PXL.UI.World.Buttons {
 		/// </summary>
 		protected float PressDistance = 0.025f;
 
+		/// <summary>
+		/// If the button is currently pressed
+		/// </summary>
 		private bool isPressed;
 
 		protected virtual void Start() {
@@ -95,7 +95,6 @@ namespace PXL.UI.World.Buttons {
 
 			Image.color = HoverColor;
 			Fingertip = fingerInfo.Fingertip;
-			isPressed = false;
 		}
 
 		protected virtual void HandleFingerLeft(FingerInfo fingerInfo) {

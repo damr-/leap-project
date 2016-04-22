@@ -44,29 +44,30 @@ namespace PXL.Utility {
 		/// <summary>
 		/// The light component of this object
 		/// </summary>
-		private new Light light;
+		private Light lightComponent;
 
 		private void Awake() {
-			light = this.TryGetComponent<Light>();
+			lightComponent = this.TryGetComponent<Light>();
 			targetIntensity = MaxIntensity;
-			light.intensity = MinIntensity;
+			lightComponent.intensity = MinIntensity;
 		}
 
 		private void Update() {
 			if (!Oscillating)
 				return;
 
-			light.intensity = Mathf.Lerp(light.intensity, targetIntensity, OscillateSpeed * UnityEngine.Time.deltaTime);
+			lightComponent.intensity = Mathf.Lerp(lightComponent.intensity, targetIntensity, OscillateSpeed * UnityEngine.Time.deltaTime);
 			UpdateTargetIntensity();
 		}
 
 		private void UpdateTargetIntensity() {
-			if (Mathf.Abs(targetIntensity - light.intensity) >= ChangeMargin)
+			if (Mathf.Abs(targetIntensity - lightComponent.intensity) >= ChangeMargin)
 				return;
-			
+
 			targetIntensity = increasing ? MinIntensity : MaxIntensity;
 			increasing = !increasing;
 		}
+
 		/// <summary>
 		/// Start oscillating towards <see cref="MaxIntensity"/>
 		/// </summary>
@@ -81,6 +82,7 @@ namespace PXL.Utility {
 		public void StopOscillating() {
 			Oscillating = false;
 		}
+
 	}
 
 }

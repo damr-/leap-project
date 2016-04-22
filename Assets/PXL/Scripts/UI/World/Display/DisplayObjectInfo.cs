@@ -47,8 +47,8 @@ namespace PXL.UI.World.Display {
 
 		protected override void HandleMoved(MovementInfo movementInfo) {
 			PositionText.text = "x:" + movementInfo.NewPosition.x.ToString("0.000") +
-								"\ny: " + movementInfo.NewPosition.y.ToString("0.000") +
-								"\nz: " + movementInfo.NewPosition.z.ToString("0.000");
+			                    "\ny: " + movementInfo.NewPosition.y.ToString("0.000") +
+			                    "\nz: " + movementInfo.NewPosition.z.ToString("0.000");
 		}
 
 		protected virtual void Update() {
@@ -59,9 +59,10 @@ namespace PXL.UI.World.Display {
 			}
 			var dir = throwableObject.GetMotionDirection();
 			ThrowStateText.text = "drop delay: " + (throwableObject.Grabbable.EnableDropDelay ? "Yes" : "No") + "\n" +
-									dir.x.ToString("0.00") + ", " + dir.y.ToString("0.00") + ", " + dir.z.ToString("0.00") + "\n" +
-									dir.magnitude.ToString("0.00") + "\n";
+			                      dir.x.ToString("0.00") + ", " + dir.y.ToString("0.00") + ", " + dir.z.ToString("0.00") + "\n" +
+			                      dir.magnitude.ToString("0.00") + "\n";
 		}
+
 	}
 
 }

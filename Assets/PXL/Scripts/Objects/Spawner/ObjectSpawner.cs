@@ -237,7 +237,7 @@ namespace PXL.Objects.Spawner {
 		/// Checks if the Admin-mode is active and a key is pressed
 		/// </summary>
 		protected virtual void Update() {
-			if (!AdminUiBase.IsAdmin)
+			if (!AdminBase.IsAdmin)
 				return;
 
 			if (Input.GetKeyDown(SpawnKey))

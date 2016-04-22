@@ -33,7 +33,7 @@ namespace PXL.UI {
 		/// Called by the button when it's clicked
 		/// </summary>
 		public void ToggleMode() {
-			AdminUiBase.ToggleMode();
+			AdminBase.ToggleMode();
 		}
 
 	}

@@ -1,11 +1,13 @@
 ﻿using System;
 using PXL.Gamemodes;
+using PXL.Utility;
 using UniRx;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace PXL.UI.World.Display {
 
-	public class DisplayTime : DisplayTextBase {
+	public class DisplayTime : MonoBehaviour {
 
 		/// <summary>
 		/// Whether the timer starts as soon as this component is activated
@@ -13,7 +15,7 @@ namespace PXL.UI.World.Display {
 		public bool AutoStart;
 
 		/// <summary>
-		/// Subscription for when the game is won
+		/// Disposable for the gamestate to detect when the game is won
 		/// </summary>
 		private IDisposable gameWinDisposable = Disposable.Empty;
 
@@ -26,6 +28,14 @@ namespace PXL.UI.World.Display {
 		/// The timespan for displaying the time
 		/// </summary>
 		private TimeSpan timeSpan;
+		
+		/// <summary>
+		/// The Text Component of this GameObject
+		/// </summary>
+		protected Text Text {
+			get { return mText ?? (mText = this.TryGetComponent<Text>()); }
+		}
+		private Text mText;
 
 		private void OnDisable() {
 			gameWinDisposable.Dispose();

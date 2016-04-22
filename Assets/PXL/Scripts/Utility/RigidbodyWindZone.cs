@@ -7,8 +7,14 @@ namespace PXL.Utility {
 
 	public class RigidbodyWindZone : ObjectArea {
 
+		/// <summary>
+		/// The force which gets applied to objects inside this area
+		/// </summary>
 		public Vector3 Force;
 
+		/// <summary>
+		/// The maximum speed an object can have
+		/// </summary>
 		[Range(0.1f, 10f)]
 		public float MaxSpeed;
 
