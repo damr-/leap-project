@@ -18,7 +18,10 @@ namespace PXL.UI.World.Display {
 		/// <summary>
 		/// The Image where the data will be drawn
 		/// </summary>
-		protected RawImage RawImage { get { return mRawImage ?? (mRawImage = this.TryGetComponent<RawImage>()); } }
+		protected RawImage RawImage {
+			get { return mRawImage ?? (mRawImage = this.TryGetComponent<RawImage>()); }
+		}
+
 		private RawImage mRawImage;
 
 		/// <summary>
@@ -26,9 +29,6 @@ namespace PXL.UI.World.Display {
 		/// </summary>
 		public RectTransform CanvasTransform;
 
-		/// <summary>
-		/// Sets up the subscription
-		/// </summary>
 		private void Start() {
 			FluencyObserver.AssertNotNull("Missing FluencyObserver!");
 			CanvasTransform.AssertNotNull("Missing Canvas RectTransform!");
@@ -53,7 +53,7 @@ namespace PXL.UI.World.Display {
 		private Texture2D CreateTexture() {
 			var width = (int)CanvasTransform.rect.width;
 			var height = (int)CanvasTransform.rect.height;
-            var texture = new Texture2D(width, height);
+			var texture = new Texture2D(width, height);
 			return texture;
 		}
 
@@ -69,17 +69,14 @@ namespace PXL.UI.World.Display {
 
 			var maxSpeed = speedData.Max();
 
-			var width = texture.width;
-			var height = texture.height;
-
 			var dataIndex = 0;
 
 			var lastPositionPos = 0;
 			var lastTimePos = 0;
 
-			for (var i = 0; i < width; i++) {
-				var timePos = (int)timeData.ElementAt(dataIndex).Remap(startTime, stopTime, 0, width);
-				var positionPos = (int)speedData.ElementAt(dataIndex).Remap(0, maxSpeed, 0, height);
+			for (var i = 0; i < texture.width; i++) {
+				var timePos = (int)timeData.ElementAt(dataIndex).Remap(startTime, stopTime, 0, texture.width);
+				var positionPos = (int)speedData.ElementAt(dataIndex).Remap(0, maxSpeed, 0, texture.height);
 
 				//Set pixel at fixed position
 				if (i == timePos) {
@@ -90,8 +87,8 @@ namespace PXL.UI.World.Display {
 				}
 				//interpolate between last and next fixed position
 				else {
-					var alpha = ((float) i).Remap(lastTimePos, timePos, 0, 1);
-                    var currentPositionPos = (int)Mathf.Lerp(lastPositionPos, positionPos, alpha);
+					var alpha = ((float)i).Remap(lastTimePos, timePos, 0, 1);
+					var currentPositionPos = (int)Mathf.Lerp(lastPositionPos, positionPos, alpha);
 					PaintPixelArea(texture, i, currentPositionPos, Color.red);
 				}
 			}
@@ -109,6 +106,7 @@ namespace PXL.UI.World.Display {
 				}
 			}
 		}
+
 	}
 
 }

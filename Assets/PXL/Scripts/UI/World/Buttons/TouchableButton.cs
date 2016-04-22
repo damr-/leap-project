@@ -19,6 +19,7 @@ namespace PXL.UI.World.Buttons {
 		public Image Image {
 			get { return mImage ?? (mImage = GetComponentInChildren<Image>()); }
 		}
+
 		private Image mImage;
 
 		/// <summary>
@@ -27,6 +28,7 @@ namespace PXL.UI.World.Buttons {
 		public Button Button {
 			get { return mButton ?? (mButton = GetComponentInChildren<Button>()); }
 		}
+
 		private Button mButton;
 
 		/// <summary>
@@ -35,6 +37,7 @@ namespace PXL.UI.World.Buttons {
 		protected Touchable Touchable {
 			get { return mTouchable ?? (mTouchable = this.TryGetComponent<Touchable>()); }
 		}
+
 		private Touchable mTouchable;
 
 		/// <summary>
@@ -63,51 +66,24 @@ namespace PXL.UI.World.Buttons {
 		protected Fingertip Fingertip;
 
 		/// <summary>
-		/// The position of the finger when it starts to press the button
+		/// How close the finger has to be to the button for it to be pressed
 		/// </summary>
-		private Vector3 initialFingerPos;
+		protected float PressDistance = 0.025f;
 
-		/// <summary>
-		/// The default position of the button
-		/// </summary>
-		private Vector3 defaultButtonPos;
-
-		/// <summary>
-		/// How far the finger has to move for the button to be pressed
-		/// </summary>
-		protected float PressDistance = 0.3f;
+		private bool isPressed;
 
 		protected virtual void Start() {
 			Touchable.FingerEntered.Subscribe(HandleFingerEntered);
 			Touchable.FingerLeft.Subscribe(HandleFingerLeft);
-			defaultButtonPos = transform.localPosition;
 			DefaultColor = Image.color;
 		}
 
 		protected virtual void Update() {
-			if (Fingertip == null)
+			if (Fingertip == null || isPressed)
 				return;
 
-			var fingerDeltaPosition = Fingertip.transform.position - initialFingerPos;
-
-			transform.localPosition =
-				new Vector3(
-					transform.localPosition.x,
-					transform.localPosition.y,
-					defaultButtonPos.z + fingerDeltaPosition.magnitude
-					);
-
-			var buttonDistance = transform.localPosition.z - defaultButtonPos.z;
-
-			//if (transform.localPosition.z < defaultButtonPos.z) {
-			//	Debug.Log("ABORT");
-			//	HandleFingerLeft(new FingerInfo(FingerTip, null));
-			//}
-
-			if (buttonDistance > PressDistance) {
-				Debug.LogWarning("PRESSED!!!");
+			if (Vector3.Distance(Fingertip.transform.position, transform.position) < PressDistance)
 				HandleFingerPressed();
-			}
 		}
 
 		protected virtual void HandleFingerEntered(FingerInfo fingerInfo) {
@@ -119,17 +95,16 @@ namespace PXL.UI.World.Buttons {
 
 			Image.color = HoverColor;
 			Fingertip = fingerInfo.Fingertip;
-			initialFingerPos = Fingertip.transform.position;
+			isPressed = false;
 		}
 
 		protected virtual void HandleFingerLeft(FingerInfo fingerInfo) {
 			Image.color = DefaultColor;
-			transform.localPosition = defaultButtonPos;
+			isPressed = false;
 		}
 
 		protected virtual void HandleFingerPressed() {
-			transform.localPosition = defaultButtonPos;
-			Image.color = new Color(0, 1, 0);
+			isPressed = true;
 		}
 
 		/// <summary>

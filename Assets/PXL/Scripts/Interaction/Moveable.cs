@@ -80,10 +80,7 @@ namespace PXL.Interaction {
 		/// The rotation of the object in the previous frame
 		/// </summary>
 		private Vector3 oldRotation;
-
-		/// <summary>
-		/// Sets up subscriptions
-		/// </summary>
+		
 		private void Start() {
 			lastPosition = transform.position;
 		}

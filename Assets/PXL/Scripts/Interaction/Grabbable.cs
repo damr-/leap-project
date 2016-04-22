@@ -84,21 +84,15 @@ namespace PXL.Interaction {
 		private const float MaxNoGrabTime = 0.15f;
 
 		/// <summary>
-		/// Subscription to setting the parent null interval
+		/// Disposable to setting the parent null interval
 		/// </summary>
 		private IDisposable unparentDisposable = Disposable.Empty;
-
-		/// <summary>
-		/// Sets up the subscriptions
-		/// </summary>
+		
 		private void Start() {
 			Touchable.FingerEntered.Subscribe(HandleFingerEntered);
 			Touchable.FingerLeft.Subscribe(HandleFingerLeft);
 		}
-
-		/// <summary>
-		/// Updates the state of the object
-		/// </summary>
+		
 		private void Update() {
 			if (!IsGrabbed) {
 				if (CurrentHand.IsHandValid() && GrabbingHandsManager.CanHandGrab(CurrentHand) &&

@@ -117,9 +117,9 @@ namespace PXL.Objects.Spawner {
 		public ObservableProperty<int> TotalDespawnCount = new ObservableProperty<int>();
 
 		/// <summary>
-		/// All subscriptions to every spawned object's Destroy-Observable
+		/// All disposables to every spawned object's Destroy-Observable
 		/// </summary>
-		private readonly IDictionary<GameObject, IDisposable> objectDestroySubscriptions = new Dictionary<GameObject, IDisposable>();
+		private readonly IDictionary<GameObject, IDisposable> objectDestroyDisposables = new Dictionary<GameObject, IDisposable>();
 
 		/// <summary>
 		/// Invoked when the object scale changes
@@ -170,27 +170,27 @@ namespace PXL.Objects.Spawner {
 		public GameObject CurrentObjectPrefab { get; private set; }
 
 		/// <summary>
-		/// Subscription for spawning new objects when all got removed
+		/// Disposable for spawning new objects when all got removed
 		/// </summary>
 		private IDisposable removeAllDisposable = Disposable.Empty;
 
 		/// <summary>
-		/// The subscription before starting to spawn
+		/// The disposable before starting to spawn
 		/// </summary>
 		private IDisposable startSpawnDelayDisposable = Disposable.Empty;
 
 		/// <summary>
-		/// The subscription for the interval to spawn the start amount of objects
+		/// The disposable for the interval to spawn the start amount of objects
 		/// </summary>
 		private IDisposable startSpawnDisposable = Disposable.Empty;
 
 		/// <summary>
-		/// The subscription for the respawn delay
+		/// The disposable for the respawn delay
 		/// </summary>
 		private IDisposable respawnDelayDisposable = Disposable.Empty;
 
 		/// <summary>
-		/// The subscription for the respawn of all objects
+		/// The disposable for the respawn of all objects
 		/// </summary>
 		private IDisposable respawnDisposable = Disposable.Empty;
 
@@ -357,12 +357,12 @@ namespace PXL.Objects.Spawner {
 			health.AssertNotNull("Object is missing a Health component!");
 
 			var disposable = health.Death.Subscribe(_ => {
-				objectDestroySubscriptions[health.gameObject].Dispose();
-				objectDestroySubscriptions.Remove(health.gameObject);
+				objectDestroyDisposables[health.gameObject].Dispose();
+				objectDestroyDisposables.Remove(health.gameObject);
 				HandleObjectDespawned(interactiveObject);
 			});
 
-			objectDestroySubscriptions.Add(new KeyValuePair<GameObject, IDisposable>(newObject, disposable));
+			objectDestroyDisposables.Add(new KeyValuePair<GameObject, IDisposable>(newObject, disposable));
 
 			SpawnedObjects.Add(interactiveObject);
 
@@ -413,7 +413,7 @@ namespace PXL.Objects.Spawner {
 			startSpawnDisposable.Dispose();
 			respawnDelayDisposable.Dispose();
 			respawnDisposable.Dispose();
-            foreach (var entry in objectDestroySubscriptions) {
+            foreach (var entry in objectDestroyDisposables) {
 				entry.Value.Dispose();
 			}
 		}

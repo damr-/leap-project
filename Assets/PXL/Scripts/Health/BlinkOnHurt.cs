@@ -47,7 +47,7 @@ namespace PXL.Health {
 		private Material defaultMaterial;
 
 		/// <summary>
-		/// The subscription for the blink timer
+		/// The disposable for the blink timer
 		/// </summary>
 		private IDisposable blinkDisposable = Disposable.Empty;
 		

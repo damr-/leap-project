@@ -17,12 +17,12 @@ namespace PXL.UI.World.Buttons {
 		/// <summary>
 		/// The color for the progress image sprite when the button is being touched
 		/// </summary>
-		public Color Touched = new Color(76 / 255f, 176 / 255f, 76 / 255f, 1f);
+		public Color TouchedColor = new Color(76 / 255f, 176 / 255f, 76 / 255f, 1f);
 
 		/// <summary>
 		/// The color for the progress image sprite when touching the button is cancelled
 		/// </summary>
-		public Color TouchCancelled = new Color(176 / 255f, 76 / 255f, 76 / 255f, 1f);
+		public Color TouchCancelledColor = new Color(176 / 255f, 76 / 255f, 76 / 255f, 1f);
 
 		/// <summary>
 		/// How long the finger has to stay for the button to be clicked
@@ -35,7 +35,7 @@ namespace PXL.UI.World.Buttons {
 		protected float StartTime;
 
 		/// <summary>
-		/// Disposable for the timer when the progress image flashes in <see cref="TouchCancelled"/> color because the finger left too early
+		/// Disposable for the timer when the progress image flashes in <see cref="TouchCancelledColor"/> color because the finger left too early
 		/// </summary>
 		protected IDisposable CancelledFlashDisposable = Disposable.Empty;
 
@@ -62,7 +62,7 @@ namespace PXL.UI.World.Buttons {
 			base.HandleFingerPressed();
 
 			CancelledFlashDisposable.Dispose();
-			ProgressImage.color = Touched;
+			ProgressImage.color = TouchedColor;
 			StartTime = Time.time;
 		}
 
@@ -72,7 +72,7 @@ namespace PXL.UI.World.Buttons {
 
 			base.HandleFingerLeft(fingerInfo);
 
-			ProgressImage.color = TouchCancelled;
+			ProgressImage.color = TouchCancelledColor;
 			CancelledFlashDisposable.Dispose();
 			CancelledFlashDisposable = Observable.Timer(TimeSpan.FromSeconds(0.5f)).Subscribe(_ => {
 				ProgressImage.fillAmount = 0;
