@@ -3,7 +3,7 @@ using UnityEngine.UI;
 
 namespace PXL.UI.Admin {
 
-	public class MenuElement : AdminUiBase {
+	public class MenuElement : AdminBase {
 
 		/// <summary>
 		/// The Image component of the background/panel
@@ -31,7 +31,6 @@ namespace PXL.UI.Admin {
 					BackgroundImage.color = value ? SelectedColor : DefaultColor;
 			}
 		}
-
 		private bool mIsSelected;
 
 		protected override void Start() {

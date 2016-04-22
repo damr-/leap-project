@@ -56,7 +56,7 @@ namespace PXL.Objects.Areas {
 		private Color defaultColor;
 
 		/// <summary>
-		/// Subscription for resetting the light to <see cref="defaultColor"/>
+		/// Disposable for resetting the light to <see cref="defaultColor"/>
 		/// </summary>
 		private IDisposable lightDisposable = Disposable.Empty;
 

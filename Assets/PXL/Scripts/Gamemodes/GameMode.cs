@@ -5,25 +5,26 @@ namespace PXL.Gamemodes {
 
 	public static class GameMode {
 
+		/// <summary>
+		/// The current, observable state of the game
+		/// </summary>
 		public static ObservableProperty<bool> GameOver = new ObservableProperty<bool>();
 
 		/// <summary>
 		/// Invoked when the game is won
 		/// </summary>
 		public static IObservable<Unit> GameWon {
-			get { return _gameWonSubject; }
+			get { return GameWonSubject; }
 		}
-
-		private static readonly ISubject<Unit> _gameWonSubject = new Subject<Unit>();
+		private static readonly ISubject<Unit> GameWonSubject = new Subject<Unit>();
 
 		/// <summary>
 		/// Invoked when the game is lost
 		/// </summary>
 		public static IObservable<Unit> GameLost {
-			get { return _gameLostSubject; }
+			get { return GameLostSubject; }
 		}
-
-		private static readonly ISubject<Unit> _gameLostSubject = new Subject<Unit>();
+		private static readonly ISubject<Unit> GameLostSubject = new Subject<Unit>();
 
 		/// <summary>
 		/// If the game has multiple conditions, the game is won as soon as <see cref="CurrentPoints"/> is >= <see cref="WinPoints"/>.
@@ -41,9 +42,9 @@ namespace PXL.Gamemodes {
 		public static void SetGameWon(bool won) {
 			GameOver.Value = true;
 			if (won)
-				_gameWonSubject.OnNext(Unit.Default);
+				GameWonSubject.OnNext(Unit.Default);
 			else
-				_gameLostSubject.OnNext(Unit.Default);
+				GameLostSubject.OnNext(Unit.Default);
 		}
 
 		/// <summary>
@@ -55,7 +56,7 @@ namespace PXL.Gamemodes {
 
 		/// <summary>
 		/// Adds the given amount of points to <see cref="CurrentPoints"/> and 
-		/// calls <see cref="SetGameOver"/> if <see cref="CurrentPoints"/> >= <see cref="WinPoints"/>
+		/// calls <see cref="SetGameWon"/> if <see cref="CurrentPoints"/> >= <see cref="WinPoints"/>
 		/// </summary>
 		public static void AddPoints(int points) {
 			CurrentPoints += points;

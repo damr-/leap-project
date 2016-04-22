@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace PXL.UI.Admin {
 
-	public class SetupSpawnerElements : AdminUiBase {
+	public class SetupSpawnerElements : AdminBase {
 
 		/// <summary>
 		/// Prefab for the spawned UI element

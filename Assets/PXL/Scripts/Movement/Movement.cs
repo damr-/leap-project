@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace PXL.Controls {
+namespace PXL.Movement {
 
 	public class Movement : MonoBehaviour {
 

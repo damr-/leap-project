@@ -31,7 +31,7 @@ namespace PXL.Utility.Toggle {
 		}
 
 		private void TrySetState(bool isEnabled) {
-			if (OnlyAdmin && !AdminUiBase.IsAdmin)
+			if (OnlyAdmin && !AdminBase.IsAdmin)
 				return;
 
 			IsToggled.Value = isEnabled;

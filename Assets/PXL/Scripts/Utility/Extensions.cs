@@ -112,14 +112,14 @@ namespace PXL.Utility {
 		/// Returns the cleared list by removing all null entries and inactive scene objects. Also removes duplicates
 		/// </summary>
 		public static void PurgeIfNecessary<T>(ref List<T> list) where T : Component {
-			if (list.PurgeNeeded())
+			if (list.IsPurgeNeeded())
 				list = list.Where(c => c != null && c.gameObject != null && c.gameObject.activeInHierarchy).Distinct().ToList();
 		}
 
 		/// <summary>
 		/// Returns whether the given list has to be purged
 		/// </summary>
-		private static bool PurgeNeeded<T>(this IEnumerable<T> list) where T : Component {
+		private static bool IsPurgeNeeded<T>(this IEnumerable<T> list) where T : Component {
 			return list.Any(element => element == null || element.gameObject == null || !element.gameObject.activeInHierarchy);
 		}
 

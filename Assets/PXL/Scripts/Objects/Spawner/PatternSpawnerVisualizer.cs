@@ -50,7 +50,7 @@ namespace PXL.Objects.Spawner {
 		public List<Transform> RandomPreviewObjects = new List<Transform>();
 
 		/// <summary>
-		/// Subscription for manually updating the preview
+		/// Disposable for manually updating the preview
 		/// </summary>
 		private IDisposable timeDisposable = Disposable.Empty;
 

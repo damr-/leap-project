@@ -54,7 +54,6 @@ namespace PXL.Objects.Cup {
 		private Grabbable Grabbable {
 			get { return mGrabbable ?? (mGrabbable = GetComponentInParent<Grabbable>()); }
 		}
-
 		private Grabbable mGrabbable;
 
 		/// <summary>

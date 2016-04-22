@@ -1,10 +1,12 @@
 ﻿using UnityEngine;
 using UniRx;
 using PXL.Objects.Areas;
+using PXL.Utility;
+using UnityEngine.UI;
 
 namespace PXL.UI.World.Display {
 
-	public class DisplayDestroyAreaAmount : DisplayTextBase {
+	public class DisplayDestroyAreaAmount : MonoBehaviour {
 
 		/// <summary>
 		/// The referenced DestroyArea
@@ -21,9 +23,15 @@ namespace PXL.UI.World.Display {
 		/// </summary>
 		public Color EnoughColor = Color.green;
 
-		protected override void Start() {
-			base.Start();
+		/// <summary>
+		/// The Text Component of this GameObject
+		/// </summary>
+		protected Text Text {
+			get { return mText ?? (mText = this.TryGetComponent<Text>()); }
+		}
+		private Text mText;
 
+		protected virtual void Start() {
 			DestroyArea.CurrentDestroyAmount.Subscribe(CurrentDestroyAmountChanged);
 			DestroyArea.GoalReached.Subscribe(_ => HandleGoalReached());
 			Text.color = DefaultColor;

@@ -100,18 +100,19 @@ namespace PXL.UI.World.Display {
 		/// Resets the displayed information to the default state
 		/// </summary>
 		public void ResetInformation() {
-			foreach (var distanceText in DistanceTexts) {
+			foreach (var distanceText in DistanceTexts)
 				distanceText.text = "0.000";
-			}
-			foreach (var picksText in PicksTexts) {
+
+			foreach (var picksText in PicksTexts)
 				picksText.text = "0";
-			}
-			foreach (var dropsText in DropsTexts) {
+
+			foreach (var dropsText in DropsTexts)
 				dropsText.text = "0";
-			}
+
 			DisplayTime.ResetTimer();
 			DisplayTime.StopTimer();
-        }
+		}
 
 	}
+
 }
