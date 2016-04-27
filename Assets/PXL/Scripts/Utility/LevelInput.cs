@@ -28,7 +28,7 @@ namespace PXL.Utility {
 		/// All the names of the scenes and the corresponding keys to load them
 		/// </summary>
 		public List<SceneInfo> SceneInfos = new List<SceneInfo>();
-		
+
 		private void Update() {
 			if (isLoading)
 				return;
@@ -41,8 +41,7 @@ namespace PXL.Utility {
 			}
 
 			if (Input.GetKeyDown(RestartKey)) {
-				var currentLevel = SceneManager.GetActiveScene().buildIndex;
-				StartLoadLevel(currentLevel);
+				StartReloadLevel();
 			}
 
 			if (Input.GetKeyDown(QuitKey)) {
@@ -51,13 +50,21 @@ namespace PXL.Utility {
 		}
 
 		/// <summary>
-		/// Starts to load the level with the given index
+		/// Starts to load the level with the given index asynchronously
 		/// </summary>
 		public void StartLoadLevel(int levelIndex) {
 			if (isLoading)
 				return;
 
 			StartCoroutine(CallLoad(levelIndex));
+		}
+
+		/// <summary>
+		/// Starts to reload the current level asynchronously
+		/// </summary>
+		public void StartReloadLevel() {
+			var currentLevel = SceneManager.GetActiveScene().buildIndex;
+			StartLoadLevel(currentLevel);
 		}
 
 		/// <summary>

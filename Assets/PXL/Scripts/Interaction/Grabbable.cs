@@ -47,6 +47,11 @@ namespace PXL.Interaction {
 		public HandModel CurrentHand { get; private set; }
 
 		/// <summary>
+		/// Whether this object can be grabbed
+		/// </summary>
+		public bool CanBeGrabbed { get; set; }
+
+		/// <summary>
 		/// The hand interacting with this object
 		/// </summary>
 		public InteractionHand InteractionHand {
@@ -89,11 +94,15 @@ namespace PXL.Interaction {
 		private IDisposable unparentDisposable = Disposable.Empty;
 		
 		private void Start() {
+			CanBeGrabbed = true;
 			Touchable.FingerEntered.Subscribe(HandleFingerEntered);
 			Touchable.FingerLeft.Subscribe(HandleFingerLeft);
 		}
 		
 		private void Update() {
+			if (!CanBeGrabbed)
+				return;
+
 			if (!IsGrabbed) {
 				if (CurrentHand.IsHandValid() && GrabbingHandsManager.CanHandGrab(CurrentHand) &&
 					Touchable.AreEnoughFingersAndIsThumbTouching(CurrentHand, MinFingerCount)) {

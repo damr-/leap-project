@@ -34,7 +34,7 @@ namespace PXL.Gamemodes {
 		/// <summary>
 		/// The current amount of points
 		/// </summary>
-		public static int CurrentPoints = 0;
+		public static int CurrentPoints;
 
 		/// <summary>
 		/// Sets <see cref="GameOver"/> to true and invokes observables
@@ -51,6 +51,7 @@ namespace PXL.Gamemodes {
 		/// Sets <see cref="WinPoints"/> to the given value
 		/// </summary>
 		public static void SetWinPoints(int points) {
+			CurrentPoints = 0;
 			WinPoints = points;
 		}
 
@@ -65,6 +66,7 @@ namespace PXL.Gamemodes {
 				SetGameWon(true);
 			}
 		}
+
 	}
 
 }
