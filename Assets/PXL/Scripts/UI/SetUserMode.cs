@@ -11,7 +11,7 @@ namespace PXL.UI {
 		public UserMode InitialMode;
 
 		private void Start() {
-			AdminBase.Mode = InitialMode;
+			AdminBase.Mode.Value = InitialMode;
 		}
 
 	}

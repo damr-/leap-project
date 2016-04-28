@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using PXL.Objects.Spawner;
+using PXL.Utility;
 using UnityEngine;
 
 namespace PXL.UI.Admin {
@@ -11,7 +12,7 @@ namespace PXL.UI.Admin {
 	/// </summary>
 	public enum UserMode {
 		Admin = 0,
-		Rehabilitee = 1
+		User = 1
 	}
 
 	public abstract class AdminBase : MonoBehaviour {
@@ -19,7 +20,7 @@ namespace PXL.UI.Admin {
 		/// <summary>
 		/// The currently active mode
 		/// </summary>
-		public static UserMode Mode { get; set; }
+		public static ObservableProperty<UserMode> Mode = new ObservableProperty<UserMode>();
 
 		/// <summary>
 		/// Returns whether the admin mode is active
@@ -41,7 +42,7 @@ namespace PXL.UI.Admin {
 		/// Sets the current mode to the next one in the available <see cref="UserMode"/>
 		/// </summary>
 		public static void ToggleMode() {
-			Mode = (UserMode) ((int) ++Mode % Enum.GetNames(typeof(UserMode)).Length);
+			Mode.Value = (UserMode)((int)++Mode.Value % Enum.GetNames(typeof(UserMode)).Length);
 		}
 
 	}

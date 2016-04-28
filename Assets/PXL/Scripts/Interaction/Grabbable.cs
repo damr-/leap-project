@@ -14,7 +14,7 @@ namespace PXL.Interaction {
 		/// <summary>
 		/// The position where the object was grabbed
 		/// </summary>
-		public Vector3 PickupPosition;
+		public Vector3 PickupPosition { get; set; }
 
 		/// <summary>
 		/// The minimum fingers necessary to pick up the object
@@ -76,7 +76,7 @@ namespace PXL.Interaction {
 		/// <summary>
 		/// Whether the delay on dropping an object is enabled
 		/// </summary>
-		public bool EnableDropDelay = true;
+		public bool EnableDropDelay { get; set; }
 
 		/// <summary>
 		/// For how many seconds the grab strength has been 0 while the object is grabbed
@@ -92,13 +92,13 @@ namespace PXL.Interaction {
 		/// Disposable to setting the parent null interval
 		/// </summary>
 		private IDisposable unparentDisposable = Disposable.Empty;
-		
+
 		private void Start() {
 			CanBeGrabbed = true;
 			Touchable.FingerEntered.Subscribe(HandleFingerEntered);
 			Touchable.FingerLeft.Subscribe(HandleFingerLeft);
 		}
-		
+
 		private void Update() {
 			if (!CanBeGrabbed)
 				return;

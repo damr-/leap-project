@@ -77,9 +77,8 @@ namespace PXL.Objects.Spawner {
 			EditorApplication.playmodeStateChanged += StateChange;
 			RemoveAllPreviewObjects();
 
-			if (!EditorApplication.isPlayingOrWillChangePlaymode && !EditorApplication.isPlaying) {
+			if (!EditorApplication.isPlayingOrWillChangePlaymode && !EditorApplication.isPlaying)
 				StartUpdating();
-			}
 		}
 
 		/// <summary>
@@ -123,9 +122,8 @@ namespace PXL.Objects.Spawner {
 		/// </summary>
 		private void RemovePreviewObjects() {
 			Extensions.PurgeIfNecessary(ref PreviewObjects);
-			while (PreviewObjects.Count > 0) {
+			while (PreviewObjects.Count > 0)
 				PreviewObjects.DestroyElement(0);
-			}
 		}
 
 		/// <summary>
@@ -133,14 +131,12 @@ namespace PXL.Objects.Spawner {
 		/// </summary>
 		private void RemoveRandomPreviewObjects() {
 			Extensions.PurgeIfNecessary(ref RandomPreviewObjects);
-			while (RandomPreviewObjects.Count > 0) {
+			while (RandomPreviewObjects.Count > 0)
 				RandomPreviewObjects.DestroyElement(0);
-			}
 
 			Extensions.PurgeIfNecessary(ref PossiblyRandomPreviewObjects);
-			while (PossiblyRandomPreviewObjects.Count > 0) {
+			while (PossiblyRandomPreviewObjects.Count > 0)
 				PossiblyRandomPreviewObjects.DestroyElement(0);
-			}
 		}
 
 		/// <summary>
@@ -203,16 +199,15 @@ namespace PXL.Objects.Spawner {
 				var newObject = (GameObject)Instantiate(prefab, transform.position, Quaternion.identity);
 				newObject.transform.SetParent(transform, true);
 
-				var name = newObject.gameObject.name;
-				var index = name.IndexOf("(");
+				var newObjectName = newObject.gameObject.name;
+				var index = newObjectName.IndexOf("(");
 				if (index != -1)
-					newObject.name = name.Remove(index);
+					newObject.name = newObjectName.Remove(index);
 
 				existingPreviewObjects.Add(newObject.transform);
 			}
-			while (existingPreviewObjects.Count > desiredAmount) {
+			while (existingPreviewObjects.Count > desiredAmount)
 				existingPreviewObjects.DestroyElement(0);
-			}
 		}
 
 		/// <summary>
@@ -225,5 +220,4 @@ namespace PXL.Objects.Spawner {
 	}
 
 }
-
 #endif

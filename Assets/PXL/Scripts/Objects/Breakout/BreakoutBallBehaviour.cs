@@ -31,6 +31,9 @@ namespace PXL.Objects.Breakout {
 		/// </summary>
 		public Vector3 BadDirection;
 
+		/// <summary>
+		/// In which direction force should be applied to correct the <see cref="BadDirection"/>
+		/// </summary>
 		public Vector3 CorrectionDirection;
 
 		/// <summary>
@@ -63,9 +66,8 @@ namespace PXL.Objects.Breakout {
 				Rigidbody.velocity = Vector3.forward * Speed;
 
 			var diff = Rigidbody.velocity.magnitude - (Vector3.forward * Speed).magnitude;
-			if (diff < 0) {
+			if (diff < 0)
 				Rigidbody.velocity *= 1.01f - diff;
-			}
 
 			oldVelocity = Rigidbody.velocity;
 		}
@@ -102,6 +104,7 @@ namespace PXL.Objects.Breakout {
 			Rigidbody.useGravity = true;
 			Rigidbody.constraints = RigidbodyConstraints.None;
 		}
+
 	}
 
 }

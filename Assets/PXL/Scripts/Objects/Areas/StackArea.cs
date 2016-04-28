@@ -3,7 +3,6 @@ using System.Linq;
 using PXL.Gamemodes;
 using PXL.Interaction;
 using PXL.Utility;
-using UnityEngine;
 
 namespace PXL.Objects.Areas {
 

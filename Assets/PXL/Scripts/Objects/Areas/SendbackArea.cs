@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using PXL.Gamemodes;
 using PXL.Interaction;
 using PXL.Utility;
 using UnityEngine;
@@ -10,12 +9,17 @@ namespace PXL.Objects.Areas {
 
 		protected List<InteractiveObject> ValidObjects = new List<InteractiveObject>();
 
+		/// <summary>
+		/// The Collider component of this object
+		/// </summary>
+		private Collider Collider {
+			get { return mCollider ?? (mCollider = this.TryGetComponent<Collider>()); }
+		}
+		private Collider mCollider;
+
 		protected override void Update() {
 			base.Update();
-
-			if (GameMode.GameOver || !AreaActive)
-				return;
-
+			
 			Extensions.PurgeIfNecessary(ref ValidObjects);
 
 			foreach (var o in ValidObjects) {
@@ -52,8 +56,11 @@ namespace PXL.Objects.Areas {
 		/// Sends the given object back if the it has a grabbable component and it is stationary.
 		/// </summary>
 		private void TrySendBackObject(InteractiveObject interactiveObject) {
-			var grabbable = interactiveObject.GetComponent<Grabbable>();
+			if (!Collider.bounds.Contains(interactiveObject.transform.position))
+				return;
 
+			var grabbable = interactiveObject.GetComponent<Grabbable>();
+			
 			if (grabbable == null || !grabbable.IsStationary())
 				return;
 

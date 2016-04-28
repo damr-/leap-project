@@ -51,18 +51,23 @@ namespace PXL.Utility {
 		/// </summary>
 		/// <param name="dictionary">The dictionary to look for the component</param>
 		/// <param name="key">The Component as key for the dictionary</param>
-		/// <returns>The Component </returns>
-		public static TV GetOrAdd<TK, TV>(this IDictionary<TK, TV> dictionary, TK key) where TK : Component where TV : class {
+		/// <param name="returnNull">Whether null should be returned instead of throwing an exception, when the component is missing on the target</param>
+		/// <returns>The component of the target or null, if it's missing and <see cref="returnNull"/> is true</returns>
+		public static TV GetOrAdd<TK, TV>(this IDictionary<TK, TV> dictionary, TK key, bool returnNull = false) where TK : Component where TV : class {
 			TV value;
 
 			if (dictionary.TryGetValue(key, out value))
 				return value;
 
 			value = key.GetComponent<TV>();
-			if (value == null)
-				throw new MissingReferenceException("GetOrAdd couldn't get the Component of the object!");
-			dictionary.Add(key, value);
+			
+			if (value == null) {
+				if (returnNull)
+					return null;
+				throw new MissingReferenceException("GetOrAdd couldn't get the component of the object!");
+			}
 
+			dictionary.Add(key, value);
 			return value;
 		}
 

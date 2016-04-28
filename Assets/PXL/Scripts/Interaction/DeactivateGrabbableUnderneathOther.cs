@@ -73,7 +73,7 @@ namespace PXL.Interaction {
 				var ray = new Ray(transform.position + rayOffset, Vector3.up);
 				if (DrawDebugRay)
 					Debug.DrawRay(ray.origin, ray.direction.normalized * 0.2f, Color.red, 1 / UpdateFrequency);
-				RayCast(ray);
+				CastRay(ray);
 			}
 		}
 
@@ -81,7 +81,7 @@ namespace PXL.Interaction {
 		/// Casts the given ray and checks if it hits and object.
 		/// According to the state of the hit object it determines, whether this object will be interactable or not
 		/// </summary>
-		private void RayCast(Ray ray) {
+		private void CastRay(Ray ray) {
 			RaycastHit hit;
 
 			if (!Physics.Raycast(ray, out hit, 0.2f)) {
@@ -93,19 +93,10 @@ namespace PXL.Interaction {
 			if (obj == gameObject)
 				return;
 
-			Grabbable grabbable;
-
-			if (colliderGrabbables.ContainsKey(hit.collider))
-				grabbable = colliderGrabbables[hit.collider];
-			else {
-				grabbable = hit.collider.GetComponent<Grabbable>();
-
-				if (grabbable == null)
-					return;
-
-				colliderGrabbables.Add(hit.collider, grabbable);
-			}
-
+			var grabbable = colliderGrabbables.GetOrAdd(hit.collider, true);
+			if (grabbable == null)
+				return;
+					
 			if (obj.CompareTag(objectTag) && grabbable.IsStationary(0.005f))
 				TrySetGrabbableState(false);
 			else
