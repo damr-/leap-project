@@ -32,7 +32,20 @@ namespace PXL.Utility.Toggle {
 			}
 		}
 
+		/// <summary>
+		/// The ToggleSettings for this object
+		/// </summary>
 		public List<ToggleSetting> Settings = new List<ToggleSetting>();
+
+		protected override void Start() {
+			base.Start();
+
+			Settings.ForEach(s => {
+				s.EnableBehaviours.ForEach(b => b.AssertNotNull("Missing Behaviour reference!"));
+				s.DisableBehaviours.ForEach(b => b.AssertNotNull("Missing Behaviour reference!"));
+				s.ToggleBehaviours.ForEach(b => b.AssertNotNull("Missing Behaviour reference!"));
+			});
+		}
 
 		protected override void HandleGrabbed(Grabbable grabbable) {
 			var validTypeSettings = Settings.Where(s => s.InteractionType == InteractionType.Grab).ToList();

@@ -63,14 +63,14 @@ namespace PXL.Objects.Spawner.Editor {
 			EditorGUILayout.LabelField("New Color: ", EditorStyles.boldLabel, GUILayout.MaxWidth(75));
 			EditorGUILayout.BeginHorizontal();
 			EditorGUILayout.LabelField("Color: ", GUILayout.MaxWidth(50));
-			t.NewColor.Color = EditorGUILayout.ColorField("", t.NewColor.Color, GUILayout.MaxWidth(150));
+			t.NewColor.Color = EditorGUILayout.ColorField("", t.NewColor.Color, GUILayout.MaxWidth(75));
 			EditorGUILayout.LabelField("Name: ", GUILayout.MaxWidth(50));
-			t.NewColor.Name = EditorGUILayout.TextField("", t.NewColor.Name, GUILayout.MaxWidth(150));
-			EditorGUILayout.EndHorizontal();
+			t.NewColor.Name = EditorGUILayout.TextField("", t.NewColor.Name, GUILayout.MaxWidth(75));
 
-			if (GUILayout.Button(new GUIContent("Add", "Adds the given color to the list"))) {
+			if (GUILayout.Button(new GUIContent("Add", "Adds the given color to the list"), GUILayout.MaxWidth(100)))
 				t.AddColor();
-			}
+
+			EditorGUILayout.EndHorizontal();
 			EditorGUILayout.EndVertical();
 
 		}

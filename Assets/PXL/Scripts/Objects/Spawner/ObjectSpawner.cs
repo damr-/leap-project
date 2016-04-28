@@ -7,7 +7,7 @@ using PXL.Utility;
 
 namespace PXL.Objects.Spawner {
 
-	public abstract class ObjectSpawner : MonoBehaviour {
+	public class ObjectSpawner : MonoBehaviour {
 
 		/// <summary>
 		/// The key used to spawn an object
@@ -119,7 +119,8 @@ namespace PXL.Objects.Spawner {
 		/// <summary>
 		/// All disposables to every spawned object's Destroy-Observable
 		/// </summary>
-		private readonly IDictionary<GameObject, IDisposable> objectDestroyDisposables = new Dictionary<GameObject, IDisposable>();
+		private readonly IDictionary<GameObject, IDisposable> objectDestroyDisposables =
+			new Dictionary<GameObject, IDisposable>();
 
 		/// <summary>
 		/// Invoked when the object scale changes
@@ -129,19 +130,25 @@ namespace PXL.Objects.Spawner {
 		/// <summary>
 		/// Invoked when an object is spawned
 		/// </summary>
-		public IObservable<InteractiveObject> ObjectSpawned { get { return objectSpawnedSubject; } }
+		public IObservable<InteractiveObject> ObjectSpawned {
+			get { return objectSpawnedSubject; }
+		}
 		private readonly ISubject<InteractiveObject> objectSpawnedSubject = new Subject<InteractiveObject>();
 
 		/// <summary>
 		/// Invoked when an object is despawned
 		/// </summary>
-		public IObservable<InteractiveObject> ObjectDespawned { get { return objectDespawnedSubject; } }
+		public IObservable<InteractiveObject> ObjectDespawned {
+			get { return objectDespawnedSubject; }
+		}
 		private readonly ISubject<InteractiveObject> objectDespawnedSubject = new Subject<InteractiveObject>();
 
 		/// <summary>
 		/// Invoked when the spawning of an object is initiated
 		/// </summary>
-		public IObservable<Unit> SpawnInitiated { get { return spawnInitiatedSubject; } }
+		public IObservable<Unit> SpawnInitiated {
+			get { return spawnInitiatedSubject; }
+		}
 		private readonly ISubject<Unit> spawnInitiatedSubject = new Subject<Unit>();
 
 		/// <summary>
@@ -153,6 +160,11 @@ namespace PXL.Objects.Spawner {
 		/// The length of the spawn delay when removing all objects
 		/// </summary>
 		private const float RemoveAllSpawnDelay = 0.5f;
+
+		/// <summary>
+		/// How many objects are respawned per second when all objects got removed
+		/// </summary>
+		public float RespawnFrequency = 2f;
 
 		/// <summary>
 		/// Whether the rotation of the objects should be set
@@ -172,7 +184,7 @@ namespace PXL.Objects.Spawner {
 		/// <summary>
 		/// Disposable for spawning new objects when all got removed
 		/// </summary>
-		private IDisposable removeAllDisposable = Disposable.Empty;
+		private IDisposable removeAllDelayDisposable = Disposable.Empty;
 
 		/// <summary>
 		/// The disposable before starting to spawn
@@ -221,10 +233,9 @@ namespace PXL.Objects.Spawner {
 			startSpawnDelayDisposable = Observable.Timer(TimeSpan.FromSeconds(StartSpawnDelay)).Subscribe(_ => {
 				IsSpawningEnabled = true;
 				SpawnObject();
-
-				var counter = 0;
+				
 				startSpawnDisposable = Observable.Interval(TimeSpan.FromSeconds(1f / StartSpawnFrequency)).Subscribe(__ => {
-					if (++counter >= StartAmount) {
+					if (SpawnedObjects.Count >= StartAmount) {
 						startSpawnDisposable.Dispose();
 						return;
 					}
@@ -281,36 +292,33 @@ namespace PXL.Objects.Spawner {
 		}
 
 		/// <summary>
-		/// Spawns new objects as long as the amount of <see cref="SpawnedObjects"/> is less than <see cref="MinObjectAmount"/>
-		/// </summary>
-		private void RespawnWhileTooFew() {
-			respawnDisposable = Observable.Interval(TimeSpan.FromSeconds(0.1f)).Subscribe(__ => {
-				SpawnObject();
-				if (SpawnedObjects.Count >= MinObjectAmount) {
-					respawnDisposable.Dispose();
-				}
-			});
-		}
-
-		/// <summary>
 		/// Prevents spawning and removes all existing objects.
 		/// Enables spawning again after a small delay, if respawning is enabled
 		/// </summary>
 		public virtual void RemoveAllObjects() {
 			IsSpawningEnabled = false;
 
-			while (SpawnedObjects.Count > 0) {
+			while (SpawnedObjects.Count > 0)
 				SpawnedObjects[0].Kill();
-			}
 
-			if (!RespawnOnDepleted) {
+			if (!RespawnOnDepleted)
 				return;
-			}
 
-			removeAllDisposable.Dispose();
-			removeAllDisposable = Observable.Timer(TimeSpan.FromSeconds(RemoveAllSpawnDelay)).Subscribe(_ => {
+			removeAllDelayDisposable.Dispose();
+			removeAllDelayDisposable = Observable.Timer(TimeSpan.FromSeconds(RemoveAllSpawnDelay)).Subscribe(_ => {
 				IsSpawningEnabled = true;
 				RespawnWhileTooFew();
+			});
+		}
+
+		/// <summary>
+		/// Spawns new objects as long as the amount of <see cref="SpawnedObjects"/> is less than <see cref="MinObjectAmount"/>
+		/// </summary>
+		private void RespawnWhileTooFew() {
+			respawnDisposable = Observable.Interval(TimeSpan.FromSeconds(1 / RespawnFrequency)).Subscribe(_ => {
+				SpawnObject();
+				if (SpawnedObjects.Count >= MinObjectAmount)
+					respawnDisposable.Dispose();
 			});
 		}
 
@@ -320,7 +328,6 @@ namespace PXL.Objects.Spawner {
 		public virtual void SpawnObject() {
 			SpawnObject(Vector3.zero);
 		}
-
 
 		/// <summary>
 		/// Initiate the spawning of a new object with the given offset
@@ -366,9 +373,8 @@ namespace PXL.Objects.Spawner {
 
 			SpawnedObjects.Add(interactiveObject);
 
-			if (SpawnedObjectsContainer != null) {
+			if (SpawnedObjectsContainer != null)
 				newObject.transform.SetParent(SpawnedObjectsContainer, true);
-			}
 
 			objectSpawnedSubject.OnNext(interactiveObject);
 		}
@@ -389,9 +395,9 @@ namespace PXL.Objects.Spawner {
 		}
 
 		/// <summary>
-		/// Changes the object scale depending on the given bool and updates the variables
+		/// Changes the object scale to the given new scale
 		/// </summary>
-		private void SetObjectScale(float newScale) {
+		protected void SetObjectScale(float newScale) {
 			if (newScale < MinScaleFactor || newScale > MaxScaleFactor)
 				return;
 			CurrentScaleFactor.Value = newScale;
@@ -407,15 +413,18 @@ namespace PXL.Objects.Spawner {
 			CurrentObjectPrefab = newPrefab;
 		}
 
-		private void OnDisable() {
-			removeAllDisposable.Dispose();
-			startSpawnDelayDisposable.Dispose(); 
+		/// <summary>
+		/// Disposes all disposables
+		/// </summary>
+		protected virtual void OnDisable() {
+			removeAllDelayDisposable.Dispose();
+			startSpawnDelayDisposable.Dispose();
 			startSpawnDisposable.Dispose();
 			respawnDelayDisposable.Dispose();
 			respawnDisposable.Dispose();
-            foreach (var entry in objectDestroyDisposables) {
+
+			foreach (var entry in objectDestroyDisposables)
 				entry.Value.Dispose();
-			}
 		}
 
 	}
