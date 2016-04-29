@@ -15,7 +15,6 @@ namespace PXL.UI.World.Buttons {
 		public Image Image {
 			get { return mImage ?? (mImage = GetComponentInChildren<Image>()); }
 		}
-
 		private Image mImage;
 
 		/// <summary>
@@ -24,7 +23,6 @@ namespace PXL.UI.World.Buttons {
 		public Button Button {
 			get { return mButton ?? (mButton = GetComponentInChildren<Button>()); }
 		}
-
 		private Button mButton;
 
 		/// <summary>
@@ -40,7 +38,7 @@ namespace PXL.UI.World.Buttons {
 		/// <summary>
 		/// The color for the progress image sprite when the the activation process is started
 		/// </summary>
-		private readonly Color touchedColor = new Color(143 / 255f, 255 / 255f, 134 / 255f, 128 / 255f);
+		private readonly Color touchedColor = new Color(143 / 255f, 240 / 255f, 134 / 255f, 128 / 255f);
 
 		/// <summary>
 		/// The color for the progress image sprite when the activation process is cancelled

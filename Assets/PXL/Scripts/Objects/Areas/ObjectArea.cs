@@ -21,8 +21,9 @@ namespace PXL.Objects.Areas {
 		/// </summary>
 		/// <param name="other">The Collider of the overlapping object</param>
 		protected override void HandleValidOther(Collider other) {
-			var interactiveObject = other.TryGetComponent<InteractiveObject>();
-			interactiveObject.AssertNotNull("GameObject '" + other.gameObject.name + "' has tag '" + TargetTag + "' but no component InteractiveObject!");
+			var interactiveObject = other.GetComponent<InteractiveObject>();
+			if (interactiveObject == null)
+				return;
 
 			if (HasCorrectType(interactiveObject)) {
 				HandleValidObjectType(interactiveObject);

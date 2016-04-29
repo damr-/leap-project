@@ -60,9 +60,16 @@ namespace PXL.Interaction {
 			new Vector3(-0.03f, 0f, -0.03f)
 		};
 
+		private void OnEnable() {
+			if (Grabbable != null)
+				Start();
+		}
+
 		private void Start() {
 			objectTag = Tags.GetTagString(Tags.TagType.Object);
+			updateDisposable.Dispose();
 			updateDisposable = Observable.Interval(TimeSpan.FromSeconds(1 / UpdateFrequency)).Subscribe(_ => UpdateState());
+			TrySetGrabbableState(true);
 		}
 
 		private void UpdateState() {
@@ -96,7 +103,7 @@ namespace PXL.Interaction {
 			var grabbable = colliderGrabbables.GetOrAdd(hit.collider, true);
 			if (grabbable == null)
 				return;
-					
+
 			if (obj.CompareTag(objectTag) && grabbable.IsStationary(0.005f))
 				TrySetGrabbableState(false);
 			else
@@ -120,6 +127,7 @@ namespace PXL.Interaction {
 		/// Disposes the update disposable
 		/// </summary>
 		private void OnDisable() {
+			TrySetGrabbableState(true);
 			updateDisposable.Dispose();
 		}
 

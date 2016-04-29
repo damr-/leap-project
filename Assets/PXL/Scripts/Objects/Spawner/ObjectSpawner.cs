@@ -20,6 +20,11 @@ namespace PXL.Objects.Spawner {
 		public KeyCode RemoveAllKey = KeyCode.C;
 
 		/// <summary>
+		/// Whether the input is only registered in admin mode
+		/// </summary>
+		public bool AdminModeRequired;
+
+		/// <summary>
 		/// The GameObject which will be spawned
 		/// </summary>
 		public GameObject DefaultObjectPrefab;
@@ -175,6 +180,11 @@ namespace PXL.Objects.Spawner {
 		/// The rotation of the spawned objects
 		/// </summary>
 		public Vector3 ObjectRotation;
+		
+		/// <summary>
+		/// Whether the objects can be removed at this moment
+		/// </summary>
+		private bool canRemoveObjects = true;
 
 		/// <summary>
 		/// The currently used GameObject for newly spawned objects
@@ -230,6 +240,7 @@ namespace PXL.Objects.Spawner {
 		protected virtual void InitiateInitialSpawns() {
 			IsSpawningEnabled = false;
 
+			canRemoveObjects = false;
 			startSpawnDelayDisposable = Observable.Timer(TimeSpan.FromSeconds(StartSpawnDelay)).Subscribe(_ => {
 				IsSpawningEnabled = true;
 				SpawnObject();
@@ -237,6 +248,7 @@ namespace PXL.Objects.Spawner {
 				startSpawnDisposable = Observable.Interval(TimeSpan.FromSeconds(1f / StartSpawnFrequency)).Subscribe(__ => {
 					if (SpawnedObjects.Count >= StartAmount) {
 						startSpawnDisposable.Dispose();
+						canRemoveObjects = true;
 						return;
 					}
 					SpawnObject();
@@ -248,7 +260,7 @@ namespace PXL.Objects.Spawner {
 		/// Checks if the Admin-mode is active and a key is pressed
 		/// </summary>
 		protected virtual void Update() {
-			if (!AdminBase.IsAdmin)
+			if (AdminModeRequired && !AdminBase.IsAdmin)
 				return;
 
 			if (Input.GetKeyDown(SpawnKey))
@@ -285,6 +297,7 @@ namespace PXL.Objects.Spawner {
 
 			IsSpawningEnabled = false;
 			respawnDelayDisposable.Dispose();
+			canRemoveObjects = false;
 			respawnDelayDisposable = Observable.Timer(TimeSpan.FromSeconds(RespawnDelay)).Subscribe(_ => {
 				IsSpawningEnabled = true;
 				RespawnWhileTooFew();
@@ -296,6 +309,9 @@ namespace PXL.Objects.Spawner {
 		/// Enables spawning again after a small delay, if respawning is enabled
 		/// </summary>
 		public virtual void RemoveAllObjects() {
+			if (!canRemoveObjects)
+				return;
+
 			IsSpawningEnabled = false;
 
 			while (SpawnedObjects.Count > 0)
@@ -305,6 +321,7 @@ namespace PXL.Objects.Spawner {
 				return;
 
 			removeAllDelayDisposable.Dispose();
+			canRemoveObjects = false;
 			removeAllDelayDisposable = Observable.Timer(TimeSpan.FromSeconds(RemoveAllSpawnDelay)).Subscribe(_ => {
 				IsSpawningEnabled = true;
 				RespawnWhileTooFew();
@@ -317,8 +334,10 @@ namespace PXL.Objects.Spawner {
 		private void RespawnWhileTooFew() {
 			respawnDisposable = Observable.Interval(TimeSpan.FromSeconds(1 / RespawnFrequency)).Subscribe(_ => {
 				SpawnObject();
-				if (SpawnedObjects.Count >= MinObjectAmount)
+				if (SpawnedObjects.Count >= MinObjectAmount) {
+					canRemoveObjects = true;
 					respawnDisposable.Dispose();
+				}
 			});
 		}
 

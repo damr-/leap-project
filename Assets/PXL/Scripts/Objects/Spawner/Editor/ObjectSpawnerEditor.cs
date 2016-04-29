@@ -31,18 +31,21 @@ namespace PXL.Objects.Spawner.Editor {
 
 			Header("General Spawner Options");
 
-			EditorGUILayout.BeginHorizontal();
-			EditorGUILayout.LabelField("Spawn object", GUILayout.MaxWidth(150));
+			BeginHorizontalField(new GUIContent("Spawn object", "They key assigned to spawning a new object"), 0);
 			spawner.SpawnKey = (KeyCode)EditorGUILayout.EnumPopup("", spawner.SpawnKey, GUILayout.MaxWidth(150));
 			EditorGUILayout.EndHorizontal();
 
-			EditorGUILayout.BeginHorizontal();
-			EditorGUILayout.LabelField("Remove all objects", GUILayout.MaxWidth(150));
+			BeginHorizontalField(
+				new GUIContent("Remove all objects", "They key assigned to removing all objects spawned by this spawner"), 0);
 			spawner.RemoveAllKey = (KeyCode)EditorGUILayout.EnumPopup("", spawner.RemoveAllKey, GUILayout.MaxWidth(150));
 			EditorGUILayout.EndHorizontal();
 
-			EditorGUILayout.BeginHorizontal();
-			EditorGUILayout.LabelField("Object Prefab", GUILayout.MaxWidth(150));
+			BeginHorizontalField(
+				new GUIContent("Admin Mode required", "Whether admin mode is required for the keyboard input"), 0);
+			spawner.AdminModeRequired = EditorGUILayout.Toggle("", spawner.AdminModeRequired, GUILayout.MaxWidth(20));
+			EditorGUILayout.EndHorizontal();
+
+			BeginHorizontalField(new GUIContent("Object Prefab", "The prefab which will be spawned by default"), 0);
 			spawner.DefaultObjectPrefab =
 				(GameObject)
 					EditorGUILayout.ObjectField("", spawner.DefaultObjectPrefab, typeof(GameObject), false, GUILayout.MaxWidth(150));
@@ -50,19 +53,16 @@ namespace PXL.Objects.Spawner.Editor {
 				EditorGUILayout.HelpBox("Missing prefab!", MessageType.Warning);
 			EditorGUILayout.EndHorizontal();
 
-			EditorGUILayout.BeginHorizontal();
-			EditorGUILayout.LabelField(
+			BeginHorizontalField(
 				new GUIContent("Spawned Objects Container",
-					"The parent for spawned objects. If not set, objects won't have a parent"), GUILayout.MaxWidth(150));
+					"The parent for spawned objects. If not set, objects won't have a parent"), 0);
 			spawner.SpawnedObjectsContainer =
 				(Transform)
 					EditorGUILayout.ObjectField("", spawner.SpawnedObjectsContainer,
 						typeof(Transform), true, GUILayout.MaxWidth(150));
 			EditorGUILayout.EndHorizontal();
 
-			EditorGUILayout.BeginHorizontal();
-			EditorGUILayout.LabelField(new GUIContent("Spawning Enabled", "Whether this spawner can spawn"),
-				GUILayout.MaxWidth(150), GUILayout.MinWidth(150));
+			BeginHorizontalField(new GUIContent("Spawning Enabled", "Whether this spawner can spawn"), 0);
 			spawner.IsSpawningEnabled = EditorGUILayout.Toggle("", spawner.IsSpawningEnabled, GUILayout.MaxWidth(20));
 			EditorGUILayout.EndHorizontal();
 
@@ -77,7 +77,6 @@ namespace PXL.Objects.Spawner.Editor {
 			FloatField(new GUIContent("Start Spawn Frequency",
 				"The frequency which Initial Object Amount objects will be spawned with (after the Initial Spawn Delay)"),
 				ref spawner.StartSpawnFrequency, 0.1f, 10f);
-
 
 
 			spawner.RespawnOnDepleted = EditorGUILayout.BeginToggleGroup(
@@ -105,7 +104,6 @@ namespace PXL.Objects.Spawner.Editor {
 			EditorGUILayout.EndToggleGroup();
 
 
-
 			IntField(new GUIContent("Total Spawn Limit", "The total amount of objects this spawner can spawn in his life"),
 				ref spawner.TotalSpawnLimit, -1, int.MaxValue);
 
@@ -128,7 +126,7 @@ namespace PXL.Objects.Spawner.Editor {
 			spawner.SetObjectRotation = EditorGUILayout.BeginToggleGroup("Set Object Rotation", spawner.SetObjectRotation);
 			EditorGUILayout.BeginHorizontal();
 			EditorGUILayout.LabelField("", GUILayout.MinWidth(25), GUILayout.MaxWidth(25));
-			EditorGUILayout.LabelField("Rotation", GUILayout.MaxWidth(75));
+			EditorGUILayout.LabelField("Rotation", GUILayout.MaxWidth(60));
 			spawner.ObjectRotation = EditorGUILayout.Vector3Field("", spawner.ObjectRotation, GUILayout.MaxWidth(175),
 				GUILayout.MinWidth(175));
 			EditorGUILayout.EndHorizontal();
@@ -165,10 +163,11 @@ namespace PXL.Objects.Spawner.Editor {
 
 		private static void BeginHorizontalField(GUIContent labelContent, int indent) {
 			EditorGUILayout.BeginHorizontal();
-			if(indent > 0)
+			if (indent > 0)
 				EditorGUILayout.LabelField("", GUILayout.MinWidth(indent), GUILayout.MaxWidth(indent));
 			EditorGUILayout.LabelField(labelContent, GUILayout.MaxWidth(150));
 		}
+
 	}
 
 }
