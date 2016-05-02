@@ -16,7 +16,7 @@ namespace PXL.UI.World.Buttons {
 		/// <summary>
 		/// The Image component of this object
 		/// </summary>
-		public Image Image {
+		protected Image Image {
 			get { return mImage ?? (mImage = GetComponentInChildren<Image>()); }
 		}
 		private Image mImage;
@@ -55,7 +55,7 @@ namespace PXL.UI.World.Buttons {
 		/// <summary>
 		/// The default color of the button
 		/// </summary>
-		protected Color DefaultColor;
+		protected Color DefaultColor = Color.clear;
 
 		/// <summary>
 		/// What HandSide a hand has to be of that it can press this button
@@ -76,7 +76,15 @@ namespace PXL.UI.World.Buttons {
 		/// If the button is currently pressed
 		/// </summary>
 		private bool isPressed;
-		
+
+		protected virtual void OnEnable() {
+			if (DefaultColor != Color.clear && Image.color != DefaultColor)
+				Image.color = DefaultColor;
+
+			if (Touchable != null)
+				Start();
+		}
+
 		protected virtual void Start() {
 			Touchable.FingerEntered.Subscribe(HandleFingerEntered);
 			Touchable.FingerLeft.Subscribe(HandleFingerLeft);
@@ -86,7 +94,7 @@ namespace PXL.UI.World.Buttons {
 		protected virtual void Update() {
 			if (Fingertip == null)
 				return;
-			
+
 			var distance = Vector3.Distance(Fingertip.transform.position, transform.position);
 
 			if (isPressed && distance > PressDistance)
@@ -156,7 +164,7 @@ namespace PXL.UI.World.Buttons {
 			if (InteractingHandSide == HandSide.None)
 				return false;
 
-			var correctHandSide = InteractingHandSide == HandSide.Both || 
+			var correctHandSide = InteractingHandSide == HandSide.Both ||
 									InteractionHand.GetHandSide(fingerInfo.HandModel) == InteractingHandSide;
 
 			var correctFingerType =

@@ -38,7 +38,7 @@ namespace PXL.UI.World.Buttons {
 		/// Disposable for the timer when the progress image flashes in <see cref="TouchCancelledColor"/> color because the finger left too early
 		/// </summary>
 		protected IDisposable CancelledFlashDisposable = Disposable.Empty;
-
+		
 		protected override void Start() {
 			base.Start();
 			ProgressImage.AssertNotNull(gameObject.name + " is missing the progress image reference!");

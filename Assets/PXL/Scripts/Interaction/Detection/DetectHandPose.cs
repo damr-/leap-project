@@ -77,10 +77,10 @@ namespace PXL.Interaction.Detection {
 		protected override void CheckHand(HandModel hand) {
 			var leapHand = TryGetLeapHand(hand);
 			if (leapHand == null) {
-				if (canInvokeIncorrectImmediately) {
-					canInvokeIncorrectImmediately = false;
-					InvokeIncorrect();
-				}
+				if (!canInvokeIncorrectImmediately) 
+					return;
+				canInvokeIncorrectImmediately = false;
+				InvokeIncorrect();
 				return;
 			}
 			if (!canInvokeIncorrectImmediately)

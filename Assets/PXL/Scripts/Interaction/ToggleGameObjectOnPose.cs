@@ -38,14 +38,21 @@ namespace PXL.Interaction {
 		/// </summary>
 		public List<GameObject> GameObjects = new List<GameObject>();
 
+		private CompositeDisposable compositeDisposable = new CompositeDisposable();
+
+		private void OnEnable() {
+			compositeDisposable = new CompositeDisposable();
+			Start();
+		}
+
 		private void Start() {
 			GameObjects.ForEach(g => g.AssertNotNull("GameObject reference missing!"));
 
-			DetectPalmOrientation.CorrectPose.Subscribe(_ => UpdateFlag(ref correctOrientation, true));
-			DetectPalmOrientation.IncorrectPose.Subscribe(_ => UpdateFlag(ref correctOrientation, false));
+			DetectPalmOrientation.CorrectPose.Subscribe(_ => UpdateFlag(ref correctOrientation, true)).AddTo(compositeDisposable);
+			DetectPalmOrientation.IncorrectPose.Subscribe(_ => UpdateFlag(ref correctOrientation, false)).AddTo(compositeDisposable);
 
-			DetectHandPose.CorrectPose.Subscribe(_ => UpdateFlag(ref correctPose, true));
-			DetectHandPose.IncorrectPose.Subscribe(_ => UpdateFlag(ref correctPose, false));
+			DetectHandPose.CorrectPose.Subscribe(_ => UpdateFlag(ref correctPose, true)).AddTo(compositeDisposable);
+			DetectHandPose.IncorrectPose.Subscribe(_ => UpdateFlag(ref correctPose, false)).AddTo(compositeDisposable);
 		}
 
 		private void UpdateFlag(ref bool flag, bool value) {
@@ -67,6 +74,10 @@ namespace PXL.Interaction {
 
 			objectsEnabled = newEnabledState;
 			GameObjects.ForEach(c => c.SetActive(newEnabledState));
+		}
+		
+		private void OnDisable() {
+			compositeDisposable.Dispose();
 		}
 
 	}

@@ -26,14 +26,14 @@ namespace PXL.Interaction.Detection {
 		private const float LineLength = 0.15f;
 
 		/// <summary>
-		/// The color for the vertical axis, pointing towards the normal of the palm
-		/// </summary>
-		private readonly Color green = new Color(42 / 255f, 1f, 42 / 255f);
-
-		/// <summary>
 		/// The color for the horizontal axis, pointing to the right of the palm
 		/// </summary>
 		private readonly Color red = new Color(1f, 42 / 255f, 42 / 255f);
+
+		/// <summary>
+		/// The color for the vertical axis, pointing towards the normal of the palm
+		/// </summary>
+		private readonly Color green = new Color(42 / 255f, 1f, 42 / 255f);
 
 		/// <summary>
 		/// The color for the horizontal axis, pointing forward from the palm
@@ -42,6 +42,11 @@ namespace PXL.Interaction.Detection {
 
 		protected override void CheckHand(HandModel hand) {
 			var angle = Quaternion.Angle(hand.palm.localRotation, Quaternion.Euler(TargetRotation));
+
+			Debug.DrawRay(hand.palm.position + new Vector3(0.001f, 0, 0), hand.palm.forward * 0.15f, Color.cyan, Time.deltaTime);
+			Debug.DrawRay(hand.palm.position + new Vector3(0, 0, 0.001f), hand.palm.right * 0.15f, Color.magenta, Time.deltaTime);
+			Debug.DrawRay(hand.palm.position + new Vector3(0.001f, 0, 0), hand.palm.up * 0.15f, Color.yellow, Time.deltaTime);
+
 			if (angle < AngleError)
 				TryInvokeCorrect();
 			else
@@ -60,6 +65,7 @@ namespace PXL.Interaction.Detection {
 					continue;
 
 				var palm = handModel.palm;
+
 				transform.position = palm.position;
 				transform.localRotation = Quaternion.Euler(TargetRotation);
 

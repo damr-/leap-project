@@ -15,7 +15,7 @@ namespace PXL.Interaction.Detection.Editor {
 			EditorGUILayout.Space();
 
 			EditorGUILayout.LabelField("Observed Hands: ", new GUIStyle(EditorStyles.largeLabel) { fontStyle = FontStyle.Bold }, GUILayout.MaxWidth(150));
-			
+
 			for (var i = 0; i < t.HandModels.Count; i++) {
 				EditorGUILayout.BeginHorizontal();
 				EditorGUILayout.LabelField(t.HandModels[i] == null ? "Missing" : t.HandModels[i].gameObject.name, GUILayout.MinWidth(120), GUILayout.MaxWidth(120));
@@ -24,17 +24,14 @@ namespace PXL.Interaction.Detection.Editor {
 						EditorGUILayout.ObjectField("", t.HandModels[i], typeof(RigidHand), true,
 							GUILayout.MaxWidth(150));
 
-				if (GUILayout.Button(new GUIContent("X", "Removes this item from the list"), GUILayout.MaxWidth(20),
-					GUILayout.MaxHeight(20))) {
+				if (GUILayout.Button(new GUIContent("X", "Removes this item from the list"), GUILayout.MaxWidth(20)))
 					t.HandModels.RemoveAt(i);
-				}
 				EditorGUILayout.EndHorizontal();
 			}
-			if (t.HandModels.Count == 0) {
+			if (t.HandModels.Count == 0)
 				EditorGUILayout.LabelField("None",
 					new GUIStyle(EditorStyles.boldLabel) { alignment = TextAnchor.MiddleCenter, fontStyle = FontStyle.BoldAndItalic },
 					GUILayout.MaxWidth(50));
-			}
 
 			EditorGUILayout.BeginHorizontal();
 			EditorGUILayout.LabelField("New Hand: ", EditorStyles.boldLabel, GUILayout.MaxWidth(75));
@@ -60,15 +57,8 @@ namespace PXL.Interaction.Detection.Editor {
 
 			if (t.FingerPoses.Count < Enum.GetNames(typeof(Finger.FingerType)).Length - 1)
 				CreateNewArea(t);
-			else {
-				EditorGUILayout.BeginHorizontal();
-				GUILayout.FlexibleSpace();
-				EditorGUILayout.LabelField("All fingers set up",
-					new GUIStyle(EditorStyles.helpBox) { alignment = TextAnchor.MiddleCenter, fontStyle = FontStyle.BoldAndItalic },
-					GUILayout.MaxWidth(110));
-				GUILayout.FlexibleSpace();
-				EditorGUILayout.EndHorizontal();
-			}
+			else
+				CreateAllFingersUsedMessage();
 
 			EditorGUI.EndDisabledGroup();
 
@@ -84,6 +74,16 @@ namespace PXL.Interaction.Detection.Editor {
 			EditorGUILayout.EndToggleGroup();
 		}
 
+		private static void CreateAllFingersUsedMessage() {
+			EditorGUILayout.BeginHorizontal();
+			GUILayout.FlexibleSpace();
+			EditorGUILayout.LabelField("All fingers set up",
+				new GUIStyle(EditorStyles.helpBox) { alignment = TextAnchor.MiddleCenter, fontStyle = FontStyle.BoldAndItalic },
+				GUILayout.MaxWidth(110));
+			GUILayout.FlexibleSpace();
+			EditorGUILayout.EndHorizontal();
+		}
+
 		private static void CreateNewArea(DetectHandPose t) {
 			EditorGUILayout.BeginVertical();
 			EditorGUILayout.LabelField("New Pose: ", EditorStyles.boldLabel, GUILayout.MaxWidth(75));
@@ -92,15 +92,15 @@ namespace PXL.Interaction.Detection.Editor {
 			t.NewPose.FingerType =
 				(Finger.FingerType)EditorGUILayout.EnumPopup("", t.NewPose.FingerType, GUILayout.MaxWidth(100));
 			EditorGUILayout.LabelField("extended ", GUILayout.MaxWidth(60));
-			t.NewPose.Extended = EditorGUILayout.Toggle("", t.NewPose.Extended, GUILayout.MaxWidth(150));
-			EditorGUILayout.EndHorizontal();
+			t.NewPose.Extended = EditorGUILayout.Toggle("", t.NewPose.Extended, GUILayout.MaxWidth(20));
 
-			if (GUILayout.Button(new GUIContent("Add", "Adds the given fingerpose to the list")))
+			if (GUILayout.Button(new GUIContent("Add", "Adds the given fingerpose to the list"), GUILayout.MaxWidth(75)))
 				t.AddFingerPose();
+			EditorGUILayout.EndHorizontal();
 			EditorGUILayout.EndVertical();
 		}
 
-		private void CreateAllFingerLimitToggle(string title, ref bool limitFlag, bool displayDisabledFlag) {
+		private static void CreateAllFingerLimitToggle(string title, ref bool limitFlag, bool displayDisabledFlag) {
 			EditorGUI.BeginDisabledGroup(displayDisabledFlag);
 			EditorGUILayout.BeginHorizontal();
 			limitFlag = EditorGUILayout.Toggle(new GUIContent("", ""), limitFlag, GUILayout.MaxWidth(15));
@@ -109,7 +109,7 @@ namespace PXL.Interaction.Detection.Editor {
 			EditorGUI.EndDisabledGroup();
 		}
 
-		private void CreatePoseEntry(DetectHandPose t, int i) {
+		private static void CreatePoseEntry(DetectHandPose t, int i) {
 			EditorGUILayout.BeginHorizontal();
 			var p = t.FingerPoses[i];
 			EditorGUILayout.LabelField("Finger ", GUILayout.MaxWidth(50));
@@ -127,7 +127,7 @@ namespace PXL.Interaction.Detection.Editor {
 			EditorGUILayout.EndHorizontal();
 		}
 
-		private void CreateGrabStrengthLimit(string title, ref bool limitFlag, ref float limit, float min, float max) {
+		private static void CreateGrabStrengthLimit(string title, ref bool limitFlag, ref float limit, float min, float max) {
 			EditorGUILayout.BeginHorizontal();
 			limitFlag = EditorGUILayout.Toggle("", limitFlag, GUILayout.MaxWidth(15));
 			EditorGUILayout.LabelField(title, EditorStyles.boldLabel, GUILayout.MaxWidth(160));
