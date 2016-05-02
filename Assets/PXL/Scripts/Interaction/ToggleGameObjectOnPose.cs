@@ -42,6 +42,7 @@ namespace PXL.Interaction {
 
 		private void OnEnable() {
 			compositeDisposable = new CompositeDisposable();
+			objectsEnabled = false;
 			Start();
 		}
 
@@ -72,10 +73,12 @@ namespace PXL.Interaction {
 			if (objectsEnabled == newEnabledState)
 				return;
 
+			Debug.Log("Objects enabled: " + (newEnabledState ? "yes" : "no"));
+
 			objectsEnabled = newEnabledState;
 			GameObjects.ForEach(c => c.SetActive(newEnabledState));
 		}
-		
+
 		private void OnDisable() {
 			compositeDisposable.Dispose();
 		}

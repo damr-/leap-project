@@ -43,9 +43,11 @@ namespace PXL.Interaction.Detection {
 		protected override void CheckHand(HandModel hand) {
 			var angle = Quaternion.Angle(hand.palm.localRotation, Quaternion.Euler(TargetRotation));
 
-			Debug.DrawRay(hand.palm.position + new Vector3(0.001f, 0, 0), hand.palm.forward * 0.15f, Color.cyan, Time.deltaTime);
-			Debug.DrawRay(hand.palm.position + new Vector3(0, 0, 0.001f), hand.palm.right * 0.15f, Color.magenta, Time.deltaTime);
-			Debug.DrawRay(hand.palm.position + new Vector3(0.001f, 0, 0), hand.palm.up * 0.15f, Color.yellow, Time.deltaTime);
+			if (PreviewTargetRotation) {
+				Debug.DrawRay(hand.palm.position + new Vector3(0.001f, 0, 0), hand.palm.forward * 0.15f, Color.cyan, Time.deltaTime);
+				Debug.DrawRay(hand.palm.position + new Vector3(0, 0, 0.001f), hand.palm.right * 0.15f, Color.magenta, Time.deltaTime);
+				Debug.DrawRay(hand.palm.position + new Vector3(0.001f, 0, 0), hand.palm.up * 0.15f, Color.yellow, Time.deltaTime);
+			}
 
 			if (angle < AngleError)
 				TryInvokeCorrect();
@@ -81,7 +83,7 @@ namespace PXL.Interaction.Detection {
 		/// <param name="origin">The start position of the ray</param>
 		/// <param name="direction">The direction of the ray which will be normalized and multiplied by <see cref="LineLength"/></param>
 		/// <param name="color">The color of the ray</param>
-		private void DrawTargetRotation(Vector3 origin, Vector3 direction, Color color) {
+		private static void DrawTargetRotation(Vector3 origin, Vector3 direction, Color color) {
 			Gizmos.color = color;
 			direction = direction.normalized * LineLength;
 			Gizmos.DrawRay(origin, direction);

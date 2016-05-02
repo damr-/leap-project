@@ -60,7 +60,7 @@ namespace PXL.Interaction.Detection {
 		protected abstract void CheckHand(HandModel hand);
 
 		protected Leap.Hand TryGetLeapHand(HandModel hand) {
-			return (hand == null || !hand.gameObject.activeInHierarchy) ? null : hand.GetLeapHand();
+			return hand == null || !hand.gameObject.activeInHierarchy ? null : hand.GetLeapHand();
 		}
 
 		protected void TryInvokeCorrect() {
