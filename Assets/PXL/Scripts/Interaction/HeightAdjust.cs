@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using PXL.Utility;
+﻿using PXL.Utility;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,19 +6,45 @@ namespace PXL.Interaction {
 
 	public class HeightAdjust : HandPoseObserver {
 
+		/// <summary>
+		/// The movement component of the camera
+		/// </summary>
 		public Movement.Movement Movement;
 
-		private bool canAdjust;
+		/// <summary>
+		/// Whether the vertical position of the camera is currently adjusting
+		/// </summary>
+		private bool isAdjusting;
 
+		/// <summary>
+		/// The object of the worldspace message object
+		/// </summary>
 		public GameObject MessageObject;
 
+		/// <summary>
+		/// The collider of the finish button
+		/// </summary>
 		public Collider FinishedButtonCollider;
 
+		/// <summary>
+		/// The image showing that the button is disabled
+		/// </summary>
 		public Image FinishedButtonBlockedImage;
 
+		/// <summary>
+		/// The allowed difference in vertical position for a hand to be treated als correctly placed
+		/// </summary>
 		private const float Epsilon = 0.0025f;
 
-		private Transform palm1, palm2;
+		/// <summary>
+		/// The transform component of the first hand's palm
+		/// </summary>
+		private Transform palm1;
+
+		/// <summary>
+		/// The transform component of the second hand's palm
+		/// </summary>
+		private Transform palm2;
 
 		protected override void Start() {
 			base.Start();
@@ -36,7 +61,7 @@ namespace PXL.Interaction {
 		}
 
 		private void Update() {
-			if (!canAdjust)
+			if (!isAdjusting)
 				return;
 
 			var diff = palm1.position.y - palm2.position.y;
@@ -66,31 +91,38 @@ namespace PXL.Interaction {
 		/// Called when looking at the finish setup button
 		/// </summary>
 		public void HandleCalibrationFinished() {
-			canAdjust = false;
+			isAdjusting = false;
 			Movement.OverwriteVelocity(Vector3.zero);
 			MessageObject.SetActive(false);
 			DisposeSubscriptions();
 		}
 
 		protected override void HandleIncorrectPose() {
-			if (!canAdjust)
+			if (!isAdjusting)
 				return;
 			SetButtonInteractable(false);
 			StopAdjusting();
 		}
-
+		
 		protected override void HandleCorrectPose() {
-			if (canAdjust)
+			if (isAdjusting)
 				return;
-			canAdjust = true;
+			isAdjusting = true;
 		}
 
+		/// <summary>
+		/// Stops adjusting and disables the button
+		/// </summary>
 		private void StopAdjusting() {
-			canAdjust = false;
+			isAdjusting = false;
 			SetButtonInteractable(false);
 			Movement.OverwriteVelocity(Vector3.zero);
 		}
 
+		/// <summary>
+		/// Sets the enabled state of the button's collider and image according to the given value
+		/// </summary>
+		/// <param name="interactable">Whether the button is interactable</param>
 		private void SetButtonInteractable(bool interactable) {
 			FinishedButtonCollider.enabled = interactable;
 			FinishedButtonBlockedImage.enabled = !interactable;
