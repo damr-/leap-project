@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using PXL.Utility;
+using UnityEditor;
+using UnityEngine;
 
 namespace PXL.Movement {
 
@@ -44,17 +46,19 @@ namespace PXL.Movement {
 		/// </summary>
 		private Vector3 velocity;
 
+		private Vector3 overwriteVelocity = Vector3.zero;
+
 		private void Update() {
-			velocity.x = GetSpeedFromInput(RightKey, LeftKey);
-			velocity.z = GetSpeedFromInput(ForwardKey, BackwardKey);
-			velocity.y = GetSpeedFromInput(UpKey, DownKey);
+			velocity.x = overwriteVelocity.x.ApproxEquals() ? GetSpeedFromInput(RightKey, LeftKey) : overwriteVelocity.x;
+			velocity.y = overwriteVelocity.y.ApproxEquals() ? GetSpeedFromInput(UpKey, DownKey) : overwriteVelocity.y;
+			velocity.z = overwriteVelocity.z.ApproxEquals() ? GetSpeedFromInput(ForwardKey, BackwardKey) : overwriteVelocity.z;
 
 			transform.position += velocity * Time.deltaTime;
 		}
 
 		/// <summary>
 		/// Returns the valocity for a certain axis, <see cref="Speed"/> when <see cref="positiveKey"/> is pressed, -<see cref="Speed"/> when <see cref="negativeKey"/> is pressed.
-		/// Returns 0 when none of both are pressed
+		/// Returns 0 when neither one of them is pressed
 		/// </summary>
 		private float GetSpeedFromInput(KeyCode positiveKey, KeyCode negativeKey) {
 			if (Input.GetKey(positiveKey))
@@ -64,6 +68,10 @@ namespace PXL.Movement {
 			return 0f;
 		}
 
+		public void OverwriteVelocity(Vector3 newVelocity) {
+			overwriteVelocity = newVelocity;
+		}
+		
 	}
 
 }

@@ -6,26 +6,6 @@ namespace PXL.Utility {
 	public class HandSideManager : MonoBehaviour {
 
 		/// <summary>
-		/// The detector for the left hand orientation and finger positions
-		/// </summary>
-		public GameObject LeftHandDetector;
-
-		/// <summary>
-		/// The detector for the right hand orientation and finger positions
-		/// </summary>
-		public GameObject RightHandDetector;
-
-		/// <summary>
-		/// The menu canvas of the left hand
-		/// </summary>
-		public GameObject LeftHandMenuCanvas;
-
-		/// <summary>
-		/// The menu canvas of the right hand
-		/// </summary>
-		public GameObject RightHandMenuCanvas;
-
-		/// <summary>
 		/// The button of the left hand menu to switch hand
 		/// </summary>
 		public Button LeftSideChangeButton;
@@ -47,11 +27,6 @@ namespace PXL.Utility {
 
 			AssertReferences();
 
-			LeftHandDetector.SetActive(leftHandMenu);
-			RightHandDetector.SetActive(!leftHandMenu);
-			LeftHandMenuCanvas.SetActive(leftHandMenu);
-			RightHandMenuCanvas.SetActive(!leftHandMenu);
-
 			LeftSideChangeButton.onClick.AddListener(() => UpdateSide(false));
 			RightSideChangeButton.onClick.AddListener(() => UpdateSide(true));
 
@@ -65,10 +40,6 @@ namespace PXL.Utility {
 		/// Assert that all needed references are valid
 		/// </summary>
 		private void AssertReferences() {
-			LeftHandDetector.AssertNotNull("Missing left hand detector!");
-			RightHandDetector.AssertNotNull("Missing right hand detector!");
-			LeftHandMenuCanvas.AssertNotNull("Missing left hand menu canvas!");
-			RightHandMenuCanvas.AssertNotNull("Missing left hand menu canvas!");
 			LeftSideChangeButton.AssertNotNull("Missing button reference");
 			RightSideChangeButton.AssertNotNull("Missing button reference!");
 		}

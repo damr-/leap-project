@@ -52,18 +52,24 @@ namespace PXL.Interaction.Detection {
 		}
 
 		protected virtual void Update() {
+			var correct = true;
 			foreach (var handModel in HandModels) {
-				CheckHand(handModel);
+				correct &= CheckHand(handModel);
 			}
+
+			if(correct)
+				TryInvokeCorrect();
+			else
+				TryInvokeIncorrect();
 		}
 
-		protected abstract void CheckHand(HandModel hand);
+		protected abstract bool CheckHand(HandModel hand);
 
 		protected Leap.Hand TryGetLeapHand(HandModel hand) {
 			return hand == null || !hand.gameObject.activeInHierarchy ? null : hand.GetLeapHand();
 		}
 
-		protected void TryInvokeCorrect() {
+		private void TryInvokeCorrect() {
 			if (!(Time.time - LastCorrectInvokeTime > 1 / CorrectInvokeFrequency))
 				return;
 			
@@ -71,7 +77,7 @@ namespace PXL.Interaction.Detection {
 			LastCorrectInvokeTime = Time.time;
 		}
 
-		protected void TryInvokeIncorrect() {
+		private void TryInvokeIncorrect() {
 			if (!(Time.time - LastIncorrectInvokeTime > 1 / IncorrectInvokeFrequency))
 				return;
 
@@ -80,7 +86,7 @@ namespace PXL.Interaction.Detection {
 		}
 
 		/// <summary>
-		/// Force invoking the incorrect pose observable
+		/// Invoke <see cref="IncorrectPose"/> immediately
 		/// </summary>
 		protected void InvokeIncorrect() {
 			incorrectPoseSubject.OnNext(Unit.Default);

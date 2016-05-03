@@ -74,14 +74,14 @@ namespace PXL.Interaction.Detection {
 		/// </summary>
 		private bool canInvokeIncorrectImmediately;
 
-		protected override void CheckHand(HandModel hand) {
+		protected override bool CheckHand(HandModel hand) {
 			var leapHand = TryGetLeapHand(hand);
 			if (leapHand == null) {
-				if (!canInvokeIncorrectImmediately) 
-					return;
+				if (!canInvokeIncorrectImmediately)
+					return false;
 				canInvokeIncorrectImmediately = false;
 				InvokeIncorrect();
-				return;
+				return false;
 			}
 			if (!canInvokeIncorrectImmediately)
 				canInvokeIncorrectImmediately = true;
@@ -94,10 +94,7 @@ namespace PXL.Interaction.Detection {
 			if (DetectGrabStrength)
 				correctPose &= IsValidGrabStrength(leapHand);
 
-			if (correctPose)
-				TryInvokeCorrect();
-			else
-				TryInvokeIncorrect();
+			return correctPose;
 		}
 
 		/// <summary>
@@ -144,7 +141,7 @@ namespace PXL.Interaction.Detection {
 		/// </summary>
 		public void AddFingerPose() {
 			if (NewPose.FingerType != Finger.FingerType.TYPE_UNKNOWN &&
-			    FingerPoses.Any(p => p.FingerType == NewPose.FingerType))
+				FingerPoses.Any(p => p.FingerType == NewPose.FingerType))
 				return;
 			FingerPoses.Add(NewPose);
 			NewPose = new FingerPose();

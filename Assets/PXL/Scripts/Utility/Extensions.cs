@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Leap.Unity;
+using PXL.Interaction;
 using UnityEngine;
 using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
@@ -180,6 +181,13 @@ namespace PXL.Utility {
 		public static Vector3 WithY(this Vector3 vector, float newY) {
 			vector.y = newY;
 			return vector;
+		}
+
+		/// <summary>
+		/// Returns whether the difference between value1 and value2 is less or equals epsilon
+		/// </summary>
+		public static bool ApproxEquals(this float value1, float value2 = 0f, float epsilon = 0.001f) {
+			return Math.Abs(value1 - value2) <= epsilon;
 		}
 
 	}

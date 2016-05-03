@@ -8,7 +8,9 @@ namespace PXL.Interaction.Detection {
 		/// <summary>
 		/// The target rotation which should be detected
 		/// </summary>
-		public Vector3 TargetRotation = Vector3.down;
+		public Vector3 TargetRotation = Vector3.zero;
+
+		public Vector3 IgnoreRotation = Vector3.zero;
 
 		/// <summary>
 		/// How much difference in angle between the palm rotation and the target rotation may exist to be treated as valid.
@@ -40,8 +42,18 @@ namespace PXL.Interaction.Detection {
 		/// </summary>
 		private readonly Color blue = new Color(42 / 255f, 42 / 255f, 1f);
 
-		protected override void CheckHand(HandModel hand) {
-			var angle = Quaternion.Angle(hand.palm.localRotation, Quaternion.Euler(TargetRotation));
+		protected override bool CheckHand(HandModel hand) {
+			var handRotation = hand.palm.localRotation.eulerAngles;
+			var targetRotation = TargetRotation;
+			for (var i = 0; i < 3; i++) {
+				if (!(IgnoreRotation[i] > 0f)) 
+					continue;
+
+				handRotation[i] = 0f;
+				targetRotation[i] = 0f;
+			}
+
+			var angle = Quaternion.Angle(Quaternion.Euler(handRotation), Quaternion.Euler(targetRotation));
 
 			if (PreviewTargetRotation) {
 				Debug.DrawRay(hand.palm.position + new Vector3(0.001f, 0, 0), hand.palm.forward * 0.15f, Color.cyan, Time.deltaTime);
@@ -49,10 +61,7 @@ namespace PXL.Interaction.Detection {
 				Debug.DrawRay(hand.palm.position + new Vector3(0.001f, 0, 0), hand.palm.up * 0.15f, Color.yellow, Time.deltaTime);
 			}
 
-			if (angle < AngleError)
-				TryInvokeCorrect();
-			else
-				TryInvokeIncorrect();
+			return angle < AngleError;
 		}
 
 		/// <summary>

@@ -37,8 +37,10 @@ namespace PXL.Interaction.Detection.Editor {
 			EditorGUILayout.LabelField("New Hand: ", EditorStyles.boldLabel, GUILayout.MaxWidth(75));
 			t.NewHand = (RigidHand)EditorGUILayout.ObjectField("", t.NewHand, typeof(RigidHand), true, GUILayout.MaxWidth(150));
 
+			EditorGUI.BeginDisabledGroup(t.NewHand == null);
 			if (GUILayout.Button(new GUIContent("Add", "Adds the given hand to the list"), GUILayout.MaxWidth(75)))
 				t.AddHand();
+			EditorGUI.EndDisabledGroup();
 			EditorGUILayout.EndHorizontal();
 
 			EditorGUILayout.Space();
