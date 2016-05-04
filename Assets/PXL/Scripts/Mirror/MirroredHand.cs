@@ -2,8 +2,10 @@
 using Leap;
 using Leap.Unity;
 using PXL.Utility;
-using UnityEditor;
 using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace PXL.Mirror {
 
@@ -24,34 +26,78 @@ namespace PXL.Mirror {
 		/// </summary>
 		private LeapProvider leapProvider;
 
-		private void Start() {
+		/// <summary>
+		/// The test hand used to setup this hand
+		/// </summary>
+		private Hand initialTestHand;
+
+		/// <summary>
+		/// The HandRepresentation for this hand
+		/// </summary>
+		private HandRepresentation handRepresentation;
+
+		public void Setup() {
 			MirrorObject.AssertNotNull("Missing Mirror object!");
+
+			initialTestHand = TestHandFactory.MakeTestHand(0, 0, Handedness == Chirality.Left).TransformedCopy(UnityMatrixExtension.GetLeapMatrix(transform));
+			handRepresentation = FindObjectOfType<HandPool>().MakeHandRepresentation(initialTestHand, ModelType.Graphics);
+
+			BeginHand();
+		}
+
+		protected void Update() {
+#if UNITY_EDITOR
+			if (!EditorApplication.isPlaying) {
+				SetLeapHand(TestHandFactory.MakeTestHand(0, 0, Handedness == Chirality.Left).TransformedCopy(UnityMatrixExtension.GetLeapMatrix(transform)));
+				UpdateHand();
+			}
+			if (!EditorApplication.isPlaying && !EditorApplication.isPlayingOrWillChangePlaymode)
+				return;
+#endif
+
+			if (handRepresentation != null)
+				handRepresentation.UpdateRepresentation(initialTestHand, ModelType.Graphics);
 		}
 
 		public override void SetLeapHand(Hand hand) {
+#if UNITY_EDITOR
 			if (!EditorApplication.isPlaying && !EditorApplication.isPlayingOrWillChangePlaymode) {
 				base.SetLeapHand(hand);
 				return;
 			}
+#endif
 
 			if (Hand == null)
-				Hand = TestHandFactory.MakeTestHand(0, 0, false).TransformedCopy(UnityMatrixExtension.GetLeapMatrix(transform));
+				Hand = TestHandFactory.MakeTestHand(0, 0, Handedness == Chirality.Left).TransformedCopy(UnityMatrixExtension.GetLeapMatrix(transform));
 
 			if (leapProvider == null)
 				leapProvider = FindObjectOfType<LeapProvider>();
+
 			var frame = leapProvider.CurrentFrame;
 
 			leftHand = frame.Hands.FirstOrDefault(h => h.IsLeft);
+			if (leftHand != null)
+				BeginHand();
+			else
+				FinishHand();
 		}
 
 		protected override void UpdateSpheres() {
+#if UNITY_EDITOR
 			if (!EditorApplication.isPlaying && !EditorApplication.isPlayingOrWillChangePlaymode) {
 				base.UpdateSpheres();
 				return;
 			}
+#endif
 
-			if (leftHand == null)
+			if (handRepresentation == null)
 				return;
+
+			if (leftHand == null) {
+				handRepresentation.Finish();
+				handRepresentation = null;
+				return;
+			}
 
 			var leftThumbBasePos = Vector3.zero;
 
@@ -79,10 +125,12 @@ namespace PXL.Mirror {
 		}
 
 		protected override void UpdateArm() {
+#if UNITY_EDITOR
 			if (!EditorApplication.isPlaying && !EditorApplication.isPlayingOrWillChangePlaymode) {
 				base.UpdateArm();
 				return;
 			}
+#endif
 
 			if (leftHand == null)
 				return;

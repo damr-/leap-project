@@ -4,7 +4,7 @@ using Leap.Unity;
 using UnityEngine;
 
 namespace PXL.Mirror {
-	
+
 	/// <summary>
 	/// Blank copy of <see cref="CapsuleHand"/> but with proper formatting, naming and 
 	/// adjusted access modifiers for inheritance in <see cref="MirroredHand"/>
@@ -47,7 +47,7 @@ namespace PXL.Mirror {
 		public override ModelType HandModelType {
 			get { return ModelType.Graphics; }
 		}
-		
+
 		public override Chirality Handedness {
 			get { return handedness; }
 		}
@@ -66,7 +66,7 @@ namespace PXL.Mirror {
 			if (armRenderers != null)
 				UpdateArmVisibility();
 		}
-		
+
 		public override void InitHand() {
 			if (Material != null) {
 				jointMat = new Material(Material) {
@@ -151,7 +151,7 @@ namespace PXL.Mirror {
 
 				capsule.position = (sphereA.position + sphereB.position) / 2;
 
-				if (delta.sqrMagnitude <= Mathf.Epsilon) 
+				if (delta.sqrMagnitude <= Mathf.Epsilon)
 					continue;
 
 				Vector3 perp;
@@ -202,7 +202,7 @@ namespace PXL.Mirror {
 					CreateCapsule("Finger Joint", sphereA, sphereB);
 				}
 			}
-			
+
 			for (var i = 0; i < 4; i++) {
 				var keyA = GetFingerJointIndex(i, 0);
 				var keyB = GetFingerJointIndex(i + 1, 0);
