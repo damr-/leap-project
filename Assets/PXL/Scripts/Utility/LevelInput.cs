@@ -29,6 +29,11 @@ namespace PXL.Utility {
 		/// </summary>
 		public List<SceneInfo> SceneInfos = new List<SceneInfo>();
 
+		public void Start() {
+			if (FindObjectsOfType<LevelInput>().Length > 1)
+				throw new NotSupportedException("There is more than one LevelInput in the scene, which is not allowed!");
+		}
+
 		private void Update() {
 			if (isLoading)
 				return;

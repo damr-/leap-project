@@ -39,7 +39,7 @@ namespace PXL.Mirror {
 		public void Setup() {
 			MirrorObject.AssertNotNull("Missing Mirror object!");
 
-			initialTestHand = TestHandFactory.MakeTestHand(0, 0, Handedness == Chirality.Left).TransformedCopy(UnityMatrixExtension.GetLeapMatrix(transform));
+			initialTestHand = MakeTestHand();
 			handRepresentation = FindObjectOfType<HandPool>().MakeHandRepresentation(initialTestHand, ModelType.Graphics);
 
 			BeginHand();
@@ -48,13 +48,12 @@ namespace PXL.Mirror {
 		protected void Update() {
 #if UNITY_EDITOR
 			if (!EditorApplication.isPlaying) {
-				SetLeapHand(TestHandFactory.MakeTestHand(0, 0, Handedness == Chirality.Left).TransformedCopy(UnityMatrixExtension.GetLeapMatrix(transform)));
+				SetLeapHand(MakeTestHand());
 				UpdateHand();
 			}
 			if (!EditorApplication.isPlaying && !EditorApplication.isPlayingOrWillChangePlaymode)
 				return;
 #endif
-
 			if (handRepresentation != null)
 				handRepresentation.UpdateRepresentation(initialTestHand);
 		}
@@ -66,16 +65,13 @@ namespace PXL.Mirror {
 				return;
 			}
 #endif
-
 			if (Hand == null)
-				Hand = TestHandFactory.MakeTestHand(0, 0, Handedness == Chirality.Left).TransformedCopy(UnityMatrixExtension.GetLeapMatrix(transform));
+				Hand = MakeTestHand();
 
 			if (leapProvider == null)
 				leapProvider = FindObjectOfType<LeapProvider>();
-
-			var frame = leapProvider.CurrentFrame;
-
-			leftHand = frame.Hands.FirstOrDefault(h => h.IsLeft);
+				
+			leftHand = leapProvider.CurrentFrame.Hands.FirstOrDefault(h => h.IsLeft);
 			if (leftHand != null)
 				BeginHand();
 			else
@@ -89,7 +85,6 @@ namespace PXL.Mirror {
 				return;
 			}
 #endif
-
 			if (handRepresentation == null)
 				return;
 
@@ -131,7 +126,6 @@ namespace PXL.Mirror {
 				return;
 			}
 #endif
-
 			if (leftHand == null)
 				return;
 
@@ -153,6 +147,10 @@ namespace PXL.Mirror {
 			var mirrorPos = MirrorObject.transform.position;
 			var diffX = Mathf.Abs(mirrorPos.x - origin.x);
 			return new Vector3(mirrorPos.x + diffX, origin.y, origin.z);
+		}
+
+		private Hand MakeTestHand() {
+			return TestHandFactory.MakeTestHand(0, 0, Handedness == Chirality.Left).TransformedCopy(transform.GetLeapMatrix());
 		}
 
 	}
