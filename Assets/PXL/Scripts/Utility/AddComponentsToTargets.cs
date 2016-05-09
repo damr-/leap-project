@@ -5,6 +5,7 @@ using System.Reflection;
 namespace PXL.Utility {
 
 	public class AddComponentsToTargets : MonoBehaviour {
+
 		/// <summary>
 		/// All the GameObjects which the components will be added to
 		/// </summary>
@@ -19,20 +20,30 @@ namespace PXL.Utility {
 
 		private void Awake() {
 			assemblyName = Assembly.GetExecutingAssembly().FullName;
+
 			if (Targets.Count == 0)
 				throw new MissingReferenceException("No targets set!");
 			Targets.ForEach(t => t.AssertNotNull("Target is missing or null!"));
-			Targets.ForEach(AddComponents);
+
+			Targets.ForEach(ApplyComponents);
 		}
 
-		private void AddComponents(GameObject target) {
-			Components.ForEach(c => CreateAndAddComponent(target, c));
+		private void ApplyComponents(GameObject target) {
+			Components.ForEach(c => {
+				var componentType = Types.GetType(c, assemblyName);
+				RemoveExistingComponents(target, componentType);
+				target.AddComponent(componentType);
+			});
 		}
 
-		private void CreateAndAddComponent(GameObject target, string component) {
-			var componentType = Types.GetType(component, assemblyName);
-			target.AddComponent(componentType);
+		private static void RemoveExistingComponents(GameObject target, System.Type componentType) {
+			var c = target.GetComponent(componentType);
+			while (c != null) {
+				Destroy(c);
+				c = target.GetComponent(componentType);
+			}
 		}
+
 	}
 
 }

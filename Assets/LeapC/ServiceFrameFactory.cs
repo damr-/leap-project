@@ -33,7 +33,8 @@ namespace LeapInternal
 
       for (int h = 0; h < trackingMsg.nHands; h++)
       {
-        LEAP_HAND hand = StructMarshal<LEAP_HAND>.ArrayElementToStruct(trackingMsg.pHands, h);
+        LEAP_HAND hand;
+        StructMarshal<LEAP_HAND>.ArrayElementToStruct(trackingMsg.pHands, h, out hand);
         newFrame.Hands.Add(makeHand(ref hand, newFrame));
       }
       return newFrame;
@@ -104,16 +105,8 @@ namespace LeapInternal
       Vector center = (nextJoint + prevJoint) * .5f;
       float length = (nextJoint - prevJoint).Magnitude;
       Vector direction = (nextJoint - prevJoint) / length;
-      Matrix basis = new Matrix(bone.basis.x_basis.x,
-                         bone.basis.x_basis.y,
-                         bone.basis.x_basis.z,
-                         bone.basis.y_basis.x,
-                         bone.basis.y_basis.y,
-                         bone.basis.y_basis.z,
-                         bone.basis.z_basis.x,
-                         bone.basis.z_basis.y,
-                         bone.basis.z_basis.z);
-      return new Bone(prevJoint, nextJoint, center, direction, length, bone.width, type, basis);
+      LeapQuaternion rotation = new LeapQuaternion(bone.rotation);
+      return new Bone(prevJoint, nextJoint, center, direction, length, bone.width, type, rotation);
     }
 
     public Arm makeArm(ref LEAP_BONE bone)
@@ -125,16 +118,8 @@ namespace LeapInternal
       Vector direction = Vector.Zero;
       if (length > 0)
         direction = (nextJoint - prevJoint) / length;
-      Matrix basis = new Matrix(bone.basis.x_basis.x,
-                         bone.basis.x_basis.y,
-                         bone.basis.x_basis.z,
-                         bone.basis.y_basis.x,
-                         bone.basis.y_basis.y,
-                         bone.basis.y_basis.z,
-                         bone.basis.z_basis.x,
-                         bone.basis.z_basis.y,
-                         bone.basis.z_basis.z);
-      return new Arm(prevJoint, nextJoint, center, direction, length, bone.width, basis);
+      LeapQuaternion rotation = new LeapQuaternion(bone.rotation);
+      return new Arm(prevJoint, nextJoint, center, direction, length, bone.width, rotation);
     }
   }
 }

@@ -10,6 +10,9 @@ namespace PXL.Interaction.Detection {
 		/// </summary>
 		public Vector3 TargetRotation = Vector3.zero;
 
+		/// <summary>
+		/// Axes with values > 0 will be ignored in the detection process
+		/// </summary>
 		public Vector3 IgnoreRotation = Vector3.zero;
 
 		/// <summary>

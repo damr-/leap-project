@@ -82,6 +82,7 @@ namespace PXL.UI.World.Buttons {
 
 		private void Start() {
 			ProgressImage.AssertNotNull(gameObject.name + " is missing the progress image reference!");
+			Target.AssertNotNull("Missing target for lookat button");
 
 			updateDisposable = Observable.Interval(TimeSpan.FromSeconds(1 / RaycastFrequency)).Subscribe(_ => {
 				var ray = new Ray(Target.position, Target.forward);

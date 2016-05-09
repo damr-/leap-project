@@ -56,7 +56,7 @@ namespace PXL.Mirror {
 #endif
 
 			if (handRepresentation != null)
-				handRepresentation.UpdateRepresentation(initialTestHand, ModelType.Graphics);
+				handRepresentation.UpdateRepresentation(initialTestHand);
 		}
 
 		public override void SetLeapHand(Hand hand) {
