@@ -1,5 +1,4 @@
 ﻿using PXL.Utility;
-using UnityEditor;
 using UnityEngine;
 
 namespace PXL.Movement {

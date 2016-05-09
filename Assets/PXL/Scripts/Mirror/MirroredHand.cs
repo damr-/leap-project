@@ -17,9 +17,9 @@ namespace PXL.Mirror {
 		public GameObject MirrorObject;
 
 		/// <summary>
-		/// The left hand in this scene
+		/// The original hand in this scene
 		/// </summary>
-		private Hand leftHand;
+		private Hand originalHand;
 
 		/// <summary>
 		/// The LeapProvider of this scene
@@ -70,9 +70,11 @@ namespace PXL.Mirror {
 
 			if (leapProvider == null)
 				leapProvider = FindObjectOfType<LeapProvider>();
-				
-			leftHand = leapProvider.CurrentFrame.Hands.FirstOrDefault(h => h.IsLeft);
-			if (leftHand != null)
+
+			var originalHandLeft = Handedness != Chirality.Left;
+
+			originalHand = leapProvider.CurrentFrame.Hands.FirstOrDefault(h => h.IsLeft == originalHandLeft);
+			if (originalHand != null)
 				BeginHand();
 			else
 				FinishHand();
@@ -88,7 +90,7 @@ namespace PXL.Mirror {
 			if (handRepresentation == null)
 				return;
 
-			if (leftHand == null) {
+			if (originalHand == null) {
 				handRepresentation.Finish();
 				handRepresentation = null;
 				return;
@@ -99,7 +101,7 @@ namespace PXL.Mirror {
 			foreach (var item in Hand.Fingers.Select((finger, index) => new { finger, index })) {
 				for (var i = 0; i < 4; i++) {
 					var jointIndex = GetFingerJointIndex((int)item.finger.Type, i);
-					var bone = leftHand.Fingers[item.index].Bone((Bone.BoneType)i);
+					var bone = originalHand.Fingers[item.index].Bone((Bone.BoneType)i);
 					var originalPosition = bone.NextJoint.ToVector3();
 
 					JointSpheres[jointIndex].position = GetMirroredPosition(originalPosition);
@@ -109,13 +111,13 @@ namespace PXL.Mirror {
 				}
 			}
 
-			var mirroredPalmPos = GetMirroredPosition(leftHand.PalmPosition.ToVector3());
+			var mirroredPalmPos = GetMirroredPosition(originalHand.PalmPosition.ToVector3());
 
 			PalmPositionSphere.position = mirroredPalmPos;
 			WristPositionSphere.position = mirroredPalmPos;
 
-			var leftThumbBaseToPalm = leftThumbBasePos - leftHand.PalmPosition.ToVector3();
-			var newMockPose = leftHand.PalmPosition.ToVector3() + Vector3.Reflect(leftThumbBaseToPalm, leftHand.Basis.xBasis.ToVector3().normalized);
+			var leftThumbBaseToPalm = leftThumbBasePos - originalHand.PalmPosition.ToVector3();
+			var newMockPose = originalHand.PalmPosition.ToVector3() + Vector3.Reflect(leftThumbBaseToPalm, originalHand.Basis.xBasis.ToVector3().normalized);
 			MockThumbJointSphere.position = GetMirroredPosition(newMockPose);
 		}
 
@@ -126,10 +128,10 @@ namespace PXL.Mirror {
 				return;
 			}
 #endif
-			if (leftHand == null)
+			if (originalHand == null)
 				return;
 
-			var arm = leftHand.Arm;
+			var arm = originalHand.Arm;
 			var right = arm.Basis.xBasis.ToVector3().normalized * arm.Width * 0.7f * 0.5f;
 			var wrist = arm.WristPosition.ToVector3();
 			var elbow = arm.ElbowPosition.ToVector3();
@@ -146,6 +148,8 @@ namespace PXL.Mirror {
 		private Vector3 GetMirroredPosition(Vector3 origin) {
 			var mirrorPos = MirrorObject.transform.position;
 			var diffX = Mathf.Abs(mirrorPos.x - origin.x);
+			if (Handedness == Chirality.Left)
+				diffX *= -1;
 			return new Vector3(mirrorPos.x + diffX, origin.y, origin.z);
 		}
 
