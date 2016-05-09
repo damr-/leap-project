@@ -18,7 +18,7 @@ namespace PXL.Utility {
 		/// <summary>
 		/// Loads the last saved hand menu side and updates the menues accordingly
 		/// </summary>
-		private void OnEnable() {
+		private void Start() {
 			var leftHandMenu = true;
 
 			var val = PlayerPrefs.GetInt("LeftHandMenu", -1);
