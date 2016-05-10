@@ -1,10 +1,11 @@
-﻿#if UNITY_EDITOR
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using PXL.Utility;
 using UniRx;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 using UnityEngine;
 
 namespace PXL.Objects.Spawner {
@@ -62,6 +63,7 @@ namespace PXL.Objects.Spawner {
 		}
 		private PatternSpawner mPatternSpawner;
 
+#if UNITY_EDITOR
 		/// <summary>
 		/// Add the state change callback and start updating the previews if not playing
 		/// </summary>
@@ -216,8 +218,8 @@ namespace PXL.Objects.Spawner {
 		public void Refresh() {
 			RemoveAllPreviewObjects();
 		}
+#endif
 
 	}
 
 }
-#endif
