@@ -13,12 +13,7 @@ namespace PXL.Objects.Spawner {
 	[RequireComponent(typeof(PatternSpawner))]
 	[ExecuteInEditMode]
 	public class PatternSpawnerVisualizer : MonoBehaviour {
-
-		/// <summary>
-		/// The instance ID of this visualizer to allow duplication
-		/// </summary>
-		private int id = -1;
-
+	
 		/// <summary>
 		/// The <see cref="GameObject" /> used for showing a spot in the preview which might be added due to the random column and
 		/// row count
@@ -51,11 +46,6 @@ namespace PXL.Objects.Spawner {
 		public List<Transform> RandomPreviewObjects = new List<Transform>();
 
 		/// <summary>
-		/// Disposable for manually updating the preview
-		/// </summary>
-		private IDisposable timeDisposable = Disposable.Empty;
-
-		/// <summary>
 		/// The <see cref="PatternSpawner" /> component of this object
 		/// </summary>
 		private PatternSpawner PatternSpawner {
@@ -64,6 +54,17 @@ namespace PXL.Objects.Spawner {
 		private PatternSpawner mPatternSpawner;
 
 #if UNITY_EDITOR
+
+		/// <summary>
+		/// Disposable for manually updating the preview
+		/// </summary>
+		private IDisposable timeDisposable = Disposable.Empty;
+
+		/// <summary>
+		/// The instance ID of this visualizer to allow duplication
+		/// </summary>
+		private int id = -1;
+
 		/// <summary>
 		/// Add the state change callback and start updating the previews if not playing
 		/// </summary>

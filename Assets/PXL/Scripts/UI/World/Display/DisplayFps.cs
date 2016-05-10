@@ -41,7 +41,7 @@ namespace PXL.UI.World.Display {
 			if (lastTime + 1 / UpdateFrequency >= Time.time)
 				return;
 
-			Text.text = ((int)(framesPerSecondSum / framesCount)).ToString();
+			Text.text = (int)(framesPerSecondSum / framesCount) + " fps";
 			framesCount = 0;
 			framesPerSecondSum = 0;
 			lastTime = Time.time;
