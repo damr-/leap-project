@@ -27,7 +27,7 @@ namespace PXL.Objects.Spawner {
 		private IDisposable seriesSpawnDisposable = Disposable.Empty;
 
 		public override void SpawnObject() {
-			var counter = 0;
+			var counter = SpawnedObjects.Count;
 
 			seriesSpawnDisposable = Observable.Interval(TimeSpan.FromSeconds(1 / SeriesSpawnFrequency)).Subscribe(_ => {
 				if (counter >= Scales.Count) {

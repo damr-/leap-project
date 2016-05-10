@@ -95,6 +95,9 @@ namespace PXL.Objects.Spawner {
 		private readonly ISubject<Unit> patternChangedSubject = new Subject<Unit>();
 
 		public override void SpawnObject() {
+			if (!CanSpawn())
+				return;
+
 			if (RandomizeColumnCount)
 				PatternColumns = Random.Range(MinRandomColumnCount, MaxRandomColumnCount + 1);
 			if (RandomizeRowCount)

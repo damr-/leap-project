@@ -5,10 +5,11 @@ namespace PXL.Objects.Spawner.Editor {
 
 	[CustomEditor(typeof(AutomatedObjectSpawner))]
 	public class AutomatedObjectSpawnerEditor : ObjectSpawnerEditor {
+
 		public override void OnInspectorGUI() {
 			base.OnInspectorGUI();
 
-			var spawner = (AutomatedObjectSpawner) target;
+			var spawner = (AutomatedObjectSpawner)target;
 
 			Header("Automated Spawner Settings");
 
@@ -19,13 +20,14 @@ namespace PXL.Objects.Spawner.Editor {
 						new GUIContent("Spawn Frequency", "The frequency this spawner spawns objects with"),
 						spawner.SpawnFrequency), 0.0001f, 1000);
 			EditorGUI.EndDisabledGroup();
-		
-			spawner.ChooseFrequencyRandomly = EditorGUILayout.BeginToggleGroup("Choose Frequency Randomly", spawner.ChooseFrequencyRandomly);
+
+			spawner.ChooseFrequencyRandomly = EditorGUILayout.BeginToggleGroup("Choose Frequency Randomly",
+				spawner.ChooseFrequencyRandomly);
 
 			spawner.MinSpawnFrequency =
 				Mathf.Clamp(
 					EditorGUILayout.FloatField(
-						new GUIContent("Max Spawn Frequency", "The maximum possible frequency for the spawner"),
+						new GUIContent("Min Spawn Frequency", "The minimum possible frequency for the spawner"),
 						spawner.MinSpawnFrequency), 0.0001f, spawner.MaxSpawnFrequency);
 
 			spawner.MaxSpawnFrequency =
@@ -37,6 +39,7 @@ namespace PXL.Objects.Spawner.Editor {
 			EditorGUILayout.EndToggleGroup();
 			EditorGUILayout.Space();
 		}
+
 	}
 
 }

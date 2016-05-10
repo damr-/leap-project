@@ -180,7 +180,7 @@ namespace PXL.Objects.Spawner {
 		/// The rotation of the spawned objects
 		/// </summary>
 		public Vector3 ObjectRotation;
-		
+
 		/// <summary>
 		/// Whether the objects can be removed at this moment
 		/// </summary>
@@ -244,7 +244,7 @@ namespace PXL.Objects.Spawner {
 			startSpawnDelayDisposable = Observable.Timer(TimeSpan.FromSeconds(StartSpawnDelay)).Subscribe(_ => {
 				IsSpawningEnabled = true;
 				SpawnObject();
-				
+
 				startSpawnDisposable = Observable.Interval(TimeSpan.FromSeconds(1f / StartSpawnFrequency)).Subscribe(__ => {
 					if (SpawnedObjects.Count >= StartAmount) {
 						startSpawnDisposable.Dispose();
@@ -333,11 +333,12 @@ namespace PXL.Objects.Spawner {
 		/// </summary>
 		private void RespawnWhileTooFew() {
 			respawnDisposable = Observable.Interval(TimeSpan.FromSeconds(1 / RespawnFrequency)).Subscribe(_ => {
-				SpawnObject();
 				if (SpawnedObjects.Count >= MinObjectAmount) {
 					canRemoveObjects = true;
 					respawnDisposable.Dispose();
+					return;
 				}
+				SpawnObject();
 			});
 		}
 
