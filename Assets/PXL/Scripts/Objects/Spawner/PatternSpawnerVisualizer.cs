@@ -80,7 +80,7 @@ namespace PXL.Objects.Spawner {
 			EditorApplication.playmodeStateChanged += StateChange;
 			RemoveAllPreviewObjects();
 
-			if (!EditorApplication.isPlayingOrWillChangePlaymode && !EditorApplication.isPlaying)
+			if (!Utility.EditorUtility.IsPlaying())
 				StartUpdating();
 		}
 
@@ -89,7 +89,7 @@ namespace PXL.Objects.Spawner {
 		/// </summary>
 		private void StateChange() {
 			timeDisposable.Dispose();
-			if (EditorApplication.isPlayingOrWillChangePlaymode && EditorApplication.isPlaying) {
+			if (Utility.EditorUtility.IsPlaying()) {
 				RemoveAllPreviewObjects();
 				return;
 			}

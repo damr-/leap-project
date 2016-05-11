@@ -30,7 +30,7 @@ namespace PXL.Objects.Areas {
 		private Collider mAreaCollider;
 
 		/// <summary>
-		/// All valid objects that are inside the area with their overlapping colliders
+		/// All objects that are inside the area with their overlapping colliders
 		/// </summary>
 		protected IDictionary<GameObject, HashSet<Collider>> Objects = new Dictionary<GameObject, HashSet<Collider>>();
 
@@ -95,7 +95,7 @@ namespace PXL.Objects.Areas {
 				Objects[other.gameObject].Add(other);
 			}
 			else {
-				Objects.Add(new KeyValuePair<GameObject, HashSet<Collider>>(other.gameObject, new HashSet<Collider>() { other }));
+				Objects.Add(new KeyValuePair<GameObject, HashSet<Collider>>(other.gameObject, new HashSet<Collider> { other }));
 			}
 
 			HandleValidOther(other);

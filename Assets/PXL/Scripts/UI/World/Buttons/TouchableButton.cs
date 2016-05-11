@@ -70,7 +70,7 @@ namespace PXL.UI.World.Buttons {
 		/// <summary>
 		/// How close the finger has to be to the button for it to be pressed
 		/// </summary>
-		public float PressDistance = 0.02f;
+		public float PressDistance = 0.1f;
 
 		/// <summary>
 		/// If the button is currently pressed

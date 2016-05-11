@@ -51,7 +51,7 @@ namespace PXL.Mirror {
 				SetLeapHand(MakeTestHand());
 				UpdateHand();
 			}
-			if (!EditorApplication.isPlaying && !EditorApplication.isPlayingOrWillChangePlaymode)
+			if (!Utility.EditorUtility.IsPlaying())
 				return;
 #endif
 			if (handRepresentation != null)
@@ -60,7 +60,7 @@ namespace PXL.Mirror {
 
 		public override void SetLeapHand(Hand hand) {
 #if UNITY_EDITOR
-			if (!EditorApplication.isPlaying && !EditorApplication.isPlayingOrWillChangePlaymode) {
+			if (!Utility.EditorUtility.IsPlaying()) {
 				base.SetLeapHand(hand);
 				return;
 			}
@@ -82,7 +82,7 @@ namespace PXL.Mirror {
 
 		protected override void UpdateSpheres() {
 #if UNITY_EDITOR
-			if (!EditorApplication.isPlaying && !EditorApplication.isPlayingOrWillChangePlaymode) {
+			if (!Utility.EditorUtility.IsPlaying()) {
 				base.UpdateSpheres();
 				return;
 			}
@@ -123,7 +123,7 @@ namespace PXL.Mirror {
 
 		protected override void UpdateArm() {
 #if UNITY_EDITOR
-			if (!EditorApplication.isPlaying && !EditorApplication.isPlayingOrWillChangePlaymode) {
+			if (!Utility.EditorUtility.IsPlaying()) {
 				base.UpdateArm();
 				return;
 			}

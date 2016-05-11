@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
-using PXL.Utility;
 
 namespace PXL.Objects.Areas {
 

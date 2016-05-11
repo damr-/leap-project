@@ -16,21 +16,11 @@ namespace PXL.Objects.TowerOfHanoi {
 		/// <summary>
 		/// The default positions of the three pillars
 		/// </summary>
-		private readonly List<Vector3> defaultPillarPositions = new List<Vector3> {
-			new Vector3(-0.2203f, Y, Z),
-			new Vector3(0.041f, Y, Z),
-			new Vector3(0.297f, Y, Z)
+		public List<Vector3> DefaultPillarPositions = new List<Vector3> {
+			new Vector3(-0.2203f, -0.179f, 0.056f),
+			new Vector3(0.041f, -0.179f, 0.056f),
+			new Vector3(0.297f, -0.179f, 0.056f)
 		};
-
-		/// <summary>
-		/// The default y position of the pillars
-		/// </summary>
-		private const float Y = -0.179f;
-
-		/// <summary>
-		/// The default z position of the pillars
-		/// </summary>
-		private const float Z = 0.056f;
 
 		/// <summary>
 		/// Disposables for the pillars' grabbed state
@@ -61,13 +51,16 @@ namespace PXL.Objects.TowerOfHanoi {
 		/// </summary>
 		private void LoadPillarPositions() {
 			for (var pillarIndex = 0; pillarIndex < Pillars.Count; pillarIndex++) {
-				var pillarPos = defaultPillarPositions[pillarIndex];
+				var pillarPos = DefaultPillarPositions[pillarIndex];
 
 				var prefValue = PlayerPrefs.GetString(GetPrefKeyString(pillarIndex), "");
 
-				if (prefValue != "")
+				if (prefValue != "") {
+					Debug.Log("Loaded pillar position: " + GetPrefValueAsVector(prefValue));
 					pillarPos = GetPrefValueAsVector(prefValue);
+				}
 
+				Debug.Log("No player prefs, setting pos to: " + pillarPos);
 				Pillars[pillarIndex].transform.position = pillarPos;
 			}
 		}
@@ -90,7 +83,7 @@ namespace PXL.Objects.TowerOfHanoi {
 		public void ResetPillarPositions() {
 			for (var pillarIndex = 0; pillarIndex < Pillars.Count; pillarIndex++) {
 				PlayerPrefs.DeleteKey(GetPrefKeyString(pillarIndex));
-				Pillars[pillarIndex].transform.position = defaultPillarPositions[pillarIndex];
+				Pillars[pillarIndex].transform.position = DefaultPillarPositions[pillarIndex];
 			}
 		}
 

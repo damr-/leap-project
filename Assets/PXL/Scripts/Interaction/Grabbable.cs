@@ -97,6 +97,7 @@ namespace PXL.Interaction {
 			CanBeGrabbed = true;
 			Touchable.FingerEntered.Subscribe(HandleFingerEntered);
 			Touchable.FingerLeft.Subscribe(HandleFingerLeft);
+			PickupPosition = transform.position;
 		}
 
 		private void Update() {

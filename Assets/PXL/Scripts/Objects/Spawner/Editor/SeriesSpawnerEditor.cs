@@ -22,7 +22,7 @@ namespace PXL.Objects.Spawner.Editor {
 
 			Header("Series Spawner Options");
 
-			FloatField(new GUIContent("Series Spawn Frequency", "How many objects of the series are spawned per second"), ref spawner.SeriesSpawnFrequency, 0.1f, 10f);
+			Utility.EditorUtility.FloatField(new GUIContent("Series Spawn Frequency", "How many objects of the series are spawned per second"), ref spawner.SeriesSpawnFrequency, 0.1f, 10f);
 
 			showScales = EditorGUILayout.Foldout(showScales, "Object Scales");
 			if (showScales) {

@@ -38,7 +38,7 @@ namespace PXL.Movement {
 		/// <summary>
 		/// The speed of the movement
 		/// </summary>
-		public float Speed = 0.05f;
+		public float Speed = 0.2f;
 
 		/// <summary>
 		/// The current velocity
@@ -67,6 +67,9 @@ namespace PXL.Movement {
 			return 0f;
 		}
 
+		/// <summary>
+		/// Sets the given velocity as the current overwrite velocity, which will be applied every frame
+		/// </summary>
 		public void OverwriteVelocity(Vector3 newVelocity) {
 			overwriteVelocity = newVelocity;
 		}
