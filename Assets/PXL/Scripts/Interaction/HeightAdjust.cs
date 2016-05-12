@@ -34,7 +34,7 @@ namespace PXL.Interaction {
 		/// <summary>
 		/// The allowed difference in vertical position for a hand to be treated als correctly placed
 		/// </summary>
-		private const float Epsilon = 0.0025f;
+		public float Threshold = 0.025f;
 
 		/// <summary>
 		/// The transform component of the first hand's palm
@@ -58,6 +58,9 @@ namespace PXL.Interaction {
 
 			palm1 = DetectHandPose.HandModels[0].palm;
 			palm2 = DetectHandPose.HandModels[1].palm;
+
+			FinishedButtonCollider.enabled = false;
+			FinishedButtonBlockedImage.enabled = true;
 		}
 
 		private void Update() {
@@ -77,9 +80,9 @@ namespace PXL.Interaction {
 			var distance = Mathf.Abs(distance1) < Mathf.Abs(distance2) ? distance1 : distance2;
 
 			SetButtonInteractable(false);
-			if (distance > Epsilon)
+			if (distance > Threshold)
 				Movement.OverwriteVelocity(Movement.Speed * Vector3.down);
-			else if (distance < -Epsilon)
+			else if (distance < -Threshold)
 				Movement.OverwriteVelocity(Movement.Speed * Vector3.up);
 			else {
 				SetButtonInteractable(true);
@@ -103,7 +106,7 @@ namespace PXL.Interaction {
 			SetButtonInteractable(false);
 			StopAdjusting();
 		}
-		
+
 		protected override void HandleCorrectPose() {
 			if (isAdjusting)
 				return;
