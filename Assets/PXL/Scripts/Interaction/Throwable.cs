@@ -55,12 +55,10 @@ namespace PXL.Interaction {
 		}
 
 		private void HandleGrabStateChange(bool grabbed) {
-			if (grabbed) {
+			if (grabbed)
 				positionDeltas.Clear();
-			}
-			else {
+			else
 				Rigidbody.AddForce(GetMotionDirection() * Force, ForceMode.Impulse);
-			}
 		}
 
 		/// <summary>
@@ -76,20 +74,15 @@ namespace PXL.Interaction {
 				deltaPos[i] = deltaPos[i].Truncate(4);
 
 			positionDeltas.Add(deltaPos);
-			if (positionDeltas.Count > MaxDeltaCount) {
+			if (positionDeltas.Count > MaxDeltaCount)
 				positionDeltas.RemoveAt(0);
-			}
 
-			if (Grabbable.EnableDropDelay) {
-				if (GetMotionDirection().magnitude > DisableDropDelayMagnitude) {
+			if (Grabbable.EnableDropDelay)
+				if (GetMotionDirection().magnitude > DisableDropDelayMagnitude)
 					Grabbable.EnableDropDelay = false;
-				}
-			}
-			else {
-				if (GetMotionDirection().magnitude <= DisableDropDelayMagnitude) {
+			else
+				if (GetMotionDirection().magnitude <= DisableDropDelayMagnitude)
 					Grabbable.EnableDropDelay = true;
-				}
-			}
 
 			lastPosition = transform.position;
 		}

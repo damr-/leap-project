@@ -15,6 +15,8 @@ namespace PXL.Interaction {
 
 		protected List<InteractionHand> InteractionHands = new List<InteractionHand>();
 
+		private CompositeDisposable subscriptions = new CompositeDisposable();
+
 		protected virtual void Start() {
 			HandModels.ForEach(i => {
 				i.AssertNotNull("HandModel is missing!");
@@ -22,9 +24,9 @@ namespace PXL.Interaction {
 			});
 
 			foreach (var hand in InteractionHands) {
-				hand.ObjectGrabbed.Subscribe(HandleGrabbed);
-				hand.ObjectDropped.Subscribe(HandleDropped);
-				hand.ObjectMoved.Subscribe(HandleMoved);
+				hand.ObjectGrabbed.Subscribe(HandleGrabbed).AddTo(subscriptions);
+				hand.ObjectDropped.Subscribe(HandleDropped).AddTo(subscriptions);
+				hand.ObjectMoved.Subscribe(HandleMoved).AddTo(subscriptions);
 			}
 		}
 
@@ -50,6 +52,10 @@ namespace PXL.Interaction {
 		/// </summary>
 		protected HandSide GetHandSideIfValid(Grabbable grabbable) {
 			return InteractionHand.GetHandSide(grabbable.CurrentHand);
+		}
+
+		private void OnDisable() {
+			subscriptions.Dispose();
 		}
 
 	}

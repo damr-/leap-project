@@ -201,7 +201,7 @@ namespace PXL.Interaction {
 			}
 			else {
 				unparentDisposable = Observable.Interval(TimeSpan.FromSeconds(0.01f)).Subscribe(_ => {
-					if (transform.parent == null) {
+					if (transform == null || transform.parent == null) {
 						unparentDisposable.Dispose();
 						return;
 					}

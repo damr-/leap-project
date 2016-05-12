@@ -60,7 +60,6 @@ namespace PXL.Objects.TowerOfHanoi {
 					pillarPos = GetPrefValueAsVector(prefValue);
 				}
 
-				Debug.Log("No player prefs, setting pos to: " + pillarPos);
 				Pillars[pillarIndex].transform.position = pillarPos;
 			}
 		}
