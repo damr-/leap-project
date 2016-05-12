@@ -19,8 +19,17 @@ namespace PXL.Objects.Areas {
 			Extensions.PurgeIfNecessary(ref ValidObjects);
 
 			foreach (var o in ValidObjects) {
-				if (!o.GetComponent<Grabbable>().IsStationary())
-					continue;
+				var g = o.GetComponent<Grabbable>();
+
+				if (g != null) {
+					if (!g.IsStationary())
+						continue;
+				}
+				else {
+					var r = o.GetComponent<Rigidbody>();
+					if (r != null && !r.velocity.Equal(Vector3.zero))
+						continue;
+				}
 
 				CurrentDestroyAmount.Value++;
 				ObjectDestroyedSubject.OnNext(o);

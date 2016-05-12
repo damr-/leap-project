@@ -79,9 +79,9 @@ namespace PXL.UI.World.Buttons {
 		/// Wether the ray should be drawn as debug ray
 		/// </summary>
 		public bool DrawDebugRay;
-		
+
 		/// <summary>
-		/// The layermask of this gameobject, so that others are ignored
+		/// The layermask of this GameObject
 		/// </summary>
 		private LayerMask layerMask;
 
@@ -89,13 +89,13 @@ namespace PXL.UI.World.Buttons {
 			ProgressImage.AssertNotNull(gameObject.name + " is missing the progress image reference!");
 			Target.AssertNotNull("Missing target for lookat button");
 
-			layerMask = gameObject.layer;
+			layerMask = LayerMask.GetMask("UI");
 
 			updateDisposable = Observable.Interval(TimeSpan.FromSeconds(1 / RaycastFrequency)).Subscribe(_ => {
 				var ray = new Ray(Target.position, Target.forward);
 				RaycastHit hit;
 
-				if(DrawDebugRay)
+				if (DrawDebugRay)
 					Debug.DrawRay(ray.origin, ray.direction * 5f, Color.red, 1 / RaycastFrequency);
 
 				if (Physics.Raycast(ray, out hit, 5f, layerMask)) {

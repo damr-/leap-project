@@ -155,6 +155,7 @@ namespace PXL.UI.World.Display {
 		/// </summary>
 		private void HandleGameWon() {
 			lastChecksCounter = 0;
+			StatusText.text = "success";
 			CheckingStackArea.SetAreaStackedCorrectly();
 		}
 
