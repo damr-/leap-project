@@ -12,7 +12,7 @@ namespace PXL.Interaction {
 		/// <summary>
 		/// The force applied to this object
 		/// </summary>
-		public float Force = 5f;
+		public float Force = 20f;
 
 		/// <summary>
 		/// How many times per second the position will be captured

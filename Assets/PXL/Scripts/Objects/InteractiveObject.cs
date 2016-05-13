@@ -11,6 +11,7 @@ namespace PXL.Objects {
 		Pyramid = 5,
 		Ring = 6,
 		Cup = 7,
+		Bottle = 8
 	}
 
 	public class InteractiveObject : MonoBehaviour {

@@ -23,12 +23,10 @@ namespace PXL.Objects {
 			var interactiveObject = newObject.GetComponent<InteractiveObject>();
 			var objectType = interactiveObject.ObjectType;
 
-			if (!DefaultObjectScales.ContainsKey(objectType)) {
+			if (!DefaultObjectScales.ContainsKey(objectType))
 				DefaultObjectScales.Add(objectType, newObject.transform.localScale);
-			}
-			else {
+			else
 				newObject.transform.localScale = DefaultObjectScales[objectType];
-			}
 
 			var s = newObject.transform.localScale;
 			newObject.transform.localScale = new Vector3(s.x * Scale, s.y * Scale, s.z * Scale);
@@ -40,6 +38,7 @@ namespace PXL.Objects {
 
 			return newObject;
 		}
+
 	}
 
 }

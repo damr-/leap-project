@@ -69,6 +69,14 @@ namespace PXL.Objects.Spawner {
 		protected virtual void SetRandomSpawnFrequency() {
 			CurrentSpawnFrequency = Random.Range(MinSpawnFrequency, MaxSpawnFrequency);
 		}
+
+		/// <summary>
+		/// Forces the <see cref="newFrequency"/> to be set and applied instantly
+		/// </summary>
+		public void OverrideSpawnFrequency(float newFrequency) {
+			SpawnFrequency = newFrequency;
+			CurrentSpawnFrequency = newFrequency;
+		}
 	}
 
 }

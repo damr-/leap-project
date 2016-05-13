@@ -107,7 +107,7 @@ namespace PXL.Objects.Spawner {
 		protected float ScaleChangeAmount = 0.1f;
 
 		/// <summary>
-		/// The current set scale for objects
+		/// The current scale for objects
 		/// </summary>
 		public ObservableProperty<float> CurrentScaleFactor = new ObservableProperty<float>();
 
@@ -131,11 +131,6 @@ namespace PXL.Objects.Spawner {
 		/// </summary>
 		private readonly IDictionary<GameObject, IDisposable> objectDestroyDisposables =
 			new Dictionary<GameObject, IDisposable>();
-
-		/// <summary>
-		/// Invoked when the object scale changes
-		/// </summary>
-		public ObservableProperty<float> ObjectScale = new ObservableProperty<float>();
 
 		/// <summary>
 		/// Invoked when an object is spawned
@@ -164,7 +159,7 @@ namespace PXL.Objects.Spawner {
 		/// <summary>
 		/// Factory to spawn objects
 		/// </summary>
-		protected readonly ObjectFactory ObjectFactory = new ObjectFactory();
+		protected ObjectFactory ObjectFactory;
 
 		/// <summary>
 		/// The length of the spawn delay when removing all objects
@@ -227,6 +222,8 @@ namespace PXL.Objects.Spawner {
 		protected virtual void Start() {
 			DefaultObjectPrefab.AssertNotNull();
 
+			ObjectFactory = new ObjectFactory();
+
 			CurrentObjectPrefab = DefaultObjectPrefab;
 			SetObjectScale(DefaultScaleFactor);
 
@@ -244,12 +241,12 @@ namespace PXL.Objects.Spawner {
 		/// </summary>
 		protected virtual void InitiateInitialSpawns() {
 			IsSpawningEnabled = false;
-
 			canRemoveObjects = false;
+
 			startSpawnDelayDisposable = Observable.Timer(TimeSpan.FromSeconds(StartSpawnDelay)).Subscribe(_ => {
 				IsSpawningEnabled = true;
-				SpawnObject();
 
+				SpawnObject();
 				startSpawnDisposable = Observable.Interval(TimeSpan.FromSeconds(1f / StartSpawnFrequency)).Subscribe(__ => {
 					if (SpawnedObjects.Count >= StartAmount) {
 						startSpawnDisposable.Dispose();
@@ -426,7 +423,6 @@ namespace PXL.Objects.Spawner {
 			if (newScale < MinScaleFactor || newScale > MaxScaleFactor)
 				return;
 			CurrentScaleFactor.Value = newScale;
-			ObjectScale.Value = newScale;
 			ObjectFactory.Scale = newScale;
 		}
 

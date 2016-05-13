@@ -130,9 +130,9 @@ namespace PXL.Objects.Spawner.Editor {
 			EditorGUILayout.Space();
 
 			GUILayout.BeginHorizontal();
-			if (GUILayout.Button(new GUIContent("Spawn", "Spawn an object")) && Utility.EditorUtility.IsPlaying())
+			if (GUILayout.Button(new GUIContent("Spawn", "Spawn an object")) && Utility.EditorUtility.IsPlaying() && spawner.enabled)
 				spawner.SpawnObject();
-			if (GUILayout.Button(new GUIContent("Clear", "Remove all current objects")) && Utility.EditorUtility.IsPlaying())
+			if (GUILayout.Button(new GUIContent("Clear", "Remove all current objects")) && Utility.EditorUtility.IsPlaying() && spawner.enabled)
 				spawner.RemoveAllObjects();
 
 			GUILayout.EndHorizontal();

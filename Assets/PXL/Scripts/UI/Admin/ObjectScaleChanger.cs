@@ -8,8 +8,8 @@ namespace PXL.UI.Admin {
 		public override void SetObjectSpawner(ObjectSpawner objectSpawner) {
 			base.SetObjectSpawner(objectSpawner);
 
-			ObjectSpawner.ObjectScale.Subscribe(SetText);
-			SetText(ObjectSpawner.ObjectScale.Value);
+			ObjectSpawner.CurrentScaleFactor.Subscribe(SetText);
+			SetText(ObjectSpawner.CurrentScaleFactor.Value);
 		}
 
 		public override void NextValue() {

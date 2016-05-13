@@ -24,8 +24,6 @@ namespace PXL.Objects.Spawner {
 				TargetDirection[i] = Mathf.Clamp((int)TargetDirection[i], -1, 1);
 
 			ObjectSpawner.AssertNotNull("Missing spawner reference!");
-			ObjectSpawner.ChooseFrequencyRandomly = false;
-			ObjectSpawner.enabled = false;
 		}
 
 		private void Update() {
@@ -36,7 +34,7 @@ namespace PXL.Objects.Spawner {
 				ObjectSpawner.enabled = newEnabledState;
 
 			if (ObjectSpawner.enabled)
-				ObjectSpawner.SpawnFrequency = dot.Remap(0f, 1f, MinSpawnRate, MaxSpawnRate);
+				ObjectSpawner.OverrideSpawnFrequency(dot.Remap(0f, 1f, MinSpawnRate, MaxSpawnRate));
 		}
 
 	}
