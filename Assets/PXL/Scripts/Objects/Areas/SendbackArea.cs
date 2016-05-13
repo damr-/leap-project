@@ -19,12 +19,11 @@ namespace PXL.Objects.Areas {
 
 		protected override void Update() {
 			base.Update();
-			
+
 			Extensions.PurgeIfNecessary(ref ValidObjects);
 
-			foreach (var o in ValidObjects) {
+			foreach (var o in ValidObjects)
 				TrySendBackObject(o);
-			}
 		}
 
 		/// <summary>
@@ -60,11 +59,12 @@ namespace PXL.Objects.Areas {
 				return;
 
 			var grabbable = interactiveObject.GetComponent<Grabbable>();
-			
+
 			if (grabbable == null || !grabbable.IsStationary())
 				return;
 
 			grabbable.transform.position = grabbable.PickupPosition;
+			grabbable.transform.rotation = grabbable.PickupRotation;
 		}
 
 	}

@@ -6,9 +6,8 @@ namespace PXL.Objects.Spawner.Editor {
 	[CustomEditor(typeof(ObjectSpawner))]
 	public class ObjectSpawnerEditor : UnityEditor.Editor {
 
-
 		/// <summary>
-		/// Creates a horizontal area with the given text and with the <see cref="HeaderStyle"/>
+		/// Creates a horizontal area with the given text and with the <see cref="Utility.EditorUtility.HeaderStyle"/>
 		/// </summary>
 		/// <param name="text"></param>
 		protected void Header(string text) {
@@ -35,6 +34,11 @@ namespace PXL.Objects.Spawner.Editor {
 			Utility.EditorUtility.BeginHorizontalField(
 				new GUIContent("Admin Mode required", "Whether admin mode is required for the keyboard input"), 0);
 			spawner.AdminModeRequired = EditorGUILayout.Toggle("", spawner.AdminModeRequired, GUILayout.MaxWidth(20));
+			EditorGUILayout.EndHorizontal();
+
+			Utility.EditorUtility.BeginHorizontalField(
+				new GUIContent("Add to Hand Menu", "Whether this spawner will be visible and editable in the admin hand menu"), 0);
+			spawner.InHandMenu = EditorGUILayout.Toggle("", spawner.InHandMenu, GUILayout.MaxWidth(20));
 			EditorGUILayout.EndHorizontal();
 
 			Utility.EditorUtility.BeginHorizontalField(new GUIContent("Object Prefab", "The prefab which will be spawned by default"), 0);
@@ -64,12 +68,11 @@ namespace PXL.Objects.Spawner.Editor {
 			EditorGUI.BeginDisabledGroup(spawner.StartAmount == 0);
 			Utility.EditorUtility.IntField(new GUIContent("Initial Spawn Delay", "How long to wait before spawning any objects at the start"),
 				ref spawner.StartSpawnDelay, 0, 100);
-			EditorGUI.EndDisabledGroup();
 
 			Utility.EditorUtility.FloatField(new GUIContent("Start Spawn Frequency",
 				"The frequency which Initial Object Amount objects will be spawned with (after the Initial Spawn Delay)"),
 				ref spawner.StartSpawnFrequency, 0.1f, 10f);
-
+			EditorGUI.EndDisabledGroup();
 
 			spawner.RespawnOnDepleted = EditorGUILayout.BeginToggleGroup(
 				new GUIContent("Respawn On Depleted", "Whether to respawn the objects when all have been destroyed" +
@@ -127,12 +130,11 @@ namespace PXL.Objects.Spawner.Editor {
 			EditorGUILayout.Space();
 
 			GUILayout.BeginHorizontal();
-			if (GUILayout.Button(new GUIContent("Spawn", "Spawn an object")) && Utility.EditorUtility.IsPlaying()) {
+			if (GUILayout.Button(new GUIContent("Spawn", "Spawn an object")) && Utility.EditorUtility.IsPlaying())
 				spawner.SpawnObject();
-			}
-			if (GUILayout.Button(new GUIContent("Clear", "Remove all current objects")) && Utility.EditorUtility.IsPlaying()) {
+			if (GUILayout.Button(new GUIContent("Clear", "Remove all current objects")) && Utility.EditorUtility.IsPlaying())
 				spawner.RemoveAllObjects();
-			}
+
 			GUILayout.EndHorizontal();
 
 			EditorGUILayout.Space();

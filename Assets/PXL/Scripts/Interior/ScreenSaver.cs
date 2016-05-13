@@ -24,20 +24,32 @@ namespace PXL.Interior {
 
 		private Vector3 velocity = Vector3.zero;
 
+		public bool LocalSpace;
+
+		public Vector3 Pos {
+			get { return LocalSpace ? transform.localPosition : transform.position; }
+			set {
+				if (LocalSpace)
+					transform.localPosition = value;
+				else
+					transform.position = value;
+			}
+		}
+
 		private void Start() {
 			for (var i = 0; i < 3; i++) {
 				velocity[i] = Speed * (MovementAxes[i] ? 1 : 0);
 				if (Random.Range(0, 2) == 0)
 					velocity[i] *= -1;
 			}
-			transform.position = StartPosition;
+			Pos = StartPosition;
 		}
 
 		private void Update() {
-			UpdateVelocity(MovementAxes[0], transform.position.x, MinX, MaxX, ref velocity.x);
-			UpdateVelocity(MovementAxes[1], transform.position.y, MinY, MaxY, ref velocity.y);
-			UpdateVelocity(MovementAxes[2], transform.position.z, MinZ, MaxZ, ref velocity.z);
-			transform.position += velocity * Time.deltaTime;
+			UpdateVelocity(MovementAxes[0], Pos.x, MinX, MaxX, ref velocity.x);
+			UpdateVelocity(MovementAxes[1], Pos.y, MinY, MaxY, ref velocity.y);
+			UpdateVelocity(MovementAxes[2], Pos.z, MinZ, MaxZ, ref velocity.z);
+			Pos += velocity * Time.deltaTime;
 		}
 
 		private void UpdateVelocity(bool axisUsed, float xPos, float min, float max, ref float currentVelocity) {
@@ -48,22 +60,22 @@ namespace PXL.Interior {
 		public void UpdateBoundary(string bounaryName) {
 			switch (bounaryName) {
 				case "minx":
-					MinX = transform.position.x;
+					MinX = Pos.x;
 					return;
 				case "maxx":
-					MaxX = transform.position.x;
+					MaxX = Pos.x;
 					return;
 				case "miny":
-					MinY = transform.position.y;
+					MinY = Pos.y;
 					return;
 				case "maxy":
-					MaxY = transform.position.y;
+					MaxY = Pos.y;
 					return;
 				case "minz":
-					MinZ = transform.position.z;
+					MinZ = Pos.z;
 					return;
 				case "maxz":
-					MaxZ = transform.position.z;
+					MaxZ = Pos.z;
 					return;
 			}
 		}

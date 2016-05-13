@@ -14,15 +14,20 @@ namespace PXL.Interior.Editor {
 			Utility.EditorUtility.FloatField(new GUIContent("Speed", ""), ref s.Speed, 0.001f, 10f, 50);
 
 			EditorGUILayout.BeginHorizontal();
+			s.LocalSpace = EditorGUILayout.Toggle("", s.LocalSpace, GUILayout.MaxWidth(15), GUILayout.MaxHeight(15));
+			EditorGUILayout.LabelField("Use local space", GUILayout.MaxWidth(100));
+			EditorGUILayout.EndHorizontal();
+
+			EditorGUILayout.BeginHorizontal();
 			EditorGUILayout.LabelField("start position", GUILayout.MaxWidth(100));
 			s.StartPosition = EditorGUILayout.Vector3Field("", s.StartPosition, GUILayout.MaxWidth(200));
 
 			if (GUILayout.Button("set", GUILayout.MaxWidth(30), GUILayout.MaxHeight(20)) && !Utility.EditorUtility.IsPlaying())
-				s.StartPosition = s.transform.position;
+				s.StartPosition = s.Pos;
 
 			if (GUILayout.Button("go there", GUILayout.MaxWidth(60), GUILayout.MaxHeight(20)) &&
 			    !Utility.EditorUtility.IsPlaying())
-				s.transform.position = s.StartPosition;
+				s.Pos = s.StartPosition;
 
 			EditorGUILayout.EndHorizontal();
 			EditorGUILayout.Space();

@@ -18,12 +18,16 @@ namespace PXL.UI.World.Hand {
 
 		protected override void Start() {
 			base.Start();
-			
+
 			HandSpawnerElementExpanded.AssertNotNull();
 			SpawnerElementPrefab.AssertNotNull();
 
 			ObjectSpawners.ForEach(objectSpawner => {
-				var spawnerElementTransform = ((GameObject)Instantiate(SpawnerElementPrefab, Vector3.zero, Quaternion.identity)).transform;
+				if (!objectSpawner.InHandMenu)
+					return;
+
+				var spawnerElementTransform =
+					((GameObject)Instantiate(SpawnerElementPrefab, Vector3.zero, Quaternion.identity)).transform;
 				spawnerElementTransform.SetParent(transform, false);
 
 				var spawnerElement = spawnerElementTransform.GetComponent<HandSpawnerElement>();

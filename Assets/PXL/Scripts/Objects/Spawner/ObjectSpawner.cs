@@ -25,6 +25,11 @@ namespace PXL.Objects.Spawner {
 		public bool AdminModeRequired;
 
 		/// <summary>
+		/// Whether this spawner will be visible and editable in the admin hand menu
+		/// </summary>
+		public bool InHandMenu = true;
+
+		/// <summary>
 		/// The GameObject which will be spawned
 		/// </summary>
 		public GameObject DefaultObjectPrefab;
@@ -445,6 +450,7 @@ namespace PXL.Objects.Spawner {
 
 			foreach (var entry in objectDestroyDisposables)
 				entry.Value.Dispose();
+			objectDestroyDisposables.Clear();
 		}
 
 	}

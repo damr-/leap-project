@@ -149,8 +149,6 @@ namespace PXL.Utility {
 			var health = component.GetComponent<Health.Health>();
 			if (health != null)
 				health.Kill();
-			else
-				Debug.LogWarning(component.gameObject.name + " has no Health Component!");
 		}
 
 		/// <summary>

@@ -17,6 +17,11 @@ namespace PXL.Interaction {
 		public Vector3 PickupPosition { get; set; }
 
 		/// <summary>
+		/// The rotation of the object when it was grabbed
+		/// </summary>
+		public Quaternion PickupRotation { get; set; }
+
+		/// <summary>
 		/// The minimum fingers necessary to pick up the object
 		/// </summary>
 		public static int MinFingerCount = 2;
@@ -98,6 +103,7 @@ namespace PXL.Interaction {
 			Touchable.FingerEntered.Subscribe(HandleFingerEntered);
 			Touchable.FingerLeft.Subscribe(HandleFingerLeft);
 			PickupPosition = transform.position;
+			PickupRotation = transform.rotation;
 		}
 
 		private void Update() {
@@ -175,6 +181,7 @@ namespace PXL.Interaction {
 		/// </summary>
 		private void Grab() {
 			PickupPosition = transform.position;
+			PickupRotation = transform.rotation;
 			SetGrabbed(true);
 		}
 
