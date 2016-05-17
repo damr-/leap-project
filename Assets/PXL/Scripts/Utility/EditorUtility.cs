@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿#if UNITY_EDITOR
+using UnityEditor;
 using UnityEngine;
 
 namespace PXL.Utility {
@@ -41,3 +42,4 @@ namespace PXL.Utility {
 	}
 
 }
+#endif
