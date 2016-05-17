@@ -45,13 +45,11 @@ namespace PXL.Utility {
 				StartLoadLevel(item.i);
 			}
 
-			if (Input.GetKeyDown(RestartKey)) {
+			if (Input.GetKeyDown(RestartKey))
 				StartReloadLevel();
-			}
 
-			if (Input.GetKeyDown(QuitKey)) {
+			if (Input.GetKeyDown(QuitKey))
 				Application.Quit();
-			}
 		}
 
 		/// <summary>

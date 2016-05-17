@@ -362,6 +362,11 @@ namespace PXL.Objects.Spawner {
 
 			var newObject = CreateObject(offset);
 
+			if (newObject == null) {
+				SpawnObject(offset);
+				return;
+			}
+
 			SetupSpawnedObject(newObject);
 
 			TotalSpawnCount.Value++;
@@ -438,6 +443,8 @@ namespace PXL.Objects.Spawner {
 		/// Disposes all disposables
 		/// </summary>
 		protected virtual void OnDisable() {
+			IsSpawningEnabled = false;
+
 			removeAllDelayDisposable.Dispose();
 			startSpawnDelayDisposable.Dispose();
 			startSpawnDisposable.Dispose();

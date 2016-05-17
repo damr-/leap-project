@@ -26,12 +26,10 @@ namespace PXL.Health {
 		/// Called when the <see cref="Health" /> component invokes the Death Observable
 		/// </summary>
 		private void HandleDeath() {
-			if (Despawn) {
+			if (Despawn)
 				SimplePool.Despawn(gameObject);
-			}
-			else {
+			else
 				Destroy(gameObject);
-			}
 		}
 
 	}

@@ -11,7 +11,6 @@ namespace PXL.Objects.Spawner {
 		private ObjectSpawner ObjectSpawner {
 			get { return mObjectSpawner ?? (mObjectSpawner = this.TryGetComponent<ObjectSpawner>()); }
 		}
-
 		private ObjectSpawner mObjectSpawner;
 
 		private void Start() {

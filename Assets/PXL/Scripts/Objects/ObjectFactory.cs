@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using PXL.Utility;
 using UnityEngine;
 
 namespace PXL.Objects {
@@ -11,7 +12,7 @@ namespace PXL.Objects {
 		public float Scale { get; set; }
 
 		/// <summary>
-		/// All the possible objects and their default shape
+		/// All the possible objects and their default scale
 		/// </summary>
 		public readonly IDictionary<ObjectType, Vector3> DefaultObjectScales = new Dictionary<ObjectType, Vector3>();
 
