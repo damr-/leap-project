@@ -23,9 +23,7 @@ namespace PXL.Objects.Areas {
 		/// The Collider of this area
 		/// </summary>
 		protected Collider AreaCollider {
-			get {
-				return mAreaCollider ?? (mAreaCollider = this.TryGetComponent<Collider>());
-			}
+			get { return mAreaCollider ?? (mAreaCollider = this.TryGetComponent<Collider>()); }
 		}
 		private Collider mAreaCollider;
 
@@ -91,12 +89,10 @@ namespace PXL.Objects.Areas {
 			if (other.isTrigger || !HasCorrectTag(other.gameObject))
 				return;
 
-			if (Objects.ContainsKey(other.gameObject)) {
+			if (Objects.ContainsKey(other.gameObject))
 				Objects[other.gameObject].Add(other);
-			}
-			else {
+			else
 				Objects.Add(new KeyValuePair<GameObject, HashSet<Collider>>(other.gameObject, new HashSet<Collider> { other }));
-			}
 
 			HandleValidOther(other);
 		}

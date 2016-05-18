@@ -21,7 +21,7 @@ namespace PXL.Utility.Toggle {
 			/// </summary>
 			public int Executions = 1;
 
-			private int currentExecutions = 0;
+			private int currentExecutions;
 
 			public void Executed() {
 				currentExecutions++;
@@ -44,6 +44,9 @@ namespace PXL.Utility.Toggle {
 				s.EnableBehaviours.ForEach(b => b.AssertNotNull("Missing Behaviour reference!"));
 				s.DisableBehaviours.ForEach(b => b.AssertNotNull("Missing Behaviour reference!"));
 				s.ToggleBehaviours.ForEach(b => b.AssertNotNull("Missing Behaviour reference!"));
+
+				if(s.Executions == 0)
+					Debug.LogWarning("A ToggleBehavioursOnInteraction setting has set 0 executions by default. Mistake?");
 			});
 		}
 
@@ -64,9 +67,8 @@ namespace PXL.Utility.Toggle {
 			}
 
 			foreach (var validSideSetting in validSideSettings) {
-				if (!validSideSetting.CanExecute()) {
+				if (!validSideSetting.CanExecute())
 					continue;
-				}
 
 				validSideSetting.EnableBehaviours.ForEach(b => b.enabled = true);
 				validSideSetting.DisableBehaviours.ForEach(b => b.enabled = false);
@@ -75,13 +77,9 @@ namespace PXL.Utility.Toggle {
 			}
 		}
 
-		protected override void HandleDropped(Grabbable grabbable) {
+		protected override void HandleDropped(Grabbable grabbable) {}
 
-		}
-
-		protected override void HandleMoved(MovementInfo movementInfo) {
-
-		}
+		protected override void HandleMoved(MovementInfo movementInfo) {}
 
 	}
 
