@@ -7,11 +7,6 @@ namespace PXL.Objects.Spawner.Editor {
 	public class PatternSpawnerVisualizerEditor : UnityEditor.Editor {
 
 		/// <summary>
-		/// Style for header labels
-		/// </summary>
-		private readonly GUIStyle headerStyle = new GUIStyle() { fontSize = 12, fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleLeft };
-
-		/// <summary>
 		/// Whether the preview object list is currently visible
 		/// </summary>
 		private bool showPreviewObjects;
@@ -41,36 +36,21 @@ namespace PXL.Objects.Spawner.Editor {
 			showPreviewObjects = EditorGUILayout.Foldout(showPreviewObjects, "Preview Objects");
 			if (showPreviewObjects) {
 				EditorGUILayout.BeginVertical();
-				foreach (var o in visualizer.PreviewObjects) {
+				foreach (var o in visualizer.PreviewObjects)
 					EditorGUILayout.ObjectField(o.gameObject.name, o, typeof(Transform), true);
-				}
-				foreach (var o in visualizer.RandomPreviewObjects) {
+				foreach (var o in visualizer.RandomPreviewObjects)
 					EditorGUILayout.ObjectField(o.gameObject.name, o, typeof(Transform), true);
-				}
-				foreach (var o in visualizer.PossiblyRandomPreviewObjects) {
+				foreach (var o in visualizer.PossiblyRandomPreviewObjects)
 					EditorGUILayout.ObjectField(o.gameObject.name, o, typeof(Transform), true);
-				}
 				EditorGUILayout.EndVertical();
 			}
 
 			EditorGUILayout.BeginHorizontal();
 			GUILayout.FlexibleSpace();
-			if (GUILayout.Button(new GUIContent("Refresh", "Recreate the preview objects"))) {
+			if (GUILayout.Button(new GUIContent("Refresh", "Recreate the preview objects")))
 				visualizer.Refresh();
-			}
 			GUILayout.FlexibleSpace();
 			EditorGUILayout.EndHorizontal();
-		}
-
-		/// <summary>
-		/// Creates a horizontal area with the given text and with the <see cref="headerStyle"/>
-		/// </summary>
-		/// <param name="text"></param>
-		private void Header(string text) {
-			EditorGUILayout.Space();
-			GUILayout.BeginHorizontal(new GUIStyle("Box"));
-			EditorGUILayout.LabelField(text, headerStyle);
-			GUILayout.EndHorizontal();
 		}
 
 	}

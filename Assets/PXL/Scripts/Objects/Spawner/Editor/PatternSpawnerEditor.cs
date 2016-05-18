@@ -25,7 +25,7 @@ namespace PXL.Objects.Spawner.Editor {
 			base.OnInspectorGUI();
 			var spawner = (PatternSpawner)target;
 
-			Header("Pattern Spawner Options");
+			Utility.EditorUtility.Header("Pattern Spawner Options");
 
 			spawner.PatternFinishPoints =
 				Mathf.Clamp(

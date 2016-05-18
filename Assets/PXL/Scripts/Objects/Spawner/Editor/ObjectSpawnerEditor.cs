@@ -6,21 +6,10 @@ namespace PXL.Objects.Spawner.Editor {
 	[CustomEditor(typeof(ObjectSpawner))]
 	public class ObjectSpawnerEditor : UnityEditor.Editor {
 
-		/// <summary>
-		/// Creates a horizontal area with the given text and with the <see cref="Utility.EditorUtility.HeaderStyle"/>
-		/// </summary>
-		/// <param name="text"></param>
-		protected void Header(string text) {
-			EditorGUILayout.Space();
-			GUILayout.BeginHorizontal(new GUIStyle("Box"));
-			EditorGUILayout.LabelField(text, Utility.EditorUtility.HeaderStyle);
-			GUILayout.EndHorizontal();
-		}
-
 		public override void OnInspectorGUI() {
 			var spawner = (ObjectSpawner)target;
 
-			Header("General Spawner Options");
+			Utility.EditorUtility.Header("General Spawner Options");
 
 			Utility.EditorUtility.BeginHorizontalField(new GUIContent("Spawn object", "They key assigned to spawning a new object"), 0);
 			spawner.SpawnKey = (KeyCode)EditorGUILayout.EnumPopup("", spawner.SpawnKey, GUILayout.MaxWidth(150));
@@ -73,6 +62,7 @@ namespace PXL.Objects.Spawner.Editor {
 				"The frequency which Initial Object Amount objects will be spawned with (after the Initial Spawn Delay)"),
 				ref spawner.StartSpawnFrequency, 0.1f, 10f);
 			EditorGUI.EndDisabledGroup();
+
 
 			spawner.RespawnOnDepleted = EditorGUILayout.BeginToggleGroup(
 				new GUIContent("Respawn On Depleted", "Whether to respawn the objects when all have been destroyed" +

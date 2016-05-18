@@ -20,7 +20,7 @@ namespace PXL.Objects.Spawner.Editor {
 			base.OnInspectorGUI();
 			spawner = (SeriesSpawner)target;
 
-			Header("Series Spawner Options");
+			Utility.EditorUtility.Header("Series Spawner Options");
 
 			Utility.EditorUtility.FloatField(new GUIContent("Series Spawn Frequency", "How many objects of the series are spawned per second"), ref spawner.SeriesSpawnFrequency, 0.1f, 10f);
 
@@ -54,10 +54,11 @@ namespace PXL.Objects.Spawner.Editor {
 			spawner.Scales[i] = Mathf.Clamp(
 				EditorGUILayout.FloatField("", spawner.Scales[i], GUILayout.MaxWidth(75)),
 				0.1f, 10f);
+
 			if (GUILayout.Button(new GUIContent("X", "Removes this item from the list"), GUILayout.MaxWidth(20),
-				GUILayout.MaxHeight(20))) {
+				GUILayout.MaxHeight(20)))
 				spawner.Scales.RemoveAt(i);
-			}
+
 			EditorGUILayout.EndHorizontal();
 		}
 

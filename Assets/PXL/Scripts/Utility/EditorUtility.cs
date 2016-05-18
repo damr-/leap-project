@@ -39,6 +39,17 @@ namespace PXL.Utility {
 			EditorGUILayout.LabelField(labelContent, GUILayout.MaxWidth(labelWidth));
 		}
 
+		/// <summary>
+		/// Creates a horizontal area with the given text and with the <see cref="HeaderStyle"/>
+		/// </summary>
+		/// <param name="text">The text content of the header</param>
+		public static void Header(string text) {
+			EditorGUILayout.Space();
+			GUILayout.BeginHorizontal(new GUIStyle("Box"));
+			EditorGUILayout.LabelField(text, HeaderStyle);
+			GUILayout.EndHorizontal();
+		}
+
 	}
 
 }

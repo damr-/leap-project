@@ -55,10 +55,8 @@ namespace PXL.Objects.TowerOfHanoi {
 
 				var prefValue = PlayerPrefs.GetString(GetPrefKeyString(pillarIndex), "");
 
-				if (prefValue != "") {
-					Debug.Log("Loaded pillar position: " + GetPrefValueAsVector(prefValue));
+				if (prefValue != "")
 					pillarPos = GetPrefValueAsVector(prefValue);
-				}
 
 				Pillars[pillarIndex].transform.position = pillarPos;
 			}

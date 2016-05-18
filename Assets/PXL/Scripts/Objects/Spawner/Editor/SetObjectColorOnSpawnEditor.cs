@@ -8,12 +8,13 @@ namespace PXL.Objects.Spawner.Editor {
 
 		private bool showAvailableColors;
 
-		public override void OnInspectorGUI() {
-			var t = (SetObjectColorOnSpawn)target;
+		private SetObjectColorOnSpawn t;
 
-			if (t.DefaultColor.Name.Trim() == "" && t.AvailableColors.Count > 0) {
+		public override void OnInspectorGUI() {
+			t = (SetObjectColorOnSpawn)target;
+
+			if (t.DefaultColor.Name.Trim() == "" && t.AvailableColors.Count > 0)
 				t.DefaultColor = t.AvailableColors[0];
-			}
 
 			EditorGUILayout.BeginHorizontal();
 			EditorGUILayout.LabelField("Default Color: ", EditorStyles.boldLabel, GUILayout.MaxWidth(100));
@@ -24,38 +25,9 @@ namespace PXL.Objects.Spawner.Editor {
 			EditorGUILayout.EndHorizontal();
 
 			showAvailableColors = EditorGUILayout.Foldout(showAvailableColors, "Available Colors");
-			if (showAvailableColors) {
-				EditorGUILayout.BeginVertical();
-				for (var i = 0; i < t.AvailableColors.Count; i++) {
-					EditorGUILayout.BeginHorizontal();
 
-					var c = t.AvailableColors[i];
-					c.Color = EditorGUILayout.ColorField("", t.AvailableColors[i].Color, GUILayout.MaxWidth(50));
-					c.Name = EditorGUILayout.TextField("", t.AvailableColors[i].Name, GUILayout.MaxWidth(150));
-					t.AvailableColors[i] = c;
-
-					EditorGUI.BeginDisabledGroup(t.DefaultColor.Name == t.AvailableColors[i].Name);
-					if (GUILayout.Button(new GUIContent("✔", "Make this the default color"), GUILayout.MaxWidth(20),
-						GUILayout.MaxHeight(20))) {
-						t.DefaultColor = t.AvailableColors[i];
-					}
-					EditorGUI.EndDisabledGroup();
-
-					if (GUILayout.Button(new GUIContent("X", "Removes this item from the list"), GUILayout.MaxWidth(20),
-						GUILayout.MaxHeight(20))) {
-						t.AvailableColors.RemoveAt(i);
-					}
-					EditorGUILayout.EndHorizontal();
-				}
-
-				if (t.AvailableColors.Count > 5 &&
-					GUILayout.Button(new GUIContent("Clear", "Remove all items"), GUILayout.MaxWidth(75),
-						GUILayout.MaxHeight(20))) {
-					t.AvailableColors.Clear();
-				}
-
-				EditorGUILayout.EndVertical();
-			}
+			if (showAvailableColors)
+				DrawAvailableColors();
 
 			EditorGUILayout.Space();
 
@@ -73,6 +45,39 @@ namespace PXL.Objects.Spawner.Editor {
 			EditorGUILayout.EndHorizontal();
 			EditorGUILayout.EndVertical();
 
+		}
+
+		private void DrawAvailableColors() {
+			EditorGUILayout.BeginVertical();
+			for (var i = 0; i < t.AvailableColors.Count; i++) {
+				EditorGUILayout.BeginHorizontal();
+
+				var c = t.AvailableColors[i];
+				c.Color = EditorGUILayout.ColorField("", t.AvailableColors[i].Color, GUILayout.MaxWidth(50));
+				c.Name = EditorGUILayout.TextField("", t.AvailableColors[i].Name, GUILayout.MaxWidth(150));
+				t.AvailableColors[i] = c;
+
+				EditorGUI.BeginDisabledGroup(t.DefaultColor.Name == t.AvailableColors[i].Name);
+				if (GUILayout.Button(new GUIContent("✔", "Make this the default color"), GUILayout.MaxWidth(20),
+					GUILayout.MaxHeight(20))) {
+					t.DefaultColor = t.AvailableColors[i];
+				}
+				EditorGUI.EndDisabledGroup();
+
+				if (GUILayout.Button(new GUIContent("X", "Removes this item from the list"), GUILayout.MaxWidth(20),
+					GUILayout.MaxHeight(20))) {
+					t.AvailableColors.RemoveAt(i);
+				}
+				EditorGUILayout.EndHorizontal();
+			}
+
+			if (t.AvailableColors.Count > 5 &&
+			    GUILayout.Button(new GUIContent("Clear", "Remove all items"), GUILayout.MaxWidth(75),
+				    GUILayout.MaxHeight(20))) {
+				t.AvailableColors.Clear();
+			}
+
+			EditorGUILayout.EndVertical();
 		}
 
 	}

@@ -11,7 +11,7 @@ namespace PXL.Objects.Spawner.Editor {
 
 			var spawner = (AutomatedObjectSpawner)target;
 
-			Header("Automated Spawner Settings");
+			Utility.EditorUtility.Header("Automated Spawner Settings");
 
 			EditorGUI.BeginDisabledGroup(spawner.ChooseFrequencyRandomly);
 			spawner.SpawnFrequency =

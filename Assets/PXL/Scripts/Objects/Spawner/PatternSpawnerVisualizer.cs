@@ -200,12 +200,9 @@ namespace PXL.Objects.Spawner {
 		private void UpdatePreviewObjectsAmount(int desiredAmount, GameObject prefab, List<Transform> existingPreviewObjects) {
 			while (existingPreviewObjects.Count < desiredAmount) {
 				var newObject = (GameObject)Instantiate(prefab, transform.position, Quaternion.identity);
-				newObject.transform.SetParent(transform, true);
 
-				var newObjectName = newObject.gameObject.name;
-				var index = newObjectName.IndexOf("(");
-				if (index != -1)
-					newObject.name = newObjectName.Remove(index);
+				newObject.transform.SetParent(transform, true);
+				newObject.hideFlags = HideFlags.HideInHierarchy | HideFlags.NotEditable;
 
 				existingPreviewObjects.Add(newObject.transform);
 			}
