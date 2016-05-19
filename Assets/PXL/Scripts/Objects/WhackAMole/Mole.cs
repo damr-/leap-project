@@ -43,7 +43,7 @@ namespace PXL.Objects.WhackAMole {
 
 				currentSpawnPoint = whackAMoleManager.GetRandomFreeSpawnPoint();
 				if (currentSpawnPoint == null) {
-					KillMole();
+					this.Kill();
 					return;
 				}
 
@@ -56,7 +56,7 @@ namespace PXL.Objects.WhackAMole {
 			}
 
 			if (state == MoleState.Animating && Time.time - animationStartTime > animComponent.clip.length) {
-				whackAMoleManager.MoleLeftSpawnPoint(currentSpawnPoint);
+				whackAMoleManager.FreeSpawnPoint(currentSpawnPoint);
 				UpdateChangePositionDelay();
 				changePositionStartTime = Time.time;
 				state = MoleState.ChangingPosition;
@@ -69,11 +69,6 @@ namespace PXL.Objects.WhackAMole {
 			if (i == null || (InteractiveObjectType != ObjectType.All && i.ObjectType != InteractiveObjectType))
 				return;
 
-			KillMole();
-		}
-
-		private void KillMole() {
-			whackAMoleManager.MoleDespawned();
 			this.Kill();
 		}
 
