@@ -20,16 +20,14 @@ namespace PXL.Objects.Areas {
 		/// </summary>
 		/// <param name="other">The Collider of the overlapping object</param>
 		protected override void HandleValidOther(Collider other) {
-			var interactiveObject = other.GetComponent<InteractiveObject>();
+			var interactiveObject = other.GetComponentInChildren<InteractiveObject>();
 			if (interactiveObject == null)
 				return;
 
-			if (HasCorrectType(interactiveObject)) {
+			if (HasCorrectType(interactiveObject))
 				HandleValidObjectType(interactiveObject);
-			}
-			else {
+			else
 				HandleInvalidObjectType(interactiveObject);
-			}
 		}
 
 		/// <summary>

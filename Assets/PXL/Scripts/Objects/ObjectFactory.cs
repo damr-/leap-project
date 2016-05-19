@@ -21,7 +21,7 @@ namespace PXL.Objects {
 		/// </summary>
 		public override GameObject Spawn() {
 			var newObject = base.Spawn();
-			var interactiveObject = newObject.GetComponent<InteractiveObject>();
+			var interactiveObject = newObject.GetComponentInChildren<InteractiveObject>();
 			var objectType = interactiveObject.ObjectType;
 
 			if (!DefaultObjectScales.ContainsKey(objectType))
