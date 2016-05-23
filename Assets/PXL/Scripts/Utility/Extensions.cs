@@ -85,6 +85,7 @@ namespace PXL.Utility {
 			value = key.GetComponent<TV>();
 			if (value == null)
 				throw new MissingReferenceException("GetOrAddFromGameObject couldn't get the Component of the object!");
+
 			dictionary.Add(key, value);
 
 			return value;
@@ -156,9 +157,8 @@ namespace PXL.Utility {
 		/// </summary>
 		public static void RemoveAllChildTransforms<T>(this T transform) where T : Transform {
 			while (transform.childCount > 0) {
-				foreach (Transform o in transform) {
+				foreach (Transform o in transform)
 					Object.DestroyImmediate(o.gameObject);
-				}
 			}
 		}
 

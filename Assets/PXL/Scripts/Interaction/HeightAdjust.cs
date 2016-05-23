@@ -1,5 +1,6 @@
 ﻿using PXL.Utility;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 namespace PXL.Interaction {
@@ -22,19 +23,24 @@ namespace PXL.Interaction {
 		public GameObject MessageObject;
 
 		/// <summary>
-		/// The collider of the finish button
+		/// The slider to show the calibration progress
 		/// </summary>
-		public Collider FinishedButtonCollider;
-
-		/// <summary>
-		/// The image showing that the button is disabled
-		/// </summary>
-		public Image FinishedButtonBlockedImage;
+		public Slider CalibrationSlider;
 
 		/// <summary>
 		/// The allowed difference in vertical position for a hand to be treated als correctly placed
 		/// </summary>
 		public float Threshold = 0.025f;
+
+		/// <summary>
+		/// How long to calibrate before accepting the current hands' poses
+		/// </summary>
+		public float CalibrateTime = 1f;
+
+		/// <summary>
+		/// Event for when the calibration is finished
+		/// </summary>
+		public UnityEvent OnCalibrationFinished;
 
 		/// <summary>
 		/// The transform component of the first hand's palm
@@ -50,8 +56,7 @@ namespace PXL.Interaction {
 			base.Start();
 
 			MessageObject.AssertNotNull("Missing message object reference!");
-			FinishedButtonCollider.AssertNotNull("Missing finish button collider reference");
-			FinishedButtonBlockedImage.AssertNotNull("Missing finish button blocked image reference");
+			CalibrationSlider.AssertNotNull("Missing calibration slider reference");
 
 			if (DetectHandPose.HandModels.Count != 2)
 				throw new MissingReferenceException("Not exactly 2 hands given!");
@@ -59,8 +64,7 @@ namespace PXL.Interaction {
 			palm1 = DetectHandPose.HandModels[0].palm;
 			palm2 = DetectHandPose.HandModels[1].palm;
 
-			FinishedButtonCollider.enabled = false;
-			FinishedButtonBlockedImage.enabled = true;
+			CalibrationSlider.value = 0f;
 		}
 
 		private void Update() {
@@ -78,15 +82,16 @@ namespace PXL.Interaction {
 			var distance2 = palm2.position.y - transform.position.y;
 
 			var distance = Mathf.Abs(distance1) < Mathf.Abs(distance2) ? distance1 : distance2;
-
-			SetButtonInteractable(false);
+			
 			if (distance > Threshold)
 				Movement.OverwriteVelocity(Movement.Speed * Vector3.down);
 			else if (distance < -Threshold)
 				Movement.OverwriteVelocity(Movement.Speed * Vector3.up);
 			else {
-				SetButtonInteractable(true);
+				CalibrationSlider.value += Time.deltaTime / CalibrateTime;
 				Movement.OverwriteVelocity(Vector3.zero);
+				if(CalibrationSlider.value >= CalibrateTime)
+					HandleCalibrationFinished();
 			}
 		}
 
@@ -95,15 +100,17 @@ namespace PXL.Interaction {
 		/// </summary>
 		public void HandleCalibrationFinished() {
 			isAdjusting = false;
+			CalibrationSlider.value = 1f;
 			Movement.OverwriteVelocity(Vector3.zero);
 			MessageObject.SetActive(false);
 			DisposeSubscriptions();
+			OnCalibrationFinished.Invoke();
 		}
 
 		protected override void HandleIncorrectPose() {
 			if (!isAdjusting)
 				return;
-			SetButtonInteractable(false);
+			CalibrationSlider.value = 0f;
 			StopAdjusting();
 		}
 
@@ -118,17 +125,8 @@ namespace PXL.Interaction {
 		/// </summary>
 		private void StopAdjusting() {
 			isAdjusting = false;
-			SetButtonInteractable(false);
+			CalibrationSlider.value = 0f;
 			Movement.OverwriteVelocity(Vector3.zero);
-		}
-
-		/// <summary>
-		/// Sets the enabled state of the button's collider and image according to the given value
-		/// </summary>
-		/// <param name="interactable">Whether the button is interactable</param>
-		private void SetButtonInteractable(bool interactable) {
-			FinishedButtonCollider.enabled = interactable;
-			FinishedButtonBlockedImage.enabled = !interactable;
 		}
 
 	}
