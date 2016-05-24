@@ -157,8 +157,6 @@ namespace PXL.Mirror {
 			return TestHandFactory.MakeTestHand(0, 0, Handedness == Chirality.Left).TransformedCopy(transform.GetLeapMatrix());
 		}
 
-		public override void FinishHand() { }
-
 	}
 
 }
