@@ -13,6 +13,11 @@ namespace PXL.Interaction {
 		public Movement.Movement Movement;
 
 		/// <summary>
+		/// Key used to skip the setup process
+		/// </summary>
+		public KeyCode SkipKey = KeyCode.V;
+
+		/// <summary>
 		/// Whether the vertical position of the camera is currently adjusting
 		/// </summary>
 		private bool isAdjusting;
@@ -58,39 +63,39 @@ namespace PXL.Interaction {
 			MessageObject.AssertNotNull("Missing message object reference!");
 			CalibrationSlider.AssertNotNull("Missing calibration slider reference");
 
-			if (DetectHandPose.HandModels.Count != 2)
-				throw new MissingReferenceException("Not exactly 2 hands given!");
-
 			palm1 = DetectHandPose.HandModels[0].palm;
-			palm2 = DetectHandPose.HandModels[1].palm;
+			palm2 = DetectHandPose.HandModels.Count > 1 ? DetectHandPose.HandModels[1].palm : null;
 
 			CalibrationSlider.value = 0f;
 		}
 
 		private void Update() {
+			if (Input.GetKeyDown(SkipKey))
+				HandleCalibrationFinished();
+
 			if (!isAdjusting)
 				return;
 
-			var diff = palm1.position.y - palm2.position.y;
+			var distance1 = palm1.position.y - transform.position.y;
+			var distance = distance1;
 
-			if (diff > 0.5f) {
-				StopAdjusting();
-				return;
+			if (palm2 != null) {
+				var distance2 = palm2.position.y - transform.position.y;
+				distance = Mathf.Abs(distance1) < Mathf.Abs(distance2) ? distance1 : distance2;
 			}
 
-			var distance1 = palm1.position.y - transform.position.y;
-			var distance2 = palm2.position.y - transform.position.y;
-
-			var distance = Mathf.Abs(distance1) < Mathf.Abs(distance2) ? distance1 : distance2;
-			
-			if (distance > Threshold)
+			if (distance > Threshold) {
 				Movement.OverwriteVelocity(Movement.Speed * Vector3.down);
-			else if (distance < -Threshold)
+				CalibrationSlider.value = 0f;
+			}
+			else if (distance < -Threshold) {
 				Movement.OverwriteVelocity(Movement.Speed * Vector3.up);
+				CalibrationSlider.value = 0f;
+			}
 			else {
 				CalibrationSlider.value += Time.deltaTime / CalibrateTime;
 				Movement.OverwriteVelocity(Vector3.zero);
-				if(CalibrationSlider.value >= CalibrateTime)
+				if (CalibrationSlider.value >= CalibrateTime)
 					HandleCalibrationFinished();
 			}
 		}
@@ -110,7 +115,6 @@ namespace PXL.Interaction {
 		protected override void HandleIncorrectPose() {
 			if (!isAdjusting)
 				return;
-			CalibrationSlider.value = 0f;
 			StopAdjusting();
 		}
 
