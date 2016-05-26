@@ -42,15 +42,13 @@ namespace PXL.Mirror {
 			initialTestHand = MakeTestHand();
 			handRepresentation = FindObjectOfType<HandPool>().MakeHandRepresentation(initialTestHand, ModelType.Graphics);
 
+			SetLeapHand(initialTestHand);
+			InitHand();
 			BeginHand();
 		}
 
 		protected void Update() {
 #if UNITY_EDITOR
-			if (!EditorApplication.isPlaying) {
-				SetLeapHand(MakeTestHand());
-				UpdateHand();
-			}
 			if (!Utility.EditorUtility.IsPlaying())
 				return;
 #endif
@@ -72,8 +70,15 @@ namespace PXL.Mirror {
 				leapProvider = FindObjectOfType<LeapProvider>();
 
 			var originalHandLeft = Handedness != Chirality.Left;
+			var currentFrame = leapProvider.CurrentFrame;
 
-			originalHand = leapProvider.CurrentFrame.Hands.FirstOrDefault(h => h.IsLeft == originalHandLeft);
+			if (currentFrame == null) {
+				FinishHand();
+				return;
+			}
+
+			originalHand = currentFrame.Hands.FirstOrDefault(h => h.IsLeft == originalHandLeft);
+
 			if (originalHand != null)
 				BeginHand();
 			else

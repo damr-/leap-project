@@ -23,6 +23,8 @@ namespace PXL.Mirror {
 		private static int _leftColorIndex;
 		private static int _rightColorIndex;
 
+		public bool KeepColor;
+
 		private static readonly Color[] LeftColorList = {
 			new Color(0.0f, 0.0f, 1.0f), new Color(0.2f, 0.0f, 0.4f),
 			new Color(0.0f, 0.2f, 0.2f)
@@ -49,6 +51,10 @@ namespace PXL.Mirror {
 		private int cylinderResolution = 12;
 
 		private bool hasGeneratedMeshes;
+
+		private Material JointMat {
+			get { return jointMat ?? (jointMat = new Material(material) { hideFlags = HideFlags.DontSaveInEditor }); }
+		}
 		private Material jointMat;
 
 		[SerializeField, HideInInspector]
@@ -101,9 +107,9 @@ namespace PXL.Mirror {
 		}
 
 		public override void InitHand() {
-			if (material != null) {
-				jointMat = new Material(material) { hideFlags = HideFlags.DontSaveInEditor };
-			}
+			//if (material != null) {
+			//	jointMat = new Material(material) { hideFlags = HideFlags.DontSaveInEditor };
+			//}
 
 			if (serializedTransforms != null) {
 				foreach (var obj in serializedTransforms) {
@@ -134,12 +140,14 @@ namespace PXL.Mirror {
 			base.BeginHand();
 
 			if (Hand.IsLeft) {
-				jointMat.color = LeftColorList[_leftColorIndex];
-				_leftColorIndex = (_leftColorIndex + 1) % LeftColorList.Length;
+				JointMat.color = LeftColorList[_leftColorIndex];
+				if(!KeepColor)
+					_leftColorIndex = (_leftColorIndex + 1) % LeftColorList.Length;
 			}
 			else {
-				jointMat.color = RightColorList[_rightColorIndex];
-				_rightColorIndex = (_rightColorIndex + 1) % RightColorList.Length;
+				JointMat.color = RightColorList[_rightColorIndex];
+				if(!KeepColor)
+					_rightColorIndex = (_rightColorIndex + 1) % RightColorList.Length;
 			}
 		}
 
@@ -292,7 +300,7 @@ namespace PXL.Mirror {
 			serializedTransforms.Add(sphere.transform);
 
 			sphere.AddComponent<MeshFilter>().mesh = sphereMesh;
-			sphere.AddComponent<MeshRenderer>().sharedMaterial = jointMat;
+			sphere.AddComponent<MeshRenderer>().sharedMaterial = JointMat;
 			sphere.transform.parent = transform;
 			sphere.transform.localScale = Vector3.one * radius * 2;
 

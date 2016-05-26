@@ -292,8 +292,9 @@ namespace Leap.Unity {
         } else {
           leapTransform = transform.GetLeapMatrix();
         }
-
-        toUpdate = source.TransformedCopy(leapTransform);
+				if (source == null)
+					return;
+				toUpdate = source.TransformedCopy(leapTransform);
       }
     }
   }
