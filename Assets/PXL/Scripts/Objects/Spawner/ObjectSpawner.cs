@@ -222,13 +222,13 @@ namespace PXL.Objects.Spawner {
 		protected virtual void Start() {
 			DefaultObjectPrefab.AssertNotNull();
 
-			ObjectFactory = new ObjectFactory();
+			ObjectFactory = new ObjectFactory {
+				Prefab = DefaultObjectPrefab,
+				Position = transform.position
+			};
 
 			CurrentObjectPrefab = DefaultObjectPrefab;
 			SetObjectScale(DefaultScaleFactor);
-
-			ObjectFactory.Prefab = DefaultObjectPrefab;
-			ObjectFactory.Position = transform.position;
 
 			if (SetObjectRotation)
 				ObjectFactory.Rotation = ObjectRotation;
@@ -385,7 +385,7 @@ namespace PXL.Objects.Spawner {
 		/// Sets up subscriptions on the new object, adds it to the list of spawned objects and sets up component properties
 		/// </summary>
 		private void SetupSpawnedObject(GameObject newObject) {
-			var interactiveObject = newObject.GetComponent<InteractiveObject>();
+			var interactiveObject = newObject.GetComponentInChildren<InteractiveObject>();
 
 			var health = newObject.GetComponent<Health.Health>();
 			health.AssertNotNull("Object is missing a Health component!");

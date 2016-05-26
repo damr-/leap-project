@@ -24,7 +24,7 @@ namespace PXL.Interaction {
 		/// <summary>
 		/// The minimum fingers necessary to pick up the object
 		/// </summary>
-		public static int MinFingerCount = 1;
+		private const int MinFingerCount = 1;
 
 		/// <summary>
 		/// How long to wait after changing hands before being able to change again

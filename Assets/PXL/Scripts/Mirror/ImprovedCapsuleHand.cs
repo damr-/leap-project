@@ -14,27 +14,53 @@ namespace PXL.Mirror {
 		protected const int ThumbBaseIndex = (int)Finger.FingerType.TYPE_THUMB * 4;
 		private const int PinkyBaseIndex = (int)Finger.FingerType.TYPE_PINKY * 4;
 
-		private const float SphereRadius = 0.008f;
-		private const float CylinderRadius = 0.006f;
+		public float SphereRadius = 0.009f;
+		public float CylinderRadius = 0.021f;
+		public float CylinderLengthFactor = 4f;
+
 		private const float PalmRadius = 0.015f;
 
-		private static int _colorIndex;
-		private static readonly Color[] ColorList = { Color.blue, Color.green, Color.magenta, Color.cyan, Color.red, Color.yellow };
+		private static int _leftColorIndex;
+		private static int _rightColorIndex;
 
-		public bool ShowArm = true;
+		private static readonly Color[] LeftColorList = {
+			new Color(0.0f, 0.0f, 1.0f), new Color(0.2f, 0.0f, 0.4f),
+			new Color(0.0f, 0.2f, 0.2f)
+		};
 
-		public Material Material;
+		private static readonly Color[] RightColorList = {
+			new Color(1.0f, 0.0f, 0.0f), new Color(1.0f, 1.0f, 0.0f),
+			new Color(1.0f, 0.5f, 0.0f)
+		};
 
+		[SerializeField]
+		private Chirality handedness;
+
+		[SerializeField]
+		private bool showArm = true;
+
+		[SerializeField]
+		private Material material;
+
+		[SerializeField]
+		private Mesh sphereMesh;
+
+		[SerializeField]
+		private int cylinderResolution = 12;
+
+		private bool hasGeneratedMeshes;
 		private Material jointMat;
+
+		[SerializeField, HideInInspector]
+		private List<Transform> serializedTransforms;
 
 		protected Transform[] JointSpheres;
 		protected Transform MockThumbJointSphere;
 		protected Transform PalmPositionSphere;
-
 		protected Transform WristPositionSphere;
 
 		private List<Renderer> armRenderers;
-		private List<Transform> capsuleTransforms;
+		private List<Transform> cylinderTransforms;
 		private List<Transform> sphereATransforms;
 		private List<Transform> sphereBTransforms;
 
@@ -51,8 +77,10 @@ namespace PXL.Mirror {
 		public override Chirality Handedness {
 			get { return handedness; }
 		}
-		[SerializeField]
-		private Chirality handedness;
+
+		public override bool SupportsEditorPersistence() {
+			return true;
+		}
 
 		public override Hand GetLeapHand() {
 			return Hand;
@@ -63,41 +91,73 @@ namespace PXL.Mirror {
 		}
 
 		private void OnValidate() {
-			if (armRenderers != null)
+			//Resolution must be at least 3!
+			cylinderResolution = Mathf.Max(3, cylinderResolution);
+
+			//Update visibility on validate so that the user can toggle in real-time
+			if (armRenderers != null) {
 				UpdateArmVisibility();
+			}
 		}
 
 		public override void InitHand() {
-			if (Material != null) {
-				jointMat = new Material(Material) {
-					hideFlags = HideFlags.DontSaveInEditor,
-					color = ColorList[_colorIndex]
-				};
-				_colorIndex = (_colorIndex + 1) % ColorList.Length;
+			if (material != null) {
+				jointMat = new Material(material) { hideFlags = HideFlags.DontSaveInEditor };
+			}
+
+			if (serializedTransforms != null) {
+				foreach (var obj in serializedTransforms) {
+					if (obj != null)
+						DestroyImmediate(obj.gameObject);
+				}
+				serializedTransforms.Clear();
+			}
+			else {
+				serializedTransforms = new List<Transform>();
 			}
 
 			JointSpheres = new Transform[4 * 5];
 			armRenderers = new List<Renderer>();
-			capsuleTransforms = new List<Transform>();
+			cylinderTransforms = new List<Transform>();
 			sphereATransforms = new List<Transform>();
 			sphereBTransforms = new List<Transform>();
 
 			CreateSpheres();
-			CreateCapsules();
+			CreateCylinders();
 
 			UpdateArmVisibility();
+
+			hasGeneratedMeshes = false;
+		}
+
+		public override void BeginHand() {
+			base.BeginHand();
+
+			if (Hand.IsLeft) {
+				jointMat.color = LeftColorList[_leftColorIndex];
+				_leftColorIndex = (_leftColorIndex + 1) % LeftColorList.Length;
+			}
+			else {
+				jointMat.color = RightColorList[_rightColorIndex];
+				_rightColorIndex = (_rightColorIndex + 1) % RightColorList.Length;
+			}
 		}
 
 		public override void UpdateHand() {
+			//Update the spheres first
 			UpdateSpheres();
 
-			if (ShowArm)
+			//Update Arm only if we need to
+			if (showArm) {
 				UpdateArm();
+			}
 
-			UpdateCapsules();
+			//The cylinder transforms are deterimined by the spheres they are connected to
+			UpdateCylinders();
 		}
 
 		protected virtual void UpdateSpheres() {
+			//Update all spheres
 			var fingers = Hand.Fingers;
 			foreach (var finger in fingers) {
 				for (var j = 0; j < 4; j++) {
@@ -116,12 +176,12 @@ namespace PXL.Mirror {
 
 			var thumbBaseToPalm = thumbBase.position - Hand.PalmPosition.ToVector3();
 			MockThumbJointSphere.position = Hand.PalmPosition.ToVector3() +
-											Vector3.Reflect(thumbBaseToPalm, Hand.Basis.xBasis.ToVector3().normalized);
+											Vector3.Reflect(thumbBaseToPalm, Hand.Basis.xBasis.ToVector3());
 		}
 
 		protected virtual void UpdateArm() {
 			var arm = Hand.Arm;
-			var right = arm.Basis.xBasis.ToVector3().normalized * arm.Width * 0.7f * 0.5f;
+			var right = arm.Basis.xBasis.ToVector3() * arm.Width * 0.7f * 0.5f;
 			var wrist = arm.WristPosition.ToVector3();
 			var elbow = arm.ElbowPosition.ToVector3();
 
@@ -134,44 +194,40 @@ namespace PXL.Mirror {
 			ArmBackLeft.position = elbow - right;
 		}
 
-		private void UpdateCapsules() {
-			for (var i = 0; i < capsuleTransforms.Count; i++) {
-				var capsule = capsuleTransforms[i];
+		private void UpdateCylinders() {
+			for (var i = 0; i < cylinderTransforms.Count; i++) {
+				var cylinder = cylinderTransforms[i];
 				var sphereA = sphereATransforms[i];
 				var sphereB = sphereBTransforms[i];
 
 				var delta = sphereA.position - sphereB.position;
 
-				var scale = capsule.localScale;
-				scale.x = CylinderRadius * 2;
-				scale.y = delta.magnitude * 0.5f / transform.lossyScale.x;
-				scale.z = CylinderRadius * 2;
+				if (!hasGeneratedMeshes) {
+					var filter = cylinder.GetComponent<MeshFilter>();
+					filter.sharedMesh = GenerateCylinderMesh(delta.magnitude / transform.lossyScale.x);
+				}
 
-				capsule.localScale = scale;
+				cylinder.position = sphereA.position;
 
-				capsule.position = (sphereA.position + sphereB.position) / 2;
-
-				if (delta.sqrMagnitude <= Mathf.Epsilon)
+				if (delta.sqrMagnitude <= Mathf.Epsilon) {
+					//Two spheres are at the same location, no rotation will be found
 					continue;
-
-				Vector3 perp;
-				if (Vector3.Angle(delta, Vector3.up) > 170 || Vector3.Angle(delta, Vector3.up) < 10) {
-					perp = Vector3.Cross(delta, Vector3.right);
-				}
-				else {
-					perp = Vector3.Cross(delta, Vector3.up);
 				}
 
-				capsule.rotation = Quaternion.LookRotation(perp, delta);
+				cylinder.LookAt(sphereB);
 			}
+
+			hasGeneratedMeshes = true;
 		}
 
 		private void UpdateArmVisibility() {
-			foreach (var r in armRenderers)
-				r.enabled = ShowArm;
+			foreach (var r in armRenderers) {
+				r.enabled = showArm;
+			}
 		}
 
 		private void CreateSpheres() {
+			//Create spheres for finger joints
 			var fingers = Hand.Fingers;
 			foreach (var finger in fingers) {
 				for (var j = 0; j < 4; j++) {
@@ -190,7 +246,8 @@ namespace PXL.Mirror {
 			ArmBackRight = CreateSphere("ArmBackRight", SphereRadius, true);
 		}
 
-		private void CreateCapsules() {
+		private void CreateCylinders() {
+			//Create cylinders between finger joints
 			for (var i = 0; i < 5; i++) {
 				for (var j = 0; j < 3; j++) {
 					var keyA = GetFingerJointIndex(i, j);
@@ -199,10 +256,11 @@ namespace PXL.Mirror {
 					var sphereA = JointSpheres[keyA];
 					var sphereB = JointSpheres[keyB];
 
-					CreateCapsule("Finger Joint", sphereA, sphereB);
+					CreateCylinder("Finger Joint", sphereA, sphereB);
 				}
 			}
 
+			//Create cylinders between finger knuckles
 			for (var i = 0; i < 4; i++) {
 				var keyA = GetFingerJointIndex(i, 0);
 				var keyB = GetFingerJointIndex(i + 1, 0);
@@ -210,57 +268,109 @@ namespace PXL.Mirror {
 				var sphereA = JointSpheres[keyA];
 				var sphereB = JointSpheres[keyB];
 
-				CreateCapsule("Hand Joints", sphereA, sphereB);
+				CreateCylinder("Hand Joints", sphereA, sphereB);
 			}
 
+			//Create the rest of the hand
 			var thumbBase = JointSpheres[ThumbBaseIndex];
 			var pinkyBase = JointSpheres[PinkyBaseIndex];
-			CreateCapsule("Hand Bottom", thumbBase, MockThumbJointSphere);
-			CreateCapsule("Hand Side", pinkyBase, MockThumbJointSphere);
+			CreateCylinder("Hand Bottom", thumbBase, MockThumbJointSphere);
+			CreateCylinder("Hand Side", pinkyBase, MockThumbJointSphere);
 
-			CreateCapsule("ArmFront", ArmFrontLeft, ArmFrontRight, true);
-			CreateCapsule("ArmBack", ArmBackLeft, ArmBackRight, true);
-			CreateCapsule("ArmLeft", ArmFrontLeft, ArmBackLeft, true);
-			CreateCapsule("ArmRight", ArmFrontRight, ArmBackRight, true);
+			CreateCylinder("ArmFront", ArmFrontLeft, ArmFrontRight, true);
+			CreateCylinder("ArmBack", ArmBackLeft, ArmBackRight, true);
+			CreateCylinder("ArmLeft", ArmFrontLeft, ArmBackLeft, true);
+			CreateCylinder("ArmRight", ArmFrontRight, ArmBackRight, true);
 		}
 
 		protected int GetFingerJointIndex(int fingerIndex, int jointIndex) {
 			return fingerIndex * 4 + jointIndex;
 		}
 
-		private Transform CreateSphere(string title, float radius, bool isPartOfArm = false) {
-			var sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-			DestroyImmediate(sphere.GetComponent<Collider>());
+		private Transform CreateSphere(string sphereName, float radius, bool isPartOfArm = false) {
+			var sphere = new GameObject(sphereName);
+			serializedTransforms.Add(sphere.transform);
+
+			sphere.AddComponent<MeshFilter>().mesh = sphereMesh;
+			sphere.AddComponent<MeshRenderer>().sharedMaterial = jointMat;
 			sphere.transform.parent = transform;
 			sphere.transform.localScale = Vector3.one * radius * 2;
-			sphere.GetComponent<Renderer>().sharedMaterial = jointMat;
 
-			sphere.name = title;
 			sphere.hideFlags = HideFlags.DontSave | HideFlags.HideInHierarchy | HideFlags.HideInInspector;
+			sphere.layer = gameObject.layer;
 
-			if (isPartOfArm)
+			if (isPartOfArm) {
 				armRenderers.Add(sphere.GetComponent<Renderer>());
+			}
 
 			return sphere.transform;
 		}
 
-		private void CreateCapsule(string title, Transform jointA, Transform jointB, bool isPartOfArm = false) {
-			var capsule = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-			DestroyImmediate(capsule.GetComponent<Collider>());
-			capsule.name = title;
-			capsule.transform.parent = transform;
-			capsule.transform.localScale = Vector3.one * CylinderRadius * 2;
-			capsule.GetComponent<Renderer>().sharedMaterial = Material;
+		private void CreateCylinder(string cylinderName, Transform jointA, Transform jointB, bool isPartOfArm = false) {
+			var cylinder = new GameObject(cylinderName);
+			serializedTransforms.Add(cylinder.transform);
 
-			capsuleTransforms.Add(capsule.transform);
+			cylinder.AddComponent<MeshFilter>();
+			cylinder.AddComponent<MeshRenderer>().sharedMaterial = material;
+			cylinder.transform.parent = transform;
+
+			cylinderTransforms.Add(cylinder.transform);
 			sphereATransforms.Add(jointA);
 			sphereBTransforms.Add(jointB);
 
-			capsule.hideFlags = HideFlags.DontSave | HideFlags.HideInHierarchy | HideFlags.HideInInspector;
+			cylinder.gameObject.layer = gameObject.layer;
+			cylinder.hideFlags = HideFlags.DontSave | HideFlags.HideInHierarchy | HideFlags.HideInInspector;
 
 			if (isPartOfArm) {
-				armRenderers.Add(capsule.GetComponent<Renderer>());
+				armRenderers.Add(cylinder.GetComponent<Renderer>());
 			}
+		}
+
+		private Mesh GenerateCylinderMesh(float length) {
+			var mesh = new Mesh {
+				name = "GeneratedCylinder",
+				hideFlags = HideFlags.DontSave
+			};
+
+			var verts = new List<Vector3>();
+			var colors = new List<Color>();
+			var tris = new List<int>();
+
+			var p0 = Vector3.zero;
+			var p1 = Vector3.forward * length * CylinderLengthFactor;
+			for (var i = 0; i < cylinderResolution; i++) {
+				var angle = (Mathf.PI * 2.0f * i) / cylinderResolution;
+				var dx = CylinderRadius * Mathf.Cos(angle);
+				var dy = CylinderRadius * Mathf.Sin(angle);
+
+				var spoke = new Vector3(dx, dy, 0);
+
+				verts.Add(p0 + spoke);
+				verts.Add(p1 + spoke);
+
+				colors.Add(Color.white);
+				colors.Add(Color.white);
+
+				var triStart = verts.Count;
+				var triCap = cylinderResolution * 2;
+
+				tris.Add((triStart + 0) % triCap);
+				tris.Add((triStart + 2) % triCap);
+				tris.Add((triStart + 1) % triCap);
+
+				tris.Add((triStart + 2) % triCap);
+				tris.Add((triStart + 3) % triCap);
+				tris.Add((triStart + 1) % triCap);
+			}
+
+			mesh.SetVertices(verts);
+			mesh.SetIndices(tris.ToArray(), MeshTopology.Triangles, 0);
+			mesh.RecalculateBounds();
+			mesh.RecalculateNormals();
+			mesh.Optimize();
+			mesh.UploadMeshData(true);
+
+			return mesh;
 		}
 
 	}
