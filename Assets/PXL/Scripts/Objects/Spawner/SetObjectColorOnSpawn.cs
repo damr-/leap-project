@@ -9,7 +9,7 @@ namespace PXL.Objects.Spawner {
 
 	[RequireComponent(typeof(ObjectSpawner))]
 	public class SetObjectColorOnSpawn : MonoBehaviour {
-	
+
 		[Serializable]
 		public struct ObjectColor {
 			public Color Color;
@@ -73,9 +73,9 @@ namespace PXL.Objects.Spawner {
 		/// Sets the default color as the current one and sets up the spawnsubsription
 		/// </summary>
 		private void Start() {
-            CurrentColor.Value = DefaultColor;
+			CurrentColor.Value = DefaultColor;
 			ObjectSpawner.ObjectSpawned.Subscribe(SetObjectColor);
-        }
+		}
 
 		/// <summary>
 		/// Applies the current color to the given InteractiveObject
@@ -84,7 +84,9 @@ namespace PXL.Objects.Spawner {
 		protected virtual void SetObjectColor(InteractiveObject interactiveObject) {
 			var curCol = CurrentColor.Value.Color;
 			var objectColor = curCol == Color.white ? GetRandomColor() : curCol;
-			interactiveObject.GetComponent<Renderer>().material.color = objectColor;
+			var r = interactiveObject.GetComponentInChildren<Renderer>() ??
+						interactiveObject.transform.parent.GetComponent<Renderer>();
+			r.material.color = objectColor;
 		}
 
 		/// <summary>

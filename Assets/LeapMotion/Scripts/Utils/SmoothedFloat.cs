@@ -33,8 +33,8 @@ namespace Leap.Unity{
         var newValue = Mathf.Lerp(this.value, input, 1f - blend);
         
         var new_dt = Mathf.Abs(newValue - value);
-        if (average_dt * 10 < newValue - value)
-          Debug.Log("Average dt was excessive!");
+        //if (average_dt * 10 < newValue - value)
+        //  Debug.Log("Average dt was excessive!");
 
         average_dt = Mathf.Lerp(average_dt, new_dt, 1f - blend);
         value = newValue;

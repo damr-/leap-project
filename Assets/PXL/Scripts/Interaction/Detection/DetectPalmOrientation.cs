@@ -28,7 +28,7 @@ namespace PXL.Interaction.Detection {
 		/// <summary>
 		/// The length of the orientation preview lines
 		/// </summary>
-		private const float LineLength = 0.15f;
+		private const float LineLength = 0.25f;
 
 		/// <summary>
 		/// The color for the horizontal axis, pointing to the right of the palm
