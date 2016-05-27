@@ -33,8 +33,13 @@ namespace PXL.Objects.Spawner {
 			if (ObjectSpawner.enabled != newEnabledState)
 				ObjectSpawner.enabled = newEnabledState;
 
-			if (ObjectSpawner.enabled)
-				ObjectSpawner.OverrideSpawnFrequency(dot.Remap(0f, 1f, MinSpawnRate, MaxSpawnRate));
+			if (!ObjectSpawner.enabled)
+				return;
+
+			if (!ObjectSpawner.IsSpawningEnabled)
+				ObjectSpawner.IsSpawningEnabled = true;
+
+			ObjectSpawner.OverrideSpawnFrequency(dot.Remap(0f, 1f, MinSpawnRate, MaxSpawnRate));
 		}
 
 	}
