@@ -1,9 +1,14 @@
-﻿using PXL.UI.Admin;
+﻿using PXL.Objects.Spawner;
+using PXL.UI.Admin;
 using PXL.Utility;
 using UnityEngine;
 
 namespace PXL.UI.World.Hand {
 
+	/// <summary>
+	/// This script sets up the hand spawner elements of a hand menu by 
+	/// creating one for each <see cref="ObjectSpawner"/> in the scene.
+	/// </summary>
 	public class SetupHandSpawnerElements : AdminBase {
 
 		/// <summary>

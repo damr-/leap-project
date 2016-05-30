@@ -3,6 +3,11 @@ using UnityEngine;
 
 namespace PXL.Interaction {
 
+	/// <summary>
+	/// Class which stores the information about a single movement of an object.
+	/// Provide info about the <see cref="Delta"/> movement, the <see cref="Moveable"/> component
+	/// and the <see cref="NewPosition"/> of the object whic hwas moved.
+	/// </summary>
 	public class MovementInfo {
 		public Vector3 Delta;
 		public Moveable Moveable;
@@ -15,6 +20,13 @@ namespace PXL.Interaction {
 		}
 	}
 
+	/// <summary>
+	/// This class provides the possibility to limit the movement of a grabbed object.
+	/// The developer can set certain axes of the object as frozen in the editor.
+	/// The object is then limited in movement and/or rotation on these axes when grabbe by the user.
+	/// Furthermore, it provides the functionality to set certain default values, which will always be used when freezing an axis. 
+	/// Therefore, the axis is not only frozen but also keeps the same value all the time.
+	/// </summary>
 	[RequireComponent(typeof(Grabbable))]
 	public class Moveable : MonoBehaviour {
 

@@ -10,6 +10,13 @@ using Image = UnityEngine.UI.Image;
 
 namespace PXL.UI.World.Buttons {
 
+	/// <summary>
+	/// This script describes the behaviour of a button which can be touched by the user to activate.
+	/// 
+	/// It changes color when the finger hovers over the button to indicate that by moving closer until the distance is less than <see cref="PressDistance"/>, it can be pressed.
+	/// 
+	/// When pressed, it also changes color.
+	/// </summary>
 	[RequireComponent(typeof(Touchable))]
 	public abstract class TouchableButton : MonoBehaviour {
 

@@ -7,6 +7,9 @@ using UnityEngine.SceneManagement;
 
 namespace PXL.Utility {
 
+	/// <summary>
+	/// This script allows to change the current scene via the F# keys asynchronously, reload the current scene and quit the application.
+	/// </summary>
 	public class LevelInput : MonoBehaviour {
 
 		/// <summary>

@@ -7,6 +7,11 @@ using UnityEngine;
 
 namespace PXL.Objects.Spawner {
 
+	/// <summary>
+	/// This script takes care of setting the color of objects which have been spawned by the referenced spawner.
+	///
+	/// If the color is set to white, it will instead choose a random one, leaving the white color (index 0) out.
+	/// </summary>
 	[RequireComponent(typeof(ObjectSpawner))]
 	public class SetObjectColorOnSpawn : MonoBehaviour {
 

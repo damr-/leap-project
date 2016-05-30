@@ -7,6 +7,9 @@ using UnityEngine;
 
 namespace PXL.Objects.Spawner {
 
+	/// <summary>
+	/// This script is sets many different properties of spawned objects when they are created.
+	/// </summary>
 	[RequireComponent(typeof(ObjectSpawner))]
 	public class SetObjectPropertiesOnSpawn : MonoBehaviour {
 
@@ -107,8 +110,14 @@ namespace PXL.Objects.Spawner {
 		}
 		private ObjectSpawner mObjectSpawner;
 
+		/// <summary>
+		/// Whether components will be added to the objects
+		/// </summary>
 		public bool IsAddingComponents;
 
+		/// <summary>
+		/// The name of the component which will be added to the list
+		/// </summary>
 		public string NewComponentName;
 
 		private void Start() {

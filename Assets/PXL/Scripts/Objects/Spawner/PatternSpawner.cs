@@ -4,8 +4,14 @@ using UnityEngine;
 
 namespace PXL.Objects.Spawner {
 
+	/// <summary>
+	/// This spawner spawns a pattern of objects, which can be customized in the Editor.
+	/// The min/max amount of columns/rows can be changes, as well as the margin between rows and colums
+	/// 
+	/// Furthermore, the whole pattern can be randomized as well as the amount of rows/columns.
+	/// </summary>
 	public class PatternSpawner : ObjectSpawner {
-
+	
 		[System.Serializable]
 		public class PatternColumn {
 			public bool[] Rows = new bool[MaxPatternRows];
@@ -82,7 +88,7 @@ namespace PXL.Objects.Spawner {
 		public int MaxRandomRowCount;
 
 		/// <summary>
-		/// How many points are added to <see cref="GameMode.CurrentPoints"/> when all objects have been removed
+		/// How many points are added to <see cref="GameState.CurrentPoints"/> when all objects have been removed
 		/// </summary>
 		public int PatternFinishPoints = 1;
 
@@ -121,9 +127,8 @@ namespace PXL.Objects.Spawner {
 		protected override void HandleObjectDespawned(InteractiveObject interactiveObject) {
 			base.HandleObjectDespawned(interactiveObject);
 
-			if (SpawnedObjects.Count == 0) {
-				GameMode.AddPoints(PatternFinishPoints);
-			}
+			if (SpawnedObjects.Count == 0)
+				GameState.AddPoints(PatternFinishPoints);
 		}
 
 		/// <summary>

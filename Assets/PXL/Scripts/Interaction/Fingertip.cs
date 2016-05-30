@@ -5,6 +5,10 @@ using UnityEngine;
 
 namespace PXL.Interaction {
 
+	/// <summary>
+	/// Class which provides an object the functionality with interacting with another object.
+	/// The other object needs a <see cref="Touchable"/> as well as the <see cref="Tags.TagType.Object"/> tag to be interacted with
+	/// </summary>
 	public class Fingertip : MonoBehaviour {
 
 		/// <summary>

@@ -4,6 +4,10 @@ using UnityEngine.UI;
 
 namespace PXL.UI.World.Buttons {
 
+	/// <summary>
+	/// This script sets up the Reloadlevel button by finding the scene's <see cref="LevelInput"/> and
+	/// telling the button to restart the level when it's pressed
+	/// </summary>
 	public class SetupReloadLevelButton : MonoBehaviour {
 
 		/// <summary>

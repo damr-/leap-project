@@ -5,7 +5,12 @@ using UnityEngine.UI;
 
 namespace PXL.UI.Admin {
 
-	public abstract class PropertyChanger : MenuElement {
+	/// <summary>
+	/// This script provides the functionality to change a property either via keys or buttons.
+	/// 
+	/// How the property is changed in the end has to be implemented in an inheriting class.
+	/// </summary>
+	public abstract class PropertyChanger : AdminBase {
 
 		/// <summary>
 		/// The key used to select the next element or increase the value
@@ -36,26 +41,27 @@ namespace PXL.UI.Admin {
 		/// The target <see cref="ObjectSpawner"/>, whose properties this script changes
 		/// </summary>
 		protected ObjectSpawner ObjectSpawner;
-		
+
+		protected override void Start() {
+			base.Start();
+			AssertReferences();
+		}
+
 		/// <summary>
 		/// Checks for active admin mode and key strokes
 		/// </summary>
 		protected virtual void Update() {
-			if (!IsAdmin || !IsSelected) {
+			if (!IsAdmin)
 				return;
-			}
 
-			if (Input.GetKeyDown(IncreaseKey)) {
+			if (Input.GetKeyDown(IncreaseKey))
 				IncreaseButton.onClick.Invoke();
-			}
 
-			if (Input.GetKeyDown(DecreaseKey)) {
+			if (Input.GetKeyDown(DecreaseKey))
 				DecreaseButton.onClick.Invoke();
-			}
 		}
 
-		protected override void AssertReferences() {
-			base.AssertReferences();
+		private void AssertReferences() {
 			DecreaseButton.AssertNotNull("Decrease button missing");
 			IncreaseButton.AssertNotNull("Increase button missing");
 		}

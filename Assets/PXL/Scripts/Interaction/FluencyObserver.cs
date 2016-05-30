@@ -5,6 +5,10 @@ using UniRx;
 
 namespace PXL.Interaction {
 
+	/// <summary>
+	/// Class storing the data of a tracked movement.
+	/// The data consists of the <see cref="Grabbable"/> component of the object, a list of time and speed data with the same length
+	/// </summary>
 	public class TrackData {
 		public Grabbable Grabbable;
 		public List<float> Time;
@@ -17,6 +21,10 @@ namespace PXL.Interaction {
 		}
 	}
 
+	/// <summary>
+	/// This class reacts to the given hands picking up an object and records the object's movement with a certain interval.
+	/// Once dropped, the <see cref="FinishedObserving"/> is invoked for other objects to react, if there is enough data to use.
+	/// </summary>
 	public class FluencyObserver : InteractionHandSubscriber {
 	
 		/// <summary>
@@ -59,7 +67,10 @@ namespace PXL.Interaction {
 		/// </summary>
 		private float lastTrackTime;
 
-		private IDisposable disposable = UniRx.Disposable.Empty;
+		/// <summary>
+		/// Disposable for tracking the object 
+		/// </summary>
+		private IDisposable trackUpdateDisposable = Disposable.Empty;
 
 		/// <summary>
 		/// Invoked when an object is dropped and the observing is finished
@@ -75,9 +86,9 @@ namespace PXL.Interaction {
 			startTime = Time.time;
 			lastTrackTime = Time.time;
 
-			disposable = Observable.Interval(TimeSpan.FromSeconds(1 / TrackFrequency)).Subscribe(_ => {
+			trackUpdateDisposable = Observable.Interval(TimeSpan.FromSeconds(1 / TrackFrequency)).Subscribe(_ => {
 				if (observedGrabbable == null) {
-					disposable.Dispose();
+					trackUpdateDisposable.Dispose();
 					return;
 				}
 
@@ -95,7 +106,7 @@ namespace PXL.Interaction {
 		}
 
 		protected override void HandleDropped(Grabbable grabbable) {
-			disposable.Dispose();
+			trackUpdateDisposable.Dispose();
 
 			if (timeData.Count < RequiredDataAmount)
 				return;

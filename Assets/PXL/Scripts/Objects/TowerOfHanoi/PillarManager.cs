@@ -6,6 +6,11 @@ using UnityEngine;
 
 namespace PXL.Objects.TowerOfHanoi {
 
+	/// <summary>
+	/// This script manages the position of the pillars in Tower of Hanoi.
+	/// As soon as the game starts, the scripts tries to load the saved positions from the PlayerPrefs.
+	/// When a pillar is moved and dropped, the new positions are saved in the PlayerPrefs.
+	/// </summary>
 	public class PillarManager : MonoBehaviour {
 
 		/// <summary>

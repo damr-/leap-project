@@ -8,6 +8,13 @@ using UnityEngine;
 
 namespace PXL.Interaction {
 
+	/// <summary>
+	/// This scrip provides an object with the functionality to be grabbed up by the user.
+	/// It reacts to the <see cref="Touchable"/>'s events (when fingers enter or leave the object's trigger
+	/// and invokes observables as soon as certain conditions are met and the object can be grabbed.
+	/// It provides functions for making the object drop from the hand or make a hand grab it.
+	/// It provides information about the current <see cref="IsGrabbed"/> state and whether the object is currently stationary.
+	/// </summary>
 	[RequireComponent(typeof(Touchable))]
 	public class Grabbable : MonoBehaviour {
 

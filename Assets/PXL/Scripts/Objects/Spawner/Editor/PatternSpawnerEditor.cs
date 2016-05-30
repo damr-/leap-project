@@ -18,7 +18,9 @@ namespace PXL.Objects.Spawner.Editor {
 
 		private const string NormalHelpText = "Checked boxes represent spots where the spawner will place an object. Unchecked boxes represent empty spots where no object will be placed.";
 
-
+		/// <summary>
+		/// Whether the display pattern help is currently being displayed
+		/// </summary>
 		private bool displayPatternHelp;
 
 		public override void OnInspectorGUI() {

@@ -2,30 +2,69 @@
 
 namespace PXL.Interior {
 
-	public class ScreenSaver : MonoBehaviour {
+	/// <summary>
+	/// This script makes an object move on certain axes between minimum and maximum values (definable for each axis)
+	/// </summary>
+	public class LinearMovement : MonoBehaviour {
 
+		/// <summary>
+		/// The speed of the movement
+		/// </summary>
 		public float Speed = 0.2f;
 
+		/// <summary>
+		/// The starting position of the object
+		/// </summary>
 		public Vector3 StartPosition;
 
+		/// <summary>
+		/// Which axes are used for the movement
+		/// </summary>
 		public bool[] MovementAxes = new bool[3];
 
+		/// <summary>
+		/// The minimum allowed value for the object's x-Position
+		/// </summary>
 		public float MinX;
 
+		/// <summary>
+		/// The maximum allowed value for the object's x-Position
+		/// </summary>
 		public float MaxX;
 
+		/// <summary>
+		/// The minimum allowed value for the object's y-Position
+		/// </summary>
 		public float MinY;
 
+		/// <summary>
+		/// The maximum allowed value for the object's y-Position
+		/// </summary>
 		public float MaxY;
 
+		/// <summary>
+		/// The minimum allowed value for the object's z-Position
+		/// </summary>
 		public float MinZ;
 
+		/// <summary>
+		/// The maximum allowed value for the object's z-Position
+		/// </summary>
 		public float MaxZ;
 
+		/// <summary>
+		/// The current velocity of the object
+		/// </summary>
 		private Vector3 velocity = Vector3.zero;
 
+		/// <summary>
+		/// WHether to use local or world space for the coordinates
+		/// </summary>
 		public bool LocalSpace;
 
+		/// <summary>
+		/// The current position of the object, taking <see cref="LocalSpace"/> into account
+		/// </summary>
 		public Vector3 Pos {
 			get { return LocalSpace ? transform.localPosition : transform.position; }
 			set {

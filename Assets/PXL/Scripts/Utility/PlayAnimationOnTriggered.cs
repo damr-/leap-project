@@ -4,6 +4,10 @@ using UnityEngine;
 
 namespace PXL.Utility {
 
+	/// <summary>
+	/// This script plays a referenced animation as soon as the trigger has been activated 
+	/// and the object stayed inside for a certain <see cref="RequiredStayDuration"/>
+	/// </summary>
 	public class PlayAnimationOnTriggered : MonoBehaviour {
 
 		/// <summary>

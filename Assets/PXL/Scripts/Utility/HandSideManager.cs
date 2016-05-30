@@ -3,6 +3,10 @@ using UnityEngine.UI;
 
 namespace PXL.Utility {
 
+	/// <summary>
+	/// This script manages restoring the hand menu on the correct hand (left or right) when the game starts and saving
+	/// the side when it changes.
+	/// </summary>
 	public class HandSideManager : MonoBehaviour {
 
 		/// <summary>

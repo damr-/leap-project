@@ -2,6 +2,9 @@
 
 namespace PXL.UI.World.Buttons {
 
+	/// <summary>
+	/// This script stores the index of the level which will be loaded when it's pressed
+	/// </summary>
 	public class LevelLoadButton : TouchDurationButton {
 
 		/// <summary>

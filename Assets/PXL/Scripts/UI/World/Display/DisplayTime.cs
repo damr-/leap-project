@@ -7,6 +7,12 @@ using UnityEngine.UI;
 
 namespace PXL.UI.World.Display {
 
+	/// <summary>
+	/// This script displays the currently elapsed time during this task.
+	/// 
+	/// It provides functions to start, stop and reset the timer.
+	/// It can be set to start automatically when enabled or to wait until it's enabled via <see cref="TryStartTimer"/>
+	/// </summary>
 	public class DisplayTime : MonoBehaviour {
 
 		/// <summary>
@@ -44,7 +50,7 @@ namespace PXL.UI.World.Display {
 		private void OnEnable() {
 			if (AutoStart)
 				TryStartTimer();
-			gameWinDisposable = GameMode.GameOver.Subscribe(HandleGameOver);
+			gameWinDisposable = GameState.GameOver.Subscribe(HandleGameOver);
 		}
 
 		private void Update() {

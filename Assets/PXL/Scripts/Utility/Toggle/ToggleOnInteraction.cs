@@ -6,6 +6,10 @@ using UnityEngine;
 
 namespace PXL.Utility.Toggle {
 
+	/// <summary>
+	/// This script adds the functionality to enable/disable or toggle behaviours and GameObject 
+	/// as soon as a certain type of interaction happens with a certain or both hands.
+	/// </summary>
 	public class ToggleOnInteraction : InteractionHandSubscriber {
 
 		[Serializable]

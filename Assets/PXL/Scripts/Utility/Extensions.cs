@@ -3,13 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Leap.Unity;
-using PXL.Interaction;
 using UnityEngine;
 using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
 
 namespace PXL.Utility {
 
+	/// <summary>
+	/// Various useful extension methods used throughout all scripts in the project
+	/// </summary>
 	public static class Extensions {
 
 		/// <summary>

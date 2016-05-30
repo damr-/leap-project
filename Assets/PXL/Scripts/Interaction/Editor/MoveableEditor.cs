@@ -3,6 +3,10 @@ using UnityEditor;
 
 namespace PXL.Interaction.Editor {
 
+	/// <summary>
+	/// Custom editor script which exposes the necessary variables to the Inspector and 
+	/// provides an easy to use interface.
+	/// </summary>
 	[CustomEditor(typeof(Moveable))]
 	public class MoveableEditor : UnityEditor.Editor {
 

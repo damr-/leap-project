@@ -4,6 +4,9 @@ using UnityEngine;
 
 namespace PXL.Utility {
 
+	/// <summary>
+	/// This script despawns or destroys this object after a certain <see cref="LifeTime"/>
+	/// </summary>
 	public class DestroyAfterTime : MonoBehaviour {
 	
 		/// <summary>

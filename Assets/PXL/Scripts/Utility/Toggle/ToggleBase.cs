@@ -3,6 +3,11 @@ using UnityEngine;
 
 namespace PXL.Utility.Toggle {
 
+	/// <summary>
+	/// This script is the base for all the scripts which toggle something on keypress.
+	/// 
+	/// It can be set to only allow input when the admin mode is active .
+	/// </summary>
 	public abstract class ToggleBase : MonoBehaviour {
 
 		/// <summary>

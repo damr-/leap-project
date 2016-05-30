@@ -4,6 +4,10 @@ using UnityEngine;
 
 namespace PXL.Health {
 
+	/// <summary>
+	/// This script makes the object deal <see cref="Damage"/> points to or immediately kill other ones, when they collide.
+	/// The other objects need to have <see cref="InteractiveObject"/> and <see cref="Health"/> components.
+	/// </summary>
 	public class DealCollisionDamage : MonoBehaviour {
 
 		/// <summary>
@@ -26,6 +30,9 @@ namespace PXL.Health {
 		/// </summary>
 		public float Damage = 1f;
 
+		/// <summary>
+		/// The target tag as an actual string
+		/// </summary>
 		private string targetTag;
 
 		private void Start() {

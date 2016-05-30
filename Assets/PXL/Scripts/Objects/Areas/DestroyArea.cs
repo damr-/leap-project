@@ -5,6 +5,14 @@ using UnityEngine;
 
 namespace PXL.Objects.Areas {
 
+	/// <summary>
+	/// This script describes an area which usually destroyes the objects which enter it.
+	/// It's made abstract so that more specific areas can define when and how exactly the objects are destroyed.
+	/// It also keeps track of the current amount of destroyed objects and provides functionality 
+	/// to win the game/add win points as soon as a certain amount has been destroyed.
+	/// It can also recude the current win points of the gamemode by <see cref="PunishAmount"/>, 
+	/// if the wrong object type is destroyed by this area.
+	/// </summary>
 	public abstract class DestroyArea : ObjectArea {
 
 		/// <summary>
@@ -80,10 +88,10 @@ namespace PXL.Objects.Areas {
 		/// </summary>
 		protected virtual void HandleGameWon() {
 			if (WorthWinPoints == -1) {
-				GameMode.SetGameWon(true);
+				GameState.SetGameWon(true);
 			}
 			else {
-				GameMode.AddPoints(WorthWinPoints);
+				GameState.AddPoints(WorthWinPoints);
 			}
 			SetAreaActive(false);
 			goalReachedSubject.OnNext(Unit.Default);

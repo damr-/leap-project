@@ -6,6 +6,9 @@ using UnityEngine;
 
 namespace PXL.Interaction {
 
+	/// <summary>
+	/// This class works as an abstract base for every script which needs to observe certain <see cref="InteractionHand"/> objects for their interactions (grab, drop, move).
+	/// </summary>
 	public abstract class InteractionHandSubscriber : MonoBehaviour {
 
 		/// <summary>
@@ -13,9 +16,15 @@ namespace PXL.Interaction {
 		/// </summary>
 		public List<HandModel> HandModels = new List<HandModel>();
 
+		/// <summary>
+		/// The observed interaction hands
+		/// </summary>
 		protected List<InteractionHand> InteractionHands = new List<InteractionHand>();
 
-		private CompositeDisposable subscriptions = new CompositeDisposable();
+		/// <summary>
+		/// All the individual subscriptions to the hands' interacitons
+		/// </summary>
+		private readonly CompositeDisposable subscriptions = new CompositeDisposable();
 
 		protected virtual void Start() {
 			HandModels.ForEach(i => {

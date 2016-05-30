@@ -6,16 +6,17 @@ using UniRx;
 
 namespace PXL.UI.Admin {
 
+	/// <summary>
+	/// This script provides functionality to preview the shape of the objects a spawner will spawn.
+	/// </summary>
 	[RequireComponent(typeof(Image))]
 	public class ObjectShapePreview : MonoBehaviour {
 
 		/// <summary>
-		/// The Image component of this object
+		/// The <see cref="Image"/> component of this object
 		/// </summary>
 		private Image Image {
-			get {
-				return mImage ?? (mImage = this.TryGetComponent<Image>());
-			}
+			get { return mImage ?? (mImage = this.TryGetComponent<Image>()); }
 		}
 		private Image mImage;
 
@@ -27,8 +28,8 @@ namespace PXL.UI.Admin {
 			UpdateShapePreview(c.CurrentObjectShape.Value.Texture);
 		}
 
-		private void UpdateShapePreview(Sprite Texture) {
-			Image.sprite = Texture;
+		private void UpdateShapePreview(Sprite texture) {
+			Image.sprite = texture;
 		}
 
 	}

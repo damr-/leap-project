@@ -5,6 +5,11 @@ using PXL.Utility;
 
 namespace PXL.Objects.Areas {
 
+	/// <summary>
+	/// This script provides feedback for a destroy area.
+	/// It changes the color of a light source whether the destroyed object's type was a correct one 
+	/// and it can also play an audio clip for audio feedback.
+	/// </summary>
 	[RequireComponent(typeof(DestroyArea))]
 	[RequireComponent(typeof(AudioSource))]
 	public class DestroyAreaFeedback : MonoBehaviour {

@@ -6,8 +6,14 @@ namespace PXL.Objects.Spawner.Editor {
 	[CustomEditor(typeof(SetObjectColorOnSpawn))]
 	public class SetObjectColorOnSpawnEditor : UnityEditor.Editor {
 
+		/// <summary>
+		/// Whether the available colors are currently being shown
+		/// </summary>
 		private bool showAvailableColors;
 
+		/// <summary>
+		/// The references <see cref="SetObjectColorOnSpawn"/> component
+		/// </summary>
 		private SetObjectColorOnSpawn t;
 
 		public override void OnInspectorGUI() {

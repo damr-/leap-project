@@ -5,6 +5,9 @@ using PXL.Utility;
 
 namespace PXL.Objects.Spawner {
 
+	/// <summary>
+	/// This script disables the spawning of an <see cref="ObjectSpawner"/> as soon as the goal of a <see cref="DestroyArea"/> is reached.
+	/// </summary>
 	[RequireComponent(typeof(ObjectSpawner))]
 	public class StopSpawnOnGoalReached : MonoBehaviour {
 

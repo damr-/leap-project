@@ -3,6 +3,11 @@ using UnityEngine;
 
 namespace PXL.Objects {
 
+	/// <summary>
+	/// This script takes care of despawning or destroying this object when
+	/// it's too far away from a certain position or transform.
+	/// If it checks the distance to a transform, changes in the transform's position on runtime are also taken into account.
+	/// </summary>
 	public class DestroyAtDistance : MonoBehaviour {
 
 		/// <summary>
@@ -21,36 +26,26 @@ namespace PXL.Objects {
 		public Transform OriginTransform;
 
 		/// <summary>
-		/// The actual origin position used to calculate the distance
-		/// </summary>
-		private Vector3 origin;
-
-		/// <summary>
 		/// Whether this object should be despawned and not destroyed
 		/// </summary>
 		public bool Despawn = true;
 
-		private void Start() {
-			origin = OriginTransform == null ? Origin : OriginTransform.position;
-		}
-
 		private void Update() {
-			if (Vector3.Distance(origin, transform.position) > DespawnDistance) {
+			var origin = OriginTransform == null ? Origin : OriginTransform.position;
+			if (Vector3.Distance(origin, transform.position) > DespawnDistance)
 				HandleTooFarAway();
-			}
 		}
 
 		/// <summary>
 		/// Called when the <see cref="Health"/> component invokes the Death Observable
 		/// </summary>
 		private void HandleTooFarAway() {
-			if (Despawn) {
+			if (Despawn)
 				SimplePool.Despawn(gameObject);
-			}
-			else {
+			else
 				Destroy(gameObject);
-			}
 		}
+
 	}
 
 }

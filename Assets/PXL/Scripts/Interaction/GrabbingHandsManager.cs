@@ -4,6 +4,10 @@ using UnityEngine;
 
 namespace PXL.Interaction {
 
+	/// <summary>
+	/// This class keeps track of all hands currently grabbing an object and 
+	/// provides funcitonality to easily find out whether a hand can grab an object or not.
+	/// </summary>
 	public class GrabbingHandsManager : MonoBehaviour {
 
 		/// <summary>

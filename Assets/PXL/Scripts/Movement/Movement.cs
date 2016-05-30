@@ -3,6 +3,10 @@ using UnityEngine;
 
 namespace PXL.Movement {
 
+	/// <summary>
+	/// This script allows to move this object with the givne keys and a certain speed in worldspace.
+	/// Also provides a function to overrite the current velocity and keep it running until it's overwritte with <see cref="Vector3.zero"/>
+	/// </summary>
 	public class Movement : MonoBehaviour {
 
 		/// <summary>

@@ -2,6 +2,9 @@
 
 namespace PXL.Objects {
 
+	/// <summary>
+	/// All available object types 
+	/// </summary>
 	public enum ObjectType {
 		All = 0,
 		Cube = 1,
@@ -15,6 +18,9 @@ namespace PXL.Objects {
 		Weapon = 9,
 	}
 
+	/// <summary>
+	/// This script provides information about what type of object this one is and what scale it currently has.
+	/// </summary>
 	public class InteractiveObject : MonoBehaviour {
 
 		/// <summary>

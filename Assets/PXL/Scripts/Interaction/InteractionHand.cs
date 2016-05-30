@@ -20,6 +20,10 @@ namespace PXL.Interaction {
 		Move = 4
 	}
 
+	/// <summary>
+	/// This class provides observables to a hand object which are invoked whenever the hand interacts with an object.
+	/// It can also give information about the hand side of the hand if possible.
+	/// </summary>
 	public class InteractionHand : MonoBehaviour {
 
 		/// <summary>

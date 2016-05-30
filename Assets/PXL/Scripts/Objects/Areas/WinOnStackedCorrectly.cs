@@ -5,6 +5,10 @@ using UniRx;
 
 namespace PXL.Objects.Areas {
 
+	/// <summary>
+	/// This script adds points to the current win points or wins the game immediately if the 
+	/// stackarea reports a successful stack.
+	/// </summary>
 	[RequireComponent(typeof(StackArea))]
 	public class WinOnStackedCorrectly : MonoBehaviour {
 
@@ -22,9 +26,7 @@ namespace PXL.Objects.Areas {
 		/// The StackArea of this object
 		/// </summary>
 		private StackArea StackArea {
-			get {
-				return mStackArea ?? (mStackArea = this.TryGetComponent<StackArea>());
-			}
+			get { return mStackArea ?? (mStackArea = this.TryGetComponent<StackArea>()); }
 		}
 		private StackArea mStackArea;
 
@@ -33,12 +35,10 @@ namespace PXL.Objects.Areas {
 				if (status != StackArea.Status.GameWon)
 					return;
 
-				if (WinImmediately) {
-					GameMode.SetGameWon(true);
-				}
-				else {
-					GameMode.AddPoints(WinPoints);
-				}
+				if (WinImmediately)
+					GameState.SetGameWon(true);
+				else
+					GameState.AddPoints(WinPoints);
 			});
 		}
 

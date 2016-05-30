@@ -2,6 +2,10 @@
 
 namespace PXL.Objects.Spawner {
 
+	/// <summary>
+	/// A spawner which spawns an object with a certain frequency.
+	/// This frequency can be randomized after each spawn.
+	/// </summary>
 	public class AutomatedObjectSpawner : ObjectSpawner {
 
 		/// <summary>

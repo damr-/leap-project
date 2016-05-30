@@ -2,6 +2,11 @@
 
 namespace PXL.UI.Admin {
 
+	/// <summary>
+	/// This script enables the user to change the current speed of the BreakoutBall through keys or button presses.
+	/// 
+	/// It also updates the text display which shows the current ball speed
+	/// </summary>
 	public class BallSpeedChanger : PropertyChanger {
 
 		/// <summary>

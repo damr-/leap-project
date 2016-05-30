@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 namespace PXL.Utility.Toggle {
 
+	/// <summary>
+	/// This script makes it possible to enable certain behaviours when pressing a certain key.
+	/// </summary>
 	public class ToggleBehaviours : ToggleBase {
 	
 		/// <summary>

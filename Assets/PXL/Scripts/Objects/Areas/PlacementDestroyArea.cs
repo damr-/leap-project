@@ -6,6 +6,9 @@ using PXL.Utility;
 
 namespace PXL.Objects.Areas {
 
+	/// <summary>
+	/// This area destroys valid objects, but only as soon as they are stationary.
+	/// </summary>
 	public class PlacementDestroyArea : DestroyArea {
 
 		protected List<InteractiveObject> ValidObjects = new List<InteractiveObject>();
@@ -13,7 +16,7 @@ namespace PXL.Objects.Areas {
 		protected override void Update() {
 			base.Update();
 
-			if (GameMode.GameOver || !AreaActive)
+			if (GameState.GameOver || !AreaActive)
 				return;
 
 			Extensions.PurgeIfNecessary(ref ValidObjects);

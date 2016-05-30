@@ -2,6 +2,11 @@
 
 namespace PXL.Utility {
 
+	/// <summary>
+	/// This script oscillates the intensity of the object's <see cref="Light"/> component over time with a certain speed.
+	/// 
+	/// It oscillates between a minimum and maximum intensity and the process can be started/stopped from the outside via functions.
+	/// </summary>
 	[RequireComponent(typeof(Light))]
 	public class OscillateLightIntensity : MonoBehaviour {
 

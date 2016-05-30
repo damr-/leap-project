@@ -6,6 +6,10 @@ using UnityEngine;
 
 namespace PXL.Objects.Areas {
 
+	/// <summary>
+	/// The base class for areas which reacts to objects with a certain tag and stores 
+	/// all objects which have the correct tag and are currently inside the area.
+	/// </summary>
 	[RequireComponent(typeof(Collider))]
 	public abstract class TargetArea : MonoBehaviour {
 
@@ -43,7 +47,7 @@ namespace PXL.Objects.Areas {
 		}
 
 		protected virtual void Update() {
-			if (GameMode.GameOver || !AreaActive)
+			if (GameState.GameOver || !AreaActive)
 				return;
 
 			if (Objects.Any(o => o.Key == null || !o.Key.activeInHierarchy || o.Value.Count == 0))

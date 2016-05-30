@@ -2,6 +2,9 @@
 
 namespace PXL.Utility {
 
+	/// <summary>
+	/// This script allows to change the quality settings in standalone during runtime by pressing Strg+# (# = a certain alpha number)
+	/// </summary>
 	public class QualityInput : MonoBehaviour {
 
 		private string[] qualityNames;

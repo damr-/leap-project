@@ -6,6 +6,11 @@ using UnityEngine;
 
 namespace PXL.Interaction {
 
+	/// <summary>
+	/// This script deactivates the object's grabbable state if there is another object above it.
+	/// Checks and updates the current state with a certain <see cref="UpdateFrequency"/> by raycasting upwards.
+	/// The offsets of the four cast rays are aimed to fit the three rings from Tower of Hanoi.
+	/// </summary>
 	[RequireComponent(typeof(Grabbable))]
 	public class DeactivateGrabbableUnderneathOther : MonoBehaviour {
 
@@ -72,6 +77,9 @@ namespace PXL.Interaction {
 			TrySetGrabbableState(true);
 		}
 
+		/// <summary>
+		/// Raycasts and updates the state of the grabbable
+		/// </summary>
 		private void UpdateState() {
 			if (Grabbable.IsGrabbed || !Grabbable.IsStationary(0.002f))
 				return;

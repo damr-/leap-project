@@ -3,6 +3,10 @@ using UnityEngine;
 
 namespace PXL.Objects.Areas.Editor {
 
+	/// <summary>
+	/// Custom editor script which exposes the necessary variables to the Inspector and 
+	/// provides an easy to use interface.
+	/// </summary>
 	[CustomEditor(typeof(WinOnStackedCorrectly))]
 	public class WinOnStackedCorrectlyEditor : UnityEditor.Editor {
 

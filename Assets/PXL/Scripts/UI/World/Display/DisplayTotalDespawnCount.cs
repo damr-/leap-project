@@ -6,7 +6,12 @@ using UnityEngine.UI;
 
 namespace PXL.UI.World.Display {
 
-	public class DisplayTotalSpawnCount : MonoBehaviour {
+	/// <summary>
+	/// This script displays the TotalDespawnCount of the referenced spawner compared to it's TotalSpawnLimit.
+	/// 
+	/// The shown data is updated whenever the TotalDespawnCount changes.
+	/// </summary>
+	public class DisplayTotalDespawnCount : MonoBehaviour {
 
 		/// <summary>
 		/// The referenced spawner
@@ -32,7 +37,7 @@ namespace PXL.UI.World.Display {
 		/// Called when the total amount of objects spawned by the spawner changes
 		/// </summary>
 		private void UpdateText(int despawnCount) {
-			Text.text = (Spawner.TotalSpawnLimit - despawnCount) + "/" + Spawner.TotalSpawnLimit;
+			Text.text = Spawner.TotalSpawnLimit - despawnCount + "/" + Spawner.TotalSpawnLimit;
 		}
 
 	}

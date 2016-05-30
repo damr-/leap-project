@@ -5,6 +5,9 @@ using UnityEngine.UI;
 
 namespace PXL.UI.Admin {
 
+	/// <summary>
+	/// This script provides the functionality to toggle the referenced <see cref="Toggle"/> component as soon as a certain key has been pressed
+	/// </summary>
 	[RequireComponent(typeof(Toggle))]
 	public class InvokeToggleOnKeyPress : ToggleBase {
 

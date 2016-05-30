@@ -4,6 +4,9 @@ using UnityEngine;
 
 namespace PXL.Utility {
 
+	/// <summary>
+	/// This class provides utility methods for creating custom editor scripts
+	/// </summary>
 	public static class EditorUtility {
 
 		public static bool IsPlaying() {

@@ -5,7 +5,11 @@ using UnityEngine.UI;
 
 namespace PXL.Interaction {
 
-	public class HeightAdjust : HandPoseObserver {
+	/// <summary>
+	/// This script adjusts the vertical position of the given <see cref="Movement"/> as long as the given hands are too far away (vertically) from this object.
+	/// As soon as the hands are in the correct height, they have to remain there for <see cref="CalibrateTime"/> before the calibration process is finished
+	/// </summary>
+	public class TableHeightCalibration : HandPoseObserver {
 
 		/// <summary>
 		/// The movement component of the camera

@@ -5,6 +5,10 @@ using UniRx;
 
 namespace PXL.Objects.Areas {
 
+	/// <summary>
+	/// This script handles incorrectly stacked objects inside a <see cref="StackArea"/>.
+	/// It puts back the incorrectly stacked object to their initial position.
+	/// </summary>
 	public class RemoveIncorrectlyStackedObjects : MonoBehaviour {
 
 		/// <summary>
@@ -13,7 +17,6 @@ namespace PXL.Objects.Areas {
 		private StackArea StackArea {
 			get { return mStackArea ?? (mStackArea = this.TryGetComponent<StackArea>()); }
 		}
-
 		private StackArea mStackArea;
 
 		private void Start() {

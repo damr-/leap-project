@@ -4,6 +4,9 @@ using UnityEngine;
 
 namespace PXL.Health {
 
+	/// <summary>
+	/// This script despawns or destroys this object as soon as <see cref="Health"/> invokes the Death observable.
+	/// </summary>
 	[RequireComponent(typeof(Health))]
 	public class DestroyOnDeath : MonoBehaviour {
 
@@ -12,11 +15,13 @@ namespace PXL.Health {
 		/// </summary>
 		public bool Despawn = true;
 
-		private Health mHealth;
-
+		/// <summary>
+		/// The Health component of this object
+		/// </summary>
 		private Health Health {
 			get { return mHealth ?? (mHealth = this.TryGetComponent<Health>()); }
 		}
+		private Health mHealth;
 
 		private void Start() {
 			Health.Death.Subscribe(_ => HandleDeath());

@@ -6,6 +6,9 @@ using UniRx;
 
 namespace PXL.Objects.Areas {
 
+	/// <summary>
+	/// This script resets the information display as soon as an object has been destroyed.
+	/// </summary>
 	[RequireComponent(typeof(DestroyArea))]
 	public class ResetInfoDisplayOnObjectDestroyed : MonoBehaviour {
 
@@ -22,6 +25,9 @@ namespace PXL.Objects.Areas {
 		}
 		private DestroyArea mDestroyArea;
 
+		/// <summary>
+		/// The disposable for the goal reached subscrpition
+		/// </summary>
 		private IDisposable goalReachedDisposable = Disposable.Empty;
 
 		private void Start() {

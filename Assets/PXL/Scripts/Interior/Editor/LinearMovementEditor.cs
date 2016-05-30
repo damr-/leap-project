@@ -3,13 +3,17 @@ using UnityEngine;
 
 namespace PXL.Interior.Editor {
 
-	[CustomEditor(typeof(ScreenSaver))]
-	public class ScreenSaverEditor : UnityEditor.Editor {
+	/// <summary>
+	/// Custom editor script which exposes the necessary variables to the Inspector and 
+	/// provides an easy to use interface.
+	/// </summary>
+	[CustomEditor(typeof(LinearMovement))]
+	public class LinearMovementEditor : UnityEditor.Editor {
 
-		private ScreenSaver s;
+		private LinearMovement s;
 
 		public override void OnInspectorGUI() {
-			s = (ScreenSaver)target;
+			s = (LinearMovement)target;
 
 			Utility.EditorUtility.FloatField(new GUIContent("Speed", ""), ref s.Speed, 0.001f, 10f, 50);
 

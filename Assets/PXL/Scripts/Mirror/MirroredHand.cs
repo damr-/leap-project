@@ -3,12 +3,13 @@ using Leap;
 using Leap.Unity;
 using PXL.Utility;
 using UnityEngine;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 
 namespace PXL.Mirror {
 
+	/// <summary>
+	/// This script allows a hand to mirror the position of each finger and bone of the other hand in the scene.
+	/// For the mirroring process, a mirror object is used to calculate the new, mirrored positions of the individual parts of the hand.
+	/// </summary>
 	public class MirroredHand : ImprovedCapsuleHand {
 
 		/// <summary>
@@ -49,7 +50,7 @@ namespace PXL.Mirror {
 
 		protected void Update() {
 #if UNITY_EDITOR
-			if (!Utility.EditorUtility.IsPlaying())
+			if (!EditorUtility.IsPlaying())
 				return;
 #endif
 			if (handRepresentation != null)
@@ -58,7 +59,7 @@ namespace PXL.Mirror {
 
 		public override void SetLeapHand(Hand hand) {
 #if UNITY_EDITOR
-			if (!Utility.EditorUtility.IsPlaying()) {
+			if (!EditorUtility.IsPlaying()) {
 				base.SetLeapHand(hand);
 				return;
 			}
@@ -87,7 +88,7 @@ namespace PXL.Mirror {
 
 		protected override void UpdateSpheres() {
 #if UNITY_EDITOR
-			if (!Utility.EditorUtility.IsPlaying()) {
+			if (!EditorUtility.IsPlaying()) {
 				base.UpdateSpheres();
 				return;
 			}
@@ -128,7 +129,7 @@ namespace PXL.Mirror {
 
 		protected override void UpdateArm() {
 #if UNITY_EDITOR
-			if (!Utility.EditorUtility.IsPlaying()) {
+			if (!EditorUtility.IsPlaying()) {
 				base.UpdateArm();
 				return;
 			}

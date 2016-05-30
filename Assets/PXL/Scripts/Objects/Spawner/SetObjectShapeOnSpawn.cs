@@ -7,6 +7,11 @@ using UniRx;
 
 namespace PXL.Objects.Spawner {
 
+	/// <summary>
+	/// This component sets the shape (mesh) of all the spawner's spawned objects.
+	/// 
+	/// If the mesh is null, a random one will be chosen every time an object is created.
+	/// </summary>
 	[RequireComponent(typeof(ObjectSpawner))]
 	public class SetObjectShapeOnSpawn : MonoBehaviour {
 

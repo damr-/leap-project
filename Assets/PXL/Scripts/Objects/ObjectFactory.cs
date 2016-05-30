@@ -3,6 +3,11 @@ using UnityEngine;
 
 namespace PXL.Objects {
 
+	/// <summary>
+	/// A factory to spawn an object.
+	/// It keeps track of the default scales and resets the object's scale before scaling it up to <see cref="Scale"/>
+	/// It also sets the rigidbody's velocity to zero.
+	/// </summary>
 	public class ObjectFactory : Factory {
 
 		/// <summary>

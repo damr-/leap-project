@@ -6,6 +6,9 @@ using UnityEngine.UI;
 
 namespace PXL.UI.World.Hand {
 
+	/// <summary>
+	/// This script defines the expanded hand spawner element which provides more detailed information about a selected spawner element.
+	/// </summary>
 	public class HandSpawnerElementExpanded : MonoBehaviour {
 
 		/// <summary>

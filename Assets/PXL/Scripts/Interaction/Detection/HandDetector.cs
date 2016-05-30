@@ -6,6 +6,11 @@ using UnityEngine;
 
 namespace PXL.Interaction.Detection {
 
+	/// <summary>
+	/// This class provides basic abstract functionality to detect a certain state of a hand.
+	/// It provides observables for incorrect and correct poses, which will be invoked automatically.
+	/// The given handmodels are being observed every frame and the corresponding observables are invoked with a certain frequency.
+	/// </summary>
 	public abstract class HandDetector : MonoBehaviour {
 
 		/// <summary>
@@ -65,10 +70,18 @@ namespace PXL.Interaction.Detection {
 
 		protected abstract bool CheckHand(HandModel hand);
 
+		/// <summary>
+		/// Tries to retreive the leap hand of the given hand if the hand is not null.
+		/// </summary>
+		/// <param name="hand">The hand which leaphand we try to retreive</param>
+		/// <returns>A reference to the leap hand or null otherwise</returns>
 		protected Leap.Hand TryGetLeapHand(HandModel hand) {
 			return hand == null || !hand.gameObject.activeInHierarchy ? null : hand.GetLeapHand();
 		}
 
+		/// <summary>
+		/// Invokes the <see cref="correctPoseSubject"/>, if the interval of 1 / <see cref="CorrectInvokeFrequency"/> is met
+		/// </summary>
 		private void TryInvokeCorrect() {
 			if (!(Time.time - LastCorrectInvokeTime > 1 / CorrectInvokeFrequency))
 				return;
@@ -77,6 +90,9 @@ namespace PXL.Interaction.Detection {
 			LastCorrectInvokeTime = Time.time;
 		}
 
+		/// <summary>
+		/// Invokes the <see cref="incorrectPoseSubject"/>, if the interval of 1 / <see cref="IncorrectInvokeFrequency"/> is met
+		/// </summary>
 		private void TryInvokeIncorrect() {
 			if (!(Time.time - LastIncorrectInvokeTime > 1 / IncorrectInvokeFrequency))
 				return;

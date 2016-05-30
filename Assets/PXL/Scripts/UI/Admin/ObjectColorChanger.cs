@@ -3,6 +3,9 @@ using PXL.Objects.Spawner;
 
 namespace PXL.UI.Admin {
 
+	/// <summary>
+	/// This script provides the functionality
+	/// </summary>
 	public class ObjectColorChanger : IndexedPropertyChanger {
 
 		/// <summary>
@@ -10,10 +13,11 @@ namespace PXL.UI.Admin {
 		/// </summary>
 		public ObjectColorPreview ObjectColorPreview;
 
+		/// <summary>
+		/// The <see cref="SetObjectColorOnSpawn"/> component of the referenced <see cref="ObjectSpawner"/>
+		/// </summary>
 		private SetObjectColorOnSpawn SetObjectColorOnSpawn {
-			get {
-				return ObjectSpawner.GetComponent<SetObjectColorOnSpawn>();
-			}
+			get { return ObjectSpawner.GetComponent<SetObjectColorOnSpawn>(); }
 		}
 
 		public override void SetObjectSpawner(ObjectSpawner objectSpawner) {
@@ -41,6 +45,9 @@ namespace PXL.UI.Admin {
 			CurrentPropertyIndex = index;
 		}
 
+		/// <summary>
+		/// Returns whether the given index is a valid one for the available colors list
+		/// </summary>
 		protected override bool IsValidIndex(int index) {
 			return index >= 0 && index < SetObjectColorOnSpawn.AvailableColors.Count;
 		}

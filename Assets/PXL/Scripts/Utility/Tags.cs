@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 namespace PXL.Utility {
 
+	/// <summary>
+	/// This class handles the available tags in the application and provides functions to retreive the string of a trag by it's type
+	/// </summary>
 	public static class Tags {
 
 		/// <summary>

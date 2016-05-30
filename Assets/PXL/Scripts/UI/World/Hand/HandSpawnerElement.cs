@@ -3,6 +3,11 @@ using UnityEngine;
 
 namespace PXL.UI.World.Hand {
 
+	/// <summary>
+	/// This script adds functionality to a hand menu element.
+	/// 
+	/// It stores the reference to the <see cref="HandSpawnerElementCompact"/> and provides a Setup function to set up the compact element
+	/// </summary>
 	public class HandSpawnerElement : MonoBehaviour {
 	
 		/// <summary>

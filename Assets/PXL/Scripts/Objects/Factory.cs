@@ -3,6 +3,9 @@ using UnityEngine;
 
 namespace PXL.Objects {
 
+	/// <summary>
+	/// This Factory provides basic functionality for spawning an object from a given prefab at a position with a certain rotation.
+	/// </summary>
 	public abstract class Factory {
 
 		/// <summary>
@@ -26,6 +29,7 @@ namespace PXL.Objects {
 		public virtual GameObject Spawn() {
 			return SimplePool.Spawn(Prefab, Position, Quaternion.Euler(Rotation));
 		}
+
 	}
 
 }

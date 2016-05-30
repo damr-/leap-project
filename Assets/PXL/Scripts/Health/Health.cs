@@ -4,6 +4,12 @@ using UnityEngine;
 
 namespace PXL.Health {
 
+	/// <summary>
+	/// Class which handles the health of an object.
+	/// It sets the initial health points and keeps track of the current amount of health points.
+	/// The class provides functionality to heal, hurt or immediately kill an object (reduce it's health points to zero).
+	/// It does not handle the case of death, but just invokes an observable to be picked up by other scripts.
+	/// </summary>
 	public class Health : MonoBehaviour {
 
 		/// <summary>

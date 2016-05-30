@@ -7,6 +7,9 @@ using UnityEngine.UI;
 
 namespace PXL.UI.World.Display {
 
+	/// <summary>
+	/// This script displays the hands which are currently grabbing an object on the given <see cref="Text"/> component.
+	/// </summary>
 	public class DisplayTextGrabbingHands : MonoBehaviour {
 
 		/// <summary>

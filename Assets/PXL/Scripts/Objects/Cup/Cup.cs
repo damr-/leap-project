@@ -7,6 +7,11 @@ using UnityEngine;
 
 namespace PXL.Objects.Cup {
 
+	/// <summary>
+	/// This script makes the trigger of the cup snap and arrange objects of certain types to certain positions. 
+	/// It also makes them child of the cup so that they follow it's transformation.
+	/// If the cup is tilted above a given angle, the objects are released.
+	/// </summary>
 	public class Cup : MonoBehaviour {
 
 		/// <summary>
@@ -81,7 +86,7 @@ namespace PXL.Objects.Cup {
 			var rotX = transform.rotation.eulerAngles.x;
 			var rotZ = transform.rotation.eulerAngles.z;
 			validRotation = !(rotX > MaxTiltAngle && rotX < 360 - MaxTiltAngle) &&
-			                !(rotZ > MaxTiltAngle && rotZ < 360 - MaxTiltAngle);
+							!(rotZ > MaxTiltAngle && rotZ < 360 - MaxTiltAngle);
 
 			if (!validRotation)
 				ReleaseObjects();
@@ -102,8 +107,8 @@ namespace PXL.Objects.Cup {
 		/// </summary>
 		private Vector3 GetObjectPosition() {
 			var index = objects.Count;
-			var y = -0.4f + 0.1f * (index / 13);
-			return positions[index % 13].WithY(y);
+			var y = -0.4f + 0.1f * (index / positions.Length);
+			return positions[index % positions.Length].WithY(y);
 		}
 
 		/// <summary>
@@ -136,7 +141,7 @@ namespace PXL.Objects.Cup {
 			var interactiveObject = other.GetComponent<InteractiveObject>();
 
 			if (interactiveObject == null || (ObjectType != ObjectType.All && interactiveObject.ObjectType != ObjectType) ||
-			    objects.Contains(interactiveObject))
+				objects.Contains(interactiveObject))
 				return;
 
 			SetObjectPickupState(interactiveObject, true);

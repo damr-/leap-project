@@ -7,6 +7,9 @@ using UnityEngine.UI;
 
 namespace PXL.UI.World.Buttons {
 
+	/// <summary>
+	/// This script provides functionality for a button which has to be pressed for a certain duration before it will be activated.
+	/// </summary>
 	public class TouchDurationButton : TouchableButton {
 
 		/// <summary>

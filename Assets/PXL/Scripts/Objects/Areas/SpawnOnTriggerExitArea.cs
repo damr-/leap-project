@@ -6,6 +6,10 @@ using UnityEngine;
 
 namespace PXL.Objects.Areas {
 
+	/// <summary>
+	/// This area makes a given <see cref="ObjectSpawner"/> spawn a new object as soon as an object leaves this area.
+	/// The spawning happens after an optional delay and can only happen once during this delay.
+	/// </summary>
 	public class SpawnOnTriggerExitArea : ObjectArea {
 
 		/// <summary>

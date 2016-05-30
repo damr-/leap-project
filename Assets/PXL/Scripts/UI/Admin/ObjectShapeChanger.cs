@@ -1,9 +1,11 @@
 ﻿using System.Linq;
 using PXL.Objects.Spawner;
-using UnityEngine;
 
 namespace PXL.UI.Admin {
 
+	/// <summary>
+	/// An <see cref="IndexedPropertyChanger"/> which cycles through the available shapes of an <see cref="ObjectSpawner"/>
+	/// </summary>
 	public class ObjectShapeChanger : IndexedPropertyChanger {
 
 		/// <summary>
@@ -11,10 +13,11 @@ namespace PXL.UI.Admin {
 		/// </summary>
 		public ObjectShapePreview ObjectShapePreview;
 
+		/// <summary>
+		/// The <see cref="SetObjectShapeOnSpawn"/> component of the referenced ObjectSpawner
+		/// </summary>
 		private SetObjectShapeOnSpawn SetObjectShapeOnSpawn {
-			get {
-				return ObjectSpawner.GetComponent<SetObjectShapeOnSpawn>();
-			}
+			get { return ObjectSpawner.GetComponent<SetObjectShapeOnSpawn>(); }
 		}
 
 		/// <summary>
@@ -44,7 +47,7 @@ namespace PXL.UI.Admin {
 		}
 
 		/// <summary>
-		/// Returns whether the index is within 0 and the length of availableshapes
+		/// Returns whether the index is within 0 and the length of AvailableShapes
 		/// </summary>
 		protected override bool IsValidIndex(int index) {
 			return index >= 0 && index < SetObjectShapeOnSpawn.AvailableShapes.Count;

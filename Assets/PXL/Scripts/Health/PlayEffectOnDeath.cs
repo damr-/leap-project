@@ -4,6 +4,10 @@ using UnityEngine;
 
 namespace PXL.Health {
 
+	/// <summary>
+	/// This scripts spawns the given GameObject as soon as the Health's Death observable is invoked.
+	/// The spawned GameObject should have a ParticleEmitter or similar attached which plays the effect automatically.
+	/// </summary>
 	[RequireComponent(typeof(Health))]
 	public class PlayEffectOnDeath : MonoBehaviour {
 
@@ -12,14 +16,13 @@ namespace PXL.Health {
 		/// </summary>
 		public GameObject DestroyEffectObject;
 
-		private Health mHealth;
-
 		/// <summary>
 		/// The <see cref="Health" /> Component of this object
 		/// </summary>
 		private Health Health {
 			get { return mHealth ?? (mHealth = this.TryGetComponent<Health>()); }
 		}
+		private Health mHealth;
 
 		private void Start() {
 			DestroyEffectObject.AssertNotNull();

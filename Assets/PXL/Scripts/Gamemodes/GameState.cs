@@ -3,7 +3,20 @@ using UniRx;
 
 namespace PXL.Gamemodes {
 
-	public static class GameMode {
+	/// <summary>
+	/// Class which handles the current state of the game.
+	/// It provides Observables for when the game is won or lost and
+	/// an Observable boolean whether the game is over or not.
+	/// 
+	/// To make game win conditions more generic, the game state has a certain amount of points, 
+	/// which are required for winning (<see cref="WinPoints"/>.
+	/// 
+	/// The <see cref="CurrentPoints"/> are updated using <see cref="AddPoints"/>
+	/// When the <see cref="CurrentPoints"/> are >= <see cref="WinPoints"/>, the game is won.
+	/// The game win state (won or lost) can also be set directly via <see cref="SetGameWon"/>
+	/// 
+	/// </summary>
+	public static class GameState {
 
 		/// <summary>
 		/// The current, observable state of the game
@@ -62,9 +75,8 @@ namespace PXL.Gamemodes {
 		public static void AddPoints(int points) {
 			CurrentPoints += points;
 
-			if (WinPoints >= 0 && CurrentPoints >= WinPoints) {
+			if (WinPoints >= 0 && CurrentPoints >= WinPoints)
 				SetGameWon(true);
-			}
 		}
 
 	}

@@ -5,6 +5,9 @@ using PXL.Objects.Areas;
 
 namespace PXL.Utility {
 
+	/// <summary>
+	/// This script keeps up the velocity of all rigidbodies within it's bounds.
+	/// </summary>
 	public class RigidbodyWindZone : ObjectArea {
 
 		/// <summary>
@@ -35,11 +38,9 @@ namespace PXL.Utility {
 		}
 
 		protected override void HandleValidObjectType(InteractiveObject interactiveObject) {
-
 		}
 
 		protected override void HandleInvalidObjectType(InteractiveObject interactiveObject) {
-
 		}
 
 	}

@@ -5,6 +5,9 @@ using UnityEngine;
 
 namespace PXL.Objects.Areas {
 
+	/// <summary>
+	/// This area sends back all objects which are valid and stationary to their initial position
+	/// </summary>
 	public class SendbackArea : ObjectArea {
 
 		protected List<InteractiveObject> ValidObjects = new List<InteractiveObject>();

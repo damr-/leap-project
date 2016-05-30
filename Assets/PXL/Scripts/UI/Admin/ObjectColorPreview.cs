@@ -6,6 +6,10 @@ using UniRx;
 
 namespace PXL.UI.Admin {
 
+	/// <summary>
+	/// This script makes it possible to display a preview of the color 
+	/// that all future objects of an object spawner will be colored in
+	/// </summary>
 	[RequireComponent(typeof(Image))]
 	public class ObjectColorPreview : MonoBehaviour {
 
@@ -23,9 +27,7 @@ namespace PXL.UI.Admin {
 		/// The Image component of this object
 		/// </summary>
 		private Image Image {
-			get {
-				return mImage ?? (mImage = this.TryGetComponent<Image>());
-			}
+			get { return mImage ?? (mImage = this.TryGetComponent<Image>()); }
 		}
 		private Image mImage;
 

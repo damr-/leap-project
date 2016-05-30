@@ -6,6 +6,10 @@ using UnityEngine;
 
 namespace PXL.Interaction {
 
+	/// <summary>
+	/// This class makes an object only interactable when the admin mode is enabled.
+	/// Otherwise, it will be static and not influenced by physics, pushing, grabbing and similar.
+	/// </summary>
 	public class RestrictAdminInteraction : MonoBehaviour {
 
 		/// <summary>

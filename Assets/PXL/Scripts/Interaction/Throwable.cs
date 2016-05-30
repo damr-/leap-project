@@ -6,6 +6,11 @@ using UniRx;
 
 namespace PXL.Interaction {
 
+	/// <summary>
+	/// This script makes it possible to properly throw an object.
+	/// It checks whether the velocity before the object was released was high enough and 
+	/// adds it up to calculate a force which will then be applied to the object.
+	/// </summary>
 	[RequireComponent(typeof(Grabbable))]
 	public class Throwable : MonoBehaviour {
 
@@ -87,6 +92,9 @@ namespace PXL.Interaction {
 			lastPosition = transform.position;
 		}
 
+		/// <summary>
+		/// Returns the aggregated direction of the <see cref="positionDeltas"/>
+		/// </summary>
 		public Vector3 GetMotionDirection() {
 			return positionDeltas.Aggregate(Vector3.zero, (current, next) => current + next);
 		}

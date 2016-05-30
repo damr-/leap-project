@@ -3,6 +3,10 @@ using Leap.Unity;
 
 namespace PXL.Interaction.Detection {
 
+	/// <summary>
+	/// This script observes the given hands and detects a certain palm orientation.
+	/// It can also show the target orientation in the Editor, if the GameObject with this script is correctly placed as child of the hand in the hierarchy.
+	/// </summary>
 	public class DetectPalmOrientation : HandDetector {
 
 		/// <summary>

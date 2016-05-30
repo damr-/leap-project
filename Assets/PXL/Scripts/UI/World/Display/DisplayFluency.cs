@@ -7,6 +7,12 @@ using UnityEngine.UI;
 
 namespace PXL.UI.World.Display {
 
+	/// <summary>
+	/// This script provides functionality to draw the fluency of a motion on a <see cref="RawImage"/> 
+	/// as soon as the motion has finished and <see cref="TrackData"/> is provided.
+	/// 
+	/// It draws the individual data from the <see cref="TrackData"/> and interpolates linearly between these data sets. 
+	/// </summary>
 	[RequireComponent(typeof(RawImage))]
 	public class DisplayFluency : MonoBehaviour {
 
@@ -21,7 +27,6 @@ namespace PXL.UI.World.Display {
 		protected RawImage RawImage {
 			get { return mRawImage ?? (mRawImage = this.TryGetComponent<RawImage>()); }
 		}
-
 		private RawImage mRawImage;
 
 		/// <summary>
@@ -41,9 +46,7 @@ namespace PXL.UI.World.Display {
 		/// </summary>
 		private void HandleObjectDropped(TrackData trackData) {
 			var texture = CreateTexture();
-
 			FillTexture(texture, trackData);
-
 			RawImage.texture = texture;
 		}
 

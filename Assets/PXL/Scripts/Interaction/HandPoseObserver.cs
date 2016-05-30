@@ -4,6 +4,10 @@ using UnityEngine;
 
 namespace PXL.Interaction {
 
+	/// <summary>
+	/// This class Observes a <see cref="DetectPalmOrientation"/> and a <see cref="DetectHandPose"/> and provides abstract functions 
+	/// which will be called once both Detectors have returned positive results.
+	/// </summary>
 	public abstract class HandPoseObserver : MonoBehaviour {
 
 		/// <summary>

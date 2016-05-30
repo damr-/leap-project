@@ -4,6 +4,10 @@ using PXL.Utility;
 
 namespace PXL.Interaction {
 
+	/// <summary>
+	/// This script toggles the active state of the given gameObjects as soon as the observed hands 
+	/// maintain the desired pose.
+	/// </summary>
 	public class ToggleGameObjectOnPose : HandPoseObserver {
 	
 		/// <summary>

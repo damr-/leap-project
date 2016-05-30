@@ -9,9 +9,9 @@ namespace PXL.Utility.Editor {
 		public override void OnInspectorGUI() {
 			var m = (MaintainTransformation)target;
 
-			CreateTransformSection("Position", ref m.MaintainPosition, ref m.DefinedPosition, ref m.Position);
-			CreateTransformSection("Rotation", ref m.MaintainRotation, ref m.DefinedRotation, ref m.Rotation);
-			CreateTransformSection("Scale", ref m.MaintainScale, ref m.DefinedScale, ref m.Scale);
+			CreateTransformSection("Position", ref m.MaintainPosition, ref m.DefinedPosition, ref m.MaintainedPosition);
+			CreateTransformSection("Rotation", ref m.MaintainRotation, ref m.DefinedRotation, ref m.MaintainedRotation);
+			CreateTransformSection("Scale", ref m.MaintainScale, ref m.DefinedScale, ref m.MaintainedScale);
 		}
 
 		private void CreateTransformSection(string transformType, ref bool maintain, ref bool define, ref Vector3 definedValue) {

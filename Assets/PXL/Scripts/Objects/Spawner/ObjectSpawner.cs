@@ -7,6 +7,17 @@ using PXL.Utility;
 
 namespace PXL.Objects.Spawner {
 
+	/// <summary>
+	/// Base class for a spawner which creates and keeps track of objects.
+	/// It provides functionality to spawn a new object or remove all currently existing ones.
+	/// 
+	/// It can be set that these functions are only available when the admin mode is active and 
+	/// it can be set whether this spawner appears in the admin's hand menu.
+	///
+	/// The spawner can be set to spawn a certain amount of object in the beginning and to respawn 
+	/// objects as soon as all existing ones have been removed or decreased to less than a certain amount.
+	/// 
+	/// </summary>
 	public class ObjectSpawner : MonoBehaviour {
 
 		/// <summary>

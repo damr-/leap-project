@@ -5,6 +5,9 @@ using UnityEngine.UI;
 
 namespace PXL.UI {
 
+	/// <summary>
+	/// This script provides the functionality to toggle between the different user modes via a button
+	/// </summary>
 	[RequireComponent(typeof(Button))]
 	public class ModeButton : MonoBehaviour {
 

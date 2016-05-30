@@ -6,6 +6,10 @@ using UnityEngine;
 
 namespace PXL.Interaction.Detection.Editor {
 
+	/// <summary>
+	/// Custom editor script which exposes the necessary variables to the Inspector and 
+	/// provides an easier to use interface than the default one.
+	/// </summary>
 	[CustomEditor(typeof(DetectHandPose))]
 	public class DetectHandPoseEditor : UnityEditor.Editor {
 

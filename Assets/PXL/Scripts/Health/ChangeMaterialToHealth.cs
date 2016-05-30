@@ -7,6 +7,10 @@ using UniRx;
 
 namespace PXL.Health {
 
+	/// <summary>
+	/// This class changes the material of this object
+	/// according to it's amount of remaining health points whenever they change.
+	/// </summary>
 	[RequireComponent(typeof(MeshRenderer))]
 	[RequireComponent(typeof(Health))]
 	public class ChangeMaterialToHealth : MonoBehaviour {

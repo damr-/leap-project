@@ -1,14 +1,20 @@
-﻿using UnityEngine;
-using PXL.Utility;
+﻿using PXL.Utility;
+using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 
 namespace PXL.Mirror {
 
+	/// <summary>
+	/// This script activates the given mirrored hand as soon as this object is activated
+	/// </summary>
 	[RequireComponent(typeof(ImprovedCapsuleHand))]
 	public class ActivateMirroredHand : MonoBehaviour {
 
+		/// <summary>
+		/// The target mirrored hand to be activated
+		/// </summary>
 		public MirroredHand MirroredHand;
 
 		private void OnEnable() {

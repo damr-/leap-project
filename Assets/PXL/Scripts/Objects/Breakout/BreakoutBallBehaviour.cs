@@ -3,6 +3,11 @@ using UnityEngine;
 
 namespace PXL.Objects.Breakout {
 
+	/// <summary>
+	/// This script gives the ball in the breakout game the necessary behaviour.
+	/// It moves the object with a certain speed and bounces it off on collisions.
+	/// It also detects when it moves in a bad direction and corrects the velocity if needed.
+	/// </summary>
 	[RequireComponent(typeof(Rigidbody))]
 	public class BreakoutBallBehaviour : MonoBehaviour {
 

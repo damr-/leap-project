@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 namespace PXL.Utility.Toggle {
 
+	/// <summary>
+	/// This script allows to toggel the active state of GameObjects by pressing a button
+	/// </summary>
 	public class ToggleGameObjects : ToggleBase {
 	
 		/// <summary>

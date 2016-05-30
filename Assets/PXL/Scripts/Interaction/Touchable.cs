@@ -8,6 +8,10 @@ using UnityEngine;
 
 namespace PXL.Interaction {
 
+	/// <summary>
+	/// Class which stores information about a finger.
+	/// It provides the finger's <see cref="Fingertip"/> and also it's corresponding <see cref="HandModel"/>
+	/// </summary>
 	public class FingerInfo {
 		public Fingertip Fingertip;
 		public HandModel HandModel;
@@ -18,6 +22,10 @@ namespace PXL.Interaction {
 		}
 	}
 
+	/// <summary>
+	/// This script makes an object react to <see cref="Fingertip"/> components and 
+	/// invoke certain observables as soon as fingers enter/leave the object's trigger.
+	/// </summary>
 	[RequireComponent(typeof(Collider))]
 	[RequireComponent(typeof(Rigidbody))]
 	public class Touchable : MonoBehaviour {
@@ -63,7 +71,8 @@ namespace PXL.Interaction {
 		}
 
 		private void Update() {
-			HandFingers = HandFingers.Where(entry => entry.Value.Count > 0 && entry.Value.All(c => c.Touchable == this)).ToDictionary(c => c.Key, c => c.Value);
+			if(HandFingers.Any(e => e.Value.Count <= 0))
+				HandFingers = HandFingers.Where(entry => entry.Value.Count > 0 && entry.Value.All(c => c.Touchable == this)).ToDictionary(c => c.Key, c => c.Value);
 		}
 
 		/// <summary>

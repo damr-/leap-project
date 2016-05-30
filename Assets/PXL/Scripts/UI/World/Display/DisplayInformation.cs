@@ -6,6 +6,11 @@ using UnityEngine.UI;
 
 namespace PXL.UI.World.Display {
 
+	/// <summary>
+	/// This script displays information about the elapsed time and 
+	/// how many times an object has been picked up, dropped and 
+	/// how far objects have been move with each hand.
+	/// </summary>
 	public class DisplayInformation : InteractionHandSubscriber {
 
 		/// <summary>
@@ -45,20 +50,20 @@ namespace PXL.UI.World.Display {
 		}
 
 		protected override void HandleGrabbed(Grabbable grabbable) {
-			if (GameMode.GameOver)
+			if (GameState.GameOver)
 				return;
 			IncrementTextValue(grabbable, PicksTexts);
 			DisplayTime.TryStartTimer();
 		}
 
 		protected override void HandleDropped(Grabbable grabbable) {
-			if (GameMode.GameOver)
+			if (GameState.GameOver)
 				return;
 			IncrementTextValue(grabbable, DropsTexts);
 		}
 
 		protected override void HandleMoved(MovementInfo movementInfo) {
-			if (GameMode.GameOver)
+			if (GameState.GameOver)
 				return;
 
 			var side = GetHandSideIfValid(movementInfo.Moveable.Grabbable);

@@ -3,6 +3,11 @@ using UniRx;
 
 namespace PXL.UI.Admin {
 
+	/// <summary>
+	/// This script provides the functionality to change the scale of an object spawner's future spawned objects.
+	/// 
+	/// It also updates the text display which shows the current scale.
+	/// </summary>
 	public class ObjectScaleChanger : PropertyChanger {
 
 		public override void SetObjectSpawner(ObjectSpawner objectSpawner) {

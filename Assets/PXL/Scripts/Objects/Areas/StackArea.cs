@@ -6,8 +6,15 @@ using PXL.Utility;
 
 namespace PXL.Objects.Areas {
 
+	/// <summary>
+	/// This script describes an area in which all objects have to be stacked upon each other, 
+	/// decreasing in scale while the vertical position is increasing.
+	/// </summary>
 	public class StackArea : ObjectArea {
 
+		/// <summary>
+		/// The current status of the objects inside the area
+		/// </summary>
 		public enum Status {
 			NotStationary = 0,
 			StackedIcorrectly = 1,
@@ -44,7 +51,7 @@ namespace PXL.Objects.Areas {
 		protected override void Update() {
 			base.Update();
 
-			if (GameMode.GameOver || !AreaActive)
+			if (GameState.GameOver || !AreaActive)
 				return;
 
 			SortedObjects = Objects.Select(o => InteractiveObjects.GetOrAddFromGameObject(o.Key)).ToList();

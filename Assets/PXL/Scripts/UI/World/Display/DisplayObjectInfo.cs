@@ -4,6 +4,14 @@ using PXL.Utility;
 
 namespace PXL.UI.World.Display {
 
+	/// <summary>
+	/// This script displays information about an interactable object.
+	/// 
+	/// It shows whether the object has been just grabbed or dropped and if it's grabbed, at what position it currently is at.
+	/// 
+	/// When trying to throw an object, it displays whether the drop delay has been deactivated successfully 
+	/// and in what direction the throw will happen.
+	/// </summary>
 	public class DisplayObjectInfo : InteractionHandSubscriber {
 
 		/// <summary>

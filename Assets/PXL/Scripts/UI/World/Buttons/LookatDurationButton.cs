@@ -6,6 +6,11 @@ using UnityEngine.UI;
 
 namespace PXL.UI.World.Buttons {
 
+	/// <summary>
+	/// This script provides functionality for a button which has to be looked at for a certain duration for it to be activated.
+	/// 
+	/// Therefore, the developer has to define a <see cref="Target"/>, which forward vector will be taken as the "look at" direction.
+	/// </summary>
 	[RequireComponent(typeof(Collider))]
 	public class LookatDurationButton : MonoBehaviour {
 

@@ -4,6 +4,9 @@ using UniRx;
 
 namespace PXL.Objects.Spawner {
 
+	/// <summary>
+	/// This spawner takes care of spawning multiple objects, one after another, with differing scales.
+	/// </summary>
 	public class SeriesSpawner : ObjectSpawner {
 
 		/// <summary>

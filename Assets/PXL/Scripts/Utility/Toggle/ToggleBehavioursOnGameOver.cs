@@ -5,6 +5,11 @@ using UnityEngine;
 
 namespace PXL.Utility.Toggle {
 
+	/// <summary>
+	/// This script provides functionality to toggle behaviours as soon as the game is over.
+	/// 
+	/// It distinguishes between behaviours which are enabled/disabled or toggled either when the game is won or lost.
+	/// </summary>
 	public class ToggleBehavioursOnGameOver : MonoBehaviour {
 
 		/// <summary>
@@ -38,8 +43,8 @@ namespace PXL.Utility.Toggle {
 		private IDisposable loseDisposable = Disposable.Empty;
 
 		private void Start() {
-			winDisposable = GameMode.GameWon.Subscribe(_ => ToggleBehaviours(true));
-			loseDisposable = GameMode.GameLost.Subscribe(_ => ToggleBehaviours(false));
+			winDisposable = GameState.GameWon.Subscribe(_ => ToggleBehaviours(true));
+			loseDisposable = GameState.GameLost.Subscribe(_ => ToggleBehaviours(false));
 		}
 
 		/// <summary>
@@ -47,21 +52,17 @@ namespace PXL.Utility.Toggle {
 		/// </summary>
 		private void ToggleBehaviours(bool won) {
 			if (won) {
-				foreach (var b in BehavioursToEnableOnWin) {
+				foreach (var b in BehavioursToEnableOnWin)
 					b.enabled = true;
-				}
-				foreach (var b in BehavioursToDisableOnWin) {
+				foreach (var b in BehavioursToDisableOnWin)
 					b.enabled = false;
-				}
 			}
 			else {
-				foreach (var b in BehavioursToEnableOnLose) {
+				foreach (var b in BehavioursToEnableOnLose)
 					b.enabled = true;
-				}
 
-				foreach (var b in BehavioursToDisableOnLose) {
+				foreach (var b in BehavioursToDisableOnLose)
 					b.enabled = false;
-				}
 			}
 		}
 

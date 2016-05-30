@@ -5,6 +5,10 @@ using UnityEngine;
 
 namespace PXL.Objects.WhackAMole {
 
+	/// <summary>
+	/// This script manages the spawning of moles and handles the occupation of spawnpoints
+	/// as well as providing a free spawnpoint for a mole to move to.
+	/// </summary>
 	public class WhackAMoleManager : MonoBehaviour {
 
 		/// <summary>
@@ -55,9 +59,8 @@ namespace PXL.Objects.WhackAMole {
 			var counter = 0;
 			do {
 				s = SpawnPoints[Random.Range(0, SpawnPoints.Count)];
-				if (++counter > SpawnPoints.Count) {
+				if (++counter > SpawnPoints.Count)
 					return null;
-				}
 			} while (occupiedSpawnPoints.Contains(s));
 
 			occupiedSpawnPoints.Add(s);

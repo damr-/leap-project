@@ -6,12 +6,21 @@ using Leap.Unity;
 
 namespace PXL.Interaction.Detection {
 
+	/// <summary>
+	/// Class which describes the pose of a certain finger type.
+	/// It has the information about it's type and whether the finger should be extended or not.
+	/// </summary>
 	[Serializable]
 	public class FingerPose {
 		public Finger.FingerType FingerType;
 		public bool Extended;
 	}
 
+	/// <summary>
+	/// This class provides the functionality to detect the a certain hand pose.
+	/// It can detect all fingers of a hand extended, contracted, or a custom pattern.
+	/// Furthermore, it can be limited to detect the pose only at a certain grab strength.
+	/// </summary>
 	public class DetectHandPose : HandDetector {
 
 		/// <summary>

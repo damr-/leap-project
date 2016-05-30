@@ -2,6 +2,11 @@
 
 namespace PXL.UI.World.Hand {
 
+	/// <summary>
+	/// This script provides functionality for an object to track another one.
+	/// 
+	/// There are multiple techniques to track another object or position which can be chosen from.
+	/// </summary>
 	public class TrackRotation : MonoBehaviour {
 
 		/// <summary>

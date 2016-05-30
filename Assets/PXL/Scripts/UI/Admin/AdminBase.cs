@@ -15,6 +15,9 @@ namespace PXL.UI.Admin {
 		User = 1
 	}
 
+	/// <summary>
+	/// The base for any script which needs access to all the ObjectSpawners in the scene
+	/// </summary>
 	public abstract class AdminBase : MonoBehaviour {
 
 		/// <summary>

@@ -7,6 +7,12 @@ using UniRx;
 
 namespace PXL.UI.World.Display {
 
+	/// <summary>
+	/// This script displays the status of the referenced <see cref="CheckingStackArea"/> depending on it's status.
+	/// 
+	/// It provides checkmarks which display which objects are positioned correctly.
+	/// Furthermore, during the final checks, there are checkmarks which display the process of the check.
+	/// </summary>
 	[RequireComponent(typeof(CheckingStackArea))]
 	public class DisplayStackAreaStatus : MonoBehaviour {
 
@@ -16,7 +22,6 @@ namespace PXL.UI.World.Display {
 		private CheckingStackArea CheckingStackArea {
 			get { return mCheckingStackArea ?? (mCheckingStackArea = this.TryGetComponent<CheckingStackArea>()); }
 		}
-
 		private CheckingStackArea mCheckingStackArea;
 
 		/// <summary>
@@ -100,7 +105,7 @@ namespace PXL.UI.World.Display {
 		}
 
 		private void Update() {
-			if (GameMode.GameOver)
+			if (GameState.GameOver)
 				return;
 
 			foreach (var i in ObjectsCheckMarks)

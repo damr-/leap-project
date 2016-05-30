@@ -1,40 +1,46 @@
 ﻿using System;
 using UnityEngine;
 using PXL.Gamemodes;
-using PXL.Utility;
 using UniRx;
 
-public class DestroyOnGameWon : MonoBehaviour {
+namespace PXL.Utility {
 
 	/// <summary>
-	/// Whether this object shouldn't be destroyed but despawned into the pool.
+	/// Despawns or destroyes this object as soon as the game is won
 	/// </summary>
-	public bool Despawn;
+	public class DestroyOnGameWon : MonoBehaviour {
 
-	/// <summary>
-	/// Subscription to the GameWon state in GameMode
-	/// </summary>
-	private IDisposable gameWinDisposable = Disposable.Empty;
+		/// <summary>
+		/// Whether this object shouldn't be destroyed but despawned into the pool.
+		/// </summary>
+		public bool Despawn;
 
-	private void Start() {
-		gameWinDisposable = GameMode.GameWon.Subscribe(_ => HandleGameWon());
+		/// <summary>
+		/// Subscription to the GameWon state in GameMode
+		/// </summary>
+		private IDisposable gameWinDisposable = Disposable.Empty;
+
+		private void Start() {
+			gameWinDisposable = GameState.GameWon.Subscribe(_ => HandleGameWon());
+		}
+
+		/// <summary>
+		/// Called when the GameWon state changes
+		/// </summary>
+		private void HandleGameWon() {
+			if (Despawn)
+				SimplePool.Despawn(gameObject);
+			else
+				Destroy(gameObject);
+		}
+
+		/// <summary>
+		/// Called when this object is disabled
+		/// </summary>
+		private void OnDisable() {
+			gameWinDisposable.Dispose();
+		}
+
 	}
-
-	/// <summary>
-	/// Called when the GameWon state changes
-	/// </summary>
-	private void HandleGameWon() {
-		if(Despawn)
-			SimplePool.Despawn(gameObject);
-		else
-			Destroy(gameObject);
-	}
-
-	/// <summary>
-	/// Called when this object is disabled
-	/// </summary>
-	private void OnDisable() {
-		gameWinDisposable.Dispose();
-    }
 
 }

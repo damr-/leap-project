@@ -4,6 +4,9 @@ using System.Reflection;
 
 namespace PXL.Utility {
 
+	/// <summary>
+	/// This script adds the given components (their whole namespace needs to be given! to the given objects on start
+	/// </summary>
 	public class AddComponentsToTargets : MonoBehaviour {
 
 		/// <summary>
@@ -12,7 +15,7 @@ namespace PXL.Utility {
 		public List<GameObject> Targets;
 
 		/// <summary>
-		/// All the components added to each one of the <see cref="Targets"/>
+		/// The namespaces of the components added to each one of the <see cref="Targets"/>
 		/// </summary>
 		public List<string> Components;
 

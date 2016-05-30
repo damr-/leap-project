@@ -4,6 +4,9 @@ using UnityEngine.UI;
 
 namespace PXL.UI.World.Display {
 
+	/// <summary>
+	/// This script displays the current frames per second on the object's <see cref="Text"/> component every frame
+	/// </summary>
 	public class DisplayFps : MonoBehaviour {
 
 		/// <summary>

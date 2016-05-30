@@ -6,6 +6,10 @@ using UnityEngine.UI;
 
 namespace PXL.UI.World.Display {
 
+	/// <summary>
+	/// This script displays the current DestroyAmount of the referenced <see cref="DestroyArea"/>, compared the it's WinDestroyAmount.
+	/// It also changes the color if enough objects have been destroyed.
+	/// </summary>
 	public class DisplayDestroyAreaAmount : MonoBehaviour {
 
 		/// <summary>

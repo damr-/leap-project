@@ -3,12 +3,21 @@ using PXL.UI.World.Buttons;
 using PXL.Utility;
 using UnityEngine;
 
-namespace  PXL.UI.World {
+namespace PXL.UI.World {
 
+	/// <summary>
+	/// A script which sets up the level change panel by spawning a button for each available level and setting up the references.
+	/// </summary>
 	public class SetupLevelChangePanel : MonoBehaviour {
 
+		/// <summary>
+		/// The prefab used for the button
+		/// </summary>
 		public GameObject LevelButtonPrefab;
 
+		/// <summary>
+		/// Refernce to the <see cref="LevelInput"/> in this scene
+		/// </summary>
 		private LevelInput levelInput;
 
 		private void Start() {

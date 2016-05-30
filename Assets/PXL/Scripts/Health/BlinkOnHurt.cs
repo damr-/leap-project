@@ -5,6 +5,10 @@ using UniRx;
 
 namespace PXL.Health {
 
+	/// <summary>
+	/// This class makes the material of the object flash when 
+	/// it's health points are decreased.
+	/// </summary>
 	[RequireComponent(typeof(MeshRenderer))]
 	[RequireComponent(typeof(Health))]
 	public class BlinkOnHurt : MonoBehaviour {
@@ -50,17 +54,14 @@ namespace PXL.Health {
 		/// The disposable for the blink timer
 		/// </summary>
 		private IDisposable blinkDisposable = Disposable.Empty;
-		
-		/// <summary>
-		/// Sets up the Health subscription
-		/// </summary>
+
 		private void OnEnable() {
 			HurtMaterial.AssertNotNull("Hurt material missing!");
 			Health.Hurt.Subscribe(_ => HandleHurt());
 		}
 
 		/// <summary>
-		/// Called when this object is hurt
+		/// Called when this object is hurt. Changes the material of the renderer back and forth for a blinking effect.
 		/// </summary>
 		private void HandleHurt() {
 			if(!isBlinking)

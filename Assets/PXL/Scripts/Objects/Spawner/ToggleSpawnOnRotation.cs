@@ -3,6 +3,13 @@ using UnityEngine;
 
 namespace PXL.Objects.Spawner {
 
+	/// <summary>
+	/// This script toggles the active state of an <see cref="Spawner.AutomatedObjectSpawner"/> depending on the rotation of the object.
+	///
+	/// The more it's tilted, the higher the spawn rate is as well.
+	/// 
+	/// Currently only supports tilting an object upside down.
+	/// </summary>
 	public class ToggleSpawnOnRotation : MonoBehaviour {
 
 		/// <summary>
@@ -13,33 +20,39 @@ namespace PXL.Objects.Spawner {
 		/// <summary>
 		/// The ObjectSpawner component which will be toggled
 		/// </summary>
-		public AutomatedObjectSpawner ObjectSpawner;
+		public AutomatedObjectSpawner AutomatedObjectSpawner;
 
+		/// <summary>
+		/// The minimum spawn rate, used when the object is tilted downwards a little bit.
+		/// </summary>
 		public float MinSpawnRate = 0.25f;
 
+		/// <summary>
+		/// The maximum spawn rate, used when the object is upside down.
+		/// </summary>
 		public float MaxSpawnRate = 10f;
 
 		private void Start() {
 			for (var i = 0; i < 3; i++)
 				TargetDirection[i] = Mathf.Clamp((int)TargetDirection[i], -1, 1);
 
-			ObjectSpawner.AssertNotNull("Missing spawner reference!");
+			AutomatedObjectSpawner.AssertNotNull("Missing spawner reference!");
 		}
 
 		private void Update() {
 			var dot = Vector3.Dot(transform.up, TargetDirection);
 			var newEnabledState = dot > 0;
 
-			if (ObjectSpawner.enabled != newEnabledState)
-				ObjectSpawner.enabled = newEnabledState;
+			if (AutomatedObjectSpawner.enabled != newEnabledState)
+				AutomatedObjectSpawner.enabled = newEnabledState;
 
-			if (!ObjectSpawner.enabled)
+			if (!AutomatedObjectSpawner.enabled)
 				return;
 
-			if (!ObjectSpawner.IsSpawningEnabled)
-				ObjectSpawner.IsSpawningEnabled = true;
+			if (!AutomatedObjectSpawner.IsSpawningEnabled)
+				AutomatedObjectSpawner.IsSpawningEnabled = true;
 
-			ObjectSpawner.OverrideSpawnFrequency(dot.Remap(0f, 1f, MinSpawnRate, MaxSpawnRate));
+			AutomatedObjectSpawner.OverrideSpawnFrequency(dot.Remap(0f, 1f, MinSpawnRate, MaxSpawnRate));
 		}
 
 	}

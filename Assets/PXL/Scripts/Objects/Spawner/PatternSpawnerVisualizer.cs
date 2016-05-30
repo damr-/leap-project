@@ -10,6 +10,10 @@ using UnityEngine;
 
 namespace PXL.Objects.Spawner {
 
+	/// <summary>
+	/// This scripts provides functionality to visualize the <see cref="PatternSpawner"/>'s pattern in the editor
+	/// by spawning pattern objects at runtime and arranging them according to the pattern.
+	/// </summary>
 	[RequireComponent(typeof(PatternSpawner))]
 	[ExecuteInEditMode]
 	public class PatternSpawnerVisualizer : MonoBehaviour {

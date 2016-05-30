@@ -5,6 +5,9 @@ using UnityEngine.UI;
 
 namespace PXL.UI.World.Display {
 
+	/// <summary>
+	/// This script displays the grab strength of the defined hand, if it's active in the scene.
+	/// </summary>
 	public class DisplayTextGrabStrength : MonoBehaviour {
 
 		/// <summary>

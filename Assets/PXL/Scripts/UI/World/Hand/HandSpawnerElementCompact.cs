@@ -7,6 +7,12 @@ using UnityEngine.UI;
 
 namespace PXL.UI.World.Hand {
 
+	/// <summary>
+	/// The script of a compact hand spawner element.
+	/// 
+	/// When set up, it sets up the individual parts of the element.
+	/// It also provides the functionality to toggle it's selected state, resulting in the toggle of another image object
+	/// </summary>
 	public class HandSpawnerElementCompact : MonoBehaviour {
 
 		/// <summary>

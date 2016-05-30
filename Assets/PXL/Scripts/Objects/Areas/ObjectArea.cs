@@ -3,6 +3,10 @@ using UnityEngine;
 
 namespace PXL.Objects.Areas {
 
+	/// <summary>
+	/// This area provides more specific information about the object type an object has to have to be recognized.
+	/// It also stores all the InteractiveObjects which are currently inside the area and have a valid type.
+	/// </summary>
 	public abstract class ObjectArea : TargetArea {
 
 		/// <summary>
