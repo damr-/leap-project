@@ -42,10 +42,9 @@ namespace PXL.Objects.WhackAMole {
 				CreateNewMole();
 		}
 		
-		private void CreateNewMole() {
-			var mole = SimplePool.Spawn(MolePrefab, Vector3.down * 10, Quaternion.identity);
+		public void CreateNewMole() {
+			var mole = SimplePool.Spawn(MolePrefab, Vector3.up * 10f, Quaternion.identity);
 			mole.GetComponent<Mole>().Setup(this);
-			mole.GetComponent<Health.Health>().Death.Subscribe(_ => CreateNewMole()).AddTo(moleDisposables);
 		}
 
 		/// <summary>

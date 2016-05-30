@@ -76,12 +76,10 @@ namespace PXL.Interaction {
 			if (hand == null)
 				return;
 
-			if (HandFingers.ContainsKey(hand)) {
+			if (HandFingers.ContainsKey(hand))
 				HandFingers[hand].Add(fingertip);
-			}
-			else {
+			else
 				HandFingers.Add(hand, new HashSet<Fingertip> { fingertip });
-			}
 
 			fingerEnteredSubject.OnNext(new FingerInfo(fingertip, hand));
 		}
@@ -109,9 +107,8 @@ namespace PXL.Interaction {
 
 			HandFingers[hand].Remove(fingertip);
 
-			if (HandFingers[hand].Count == 0) {
+			if (HandFingers[hand].Count == 0)
 				HandFingers.Remove(hand);
-			}
 		}
 
 		/// <summary>

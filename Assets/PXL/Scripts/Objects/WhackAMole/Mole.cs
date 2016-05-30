@@ -1,4 +1,5 @@
-﻿using PXL.Utility;
+﻿using PXL.Interaction;
+using PXL.Utility;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -30,6 +31,11 @@ namespace PXL.Objects.WhackAMole {
 		private WhackAMoleManager whackAMoleManager;
 
 		private Transform currentSpawnPoint;
+
+		private Collider MoleCollider {
+			get { return mTrigger ?? (mTrigger = this.TryGetComponent<Collider>()); }
+		}
+		private Collider mTrigger;
 
 		public void Setup(WhackAMoleManager manager) {
 			whackAMoleManager = manager;
@@ -63,17 +69,36 @@ namespace PXL.Objects.WhackAMole {
 			}
 		}
 
+		public void EnableTrigger() {
+			MoleCollider.enabled = true;
+		}
+
+		public void DisableTrigger() {
+			MoleCollider.enabled = false;
+		}
+
 		private void OnTriggerEnter(Collider other) {
 			var i = other.GetComponent<InteractiveObject>();
 
 			if (i == null || (InteractiveObjectType != ObjectType.All && i.ObjectType != InteractiveObjectType))
 				return;
 
+			var g = other.GetComponentInParent<Grabbable>();
+
+			if (g == null || g.IsGrabbed == false)
+				return;
+
+			whackAMoleManager.CreateNewMole();
 			this.Kill();
 		}
 
 		private void UpdateChangePositionDelay() {
 			changePositionDelay = Random.Range(MinChangePositionDelay, MaxChangePositionDelay);
+		}
+
+		private void OnDisable() {
+			if (currentSpawnPoint != null)
+				whackAMoleManager.FreeSpawnPoint(currentSpawnPoint);
 		}
 
 	}
